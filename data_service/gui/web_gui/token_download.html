@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Download Access Token</title>
+        <style>
+            .main_title {
+                font-size:x-large;
+                margin-left: 10%;
+            }
+            .regular_cell {
+                word-wrap: break-word;
+                max-width: 160px;
+            }
+            .error_indicator {
+                color: tomato;
+            }
+            table, th, td {
+                 border: 0px solid gray;
+                 border-collapse: collapse;
+            }
+        </style>
+        <script type="text/javascript">
+            function saveFile(elementName, suggestedFilename)
+            {
+                const encodedToken = document.getElementById(elementName);
+                const tokenBlob = new Blob([encodedToken.value], {type: "text/plain"});
+                const savedFileName = suggestedFilename;
+                let tokenBlobLink = document.createElement("a");
+                tokenBlobLink.download = savedFileName;
+                if (window.webkitURL != null)
+                {
+                    tokenBlobLink.href = window.webkitURL.createObjectURL(tokenBlob);
+                }
+                else
+                {
+                    tokenBlobLink.href = window.URL.createObjectURL(tokenBlob);
+                    tokenBlobLink.style.display = "none";
+                    document.body.appendChild(tokenBlobLink);
+                }
+                tokenBlobLink.click();
+            }
+        </script>
+    </head>
+    <body>
+        <h1 class="main_title">Download Access Token</h1>
+        <hr />
+
+        Congratulations! Your token is available for download below. However, 
+        please note that this token is not yet approved and cannot be used for
+        authentication with the imaging database immediately. The approval 
+        process has been initiated and post approval, this token can be used. 
+        <br/> <br/>
+        Please save the token in a folder or on a removable storage device. 
+        While authenticating, this token would have to be opened from this 
+        location.
+        <br/> <br/>
+        <strong>Note:</strong>This token is not saved on the server and cannot 
+        be retrived or downloaded again at a later point of time.
+        <br/> <br/>
+        <input type="hidden" id="encodedToken" value="{{encodedToken}}"/>
+        <input type="button" id="saveToken" value="Download Token" 
+                onclick="saveFile('encodedToken', 'token.txt')"/>
+        (used with database client libraries and scripting)
+        <br/> <br/>
+        <form action="/profile/{{profile}}">
+            <input type="submit" value="Download Profile" />
+            (used with the content uploader)
+        </form>
+        <!-- <input type="hidden" id="profile" value="{{profile}}"/>
+        <input type="button" id="saveProfile" value="Download Profile" 
+                onclick="saveFile('profile', 'authentication.profile')"/> -->
+    </body>
+</html>

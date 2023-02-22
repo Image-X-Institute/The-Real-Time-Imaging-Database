@@ -1,0 +1,15 @@
+[Unit]
+Description=LearnDB management service
+Requires=network.target postgresql.service
+After=postgresql.service
+
+[Service]
+Type=forking
+User=learndb
+WorkingDirectory=/home/learndb/git_repos/Real_Time_Imaging_Database/data_service
+ExecStart=/home/learndb/git_repos/Real_Time_Imaging_Database/scripts/service/data_service.sh
+ExecStop=pkill -u learndb application.py
+Restart=no
+
+[Install]
+WantedBy=default.target

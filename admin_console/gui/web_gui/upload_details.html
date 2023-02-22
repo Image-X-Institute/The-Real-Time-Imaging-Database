@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <title>Realtime Imaging Database Admin Console</title>
+        <link rel="stylesheet" href="../css/light_style.css" />
+        <script type="text/javascipt">
+            function importEntry() {
+
+            }
+            function rejectRequest() {
+                
+            }
+        </script>
+    </head>
+    <body>
+        <div class="main_title">Content Uploads Approval</div> <br/>
+        <div>
+            {% if not data%}
+            No data found
+            {% else %}
+                <table width="80%">
+                    <tr class="important_info">
+                        <td>{{data['test_centre']}}</td>
+                        <td>{{data['patient_trial_id']}}</td>
+                        <td>{{data['upload_id']}}</td>
+                    </tr>
+                </table>
+                <div>
+                    <p> Uploaded on: {{data['upload_time']}} by {{data['uploaded_by']}}</p>
+                </div>
+                {% if data['processed'] and data['accepted'] %}
+                    <strong>Processed and Imported</strong>
+                {% endif %} 
+                {% if data['processed'] and not data['accepted'] %}
+                    <strong>Packet Rejected!</strong>
+                {% endif %} 
+                <div>
+                    {% for uploaded_file in data['uploaded_files'] %}
+                        <span class="filetype_info"> {{uploaded_file['file_type']}}</span>
+                        <span><b><label> {{uploaded_file['level']}} {{uploaded_file['fraction']}}</label></b></span>
+                        ({{ uploaded_file['Files']|length }} files)
+                        <!-- {% set count = uploaded_file['Files'].count %} -->
+                        <!-- <select>
+                            <option value={{ uploaded_file['Files']|length}}>{{ uploaded_file['Files']|length }} files </option>
+                            {% for file in uploaded_file['Files'] %}
+                                <option value={{ file }}>{{ file }}</option>
+                            {% endfor %}
+                        </select> -->
+                        <ul class="files-list">
+                            {% for file in uploaded_file['Files'] %}
+                            <li>{{ file }}</li>
+                            {% endfor %}
+                        </ul>
+                        <br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="center">
+                {% if data['processed'] %}
+                    <button type="button" class="button" disabled>Import</button>
+                    &nbsp;&nbsp;
+                    <button type="button" class="button" disabled>Reject</button>
+                {% else %}
+                    <form action="/import/{{data['upload_id']}}">
+                        <input type="submit" class="button" value="Import" /> 
+                    </form>
+                    &nbsp;&nbsp;
+                    <form action="/reject/{{data['upload_id']}}">
+                        <input type="submit" class="button" value="Reject" />
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </body>
+</html>

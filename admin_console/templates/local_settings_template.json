@@ -1,0 +1,17 @@
+{
+    "root_filesystem_path": "<path to the shared drive location for trials>",
+    "listening_port": 8095,
+    "imaging_db_host": "localhost",
+    "data_service_url": "http://localhost:8090",
+    "imaging_db_port": 5432,
+    "imaging_db_user": "<database user name>",
+    "imaging_db_password": "<database password>",
+    "imaging_db_name": "<database name>",
+    "auth_db_host": "localhost",
+    "auth_db_port": 5432,
+    "auth_db_user": "<database user name>",
+    "auth_db_password": "<database password>",
+    "auth_db_name": "<database name>",
+    "upload_folder_path": "<path to the upload folder>",
+    "debug_mode": false
+}

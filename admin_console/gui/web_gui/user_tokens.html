@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <title>Realtime Imaging Database Admin Console</title>
+        <link rel="stylesheet" href="css/light_style.css" />
+        <script type="text/javascipt" src="js/ui_utils.js"> </script>
+    </head>
+    <body onload="hideAllUploadDetails()">
+       <div class="main_title">User Token Management</div>
+       <!--<div class="description">The following uploads are ready to be reviewed and imported into the database.</div>-->
+       <div>
+        {% if 'error' in data['records']%}
+        No data found
+        {% else %}
+            <table class="uploads_list">
+                <tr class="upload_header">
+                    <th>Status</th>
+                    <th>User</th>
+                    <th>ID</th>
+                    <th>Role</th>
+                    <th>Issued</th>
+                    <th>Details</th>
+                </tr>
+                {% for item in data %}
+                <tr class="upload_entry">
+                    {% if item['status'] == 'ACTIVE' or item['status'] == 'INACTIVE' %}
+                        <td class="upload_entry"> <a href="toggle-token/{{item['jwt_id']}}">{{item['status']}}</a></td>
+                    {% else %}
+                        <td class="upload_entry"> {{item['status']}} </td>
+                    {% endif %}
+                    <td class="upload_entry"> {{item['token_subject']}} </td>
+                    <td class="upload_entry"> {{item['jwt_id']}} </td>
+                    <td class="upload_entry"> {{item['audience']}} </td>
+                    <td class="upload_entry"> {{item['issued_at']}} </td>
+                    <td class="upload_entry"> {{item['reason']}} </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+
+        <!-- <div class="center">
+            <input type="button" class="button" value="Import" onClick=importEntry()> &nbsp;&nbsp;
+            <input type="button" class="button" value="Reject" onClick=rejectRequest()>
+        </div> -->
+   </div>
+    </body>
+</html>
