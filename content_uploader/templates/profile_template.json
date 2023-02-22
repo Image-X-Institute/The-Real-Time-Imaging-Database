@@ -1,0 +1,62 @@
+{
+    "metadata": {
+        "name": "Content Uploader Profile",
+        "description": "This profile contains the site specific information required to connect and upload data",
+        "version": "0.1.1"
+    },
+    "issuer": "LearnDB Access Management System",
+    "expires": "never",
+	"code" : "",
+    "profiles": [
+        {
+            "name": "Direct upload within USYD network",
+            "connection_type": "DIRECT",
+            "url": "",
+            "token": "",
+            "password": ""
+        },
+        {
+            "name": "Import existing files to Database (no files uploaded)",
+            "connection_type": "IMPORT_ONLY",
+            "url": "",
+            "token": "",
+            "password": ""
+        },
+        {
+            "name": "Upload via cloud portal",
+            "connection_type": "DIRECT",
+            "url": "",
+            "token": "",
+            "password": ""
+        },        
+        {
+            "name": "OneDrive based Upload",
+            "connection_type": "ONEDRIVE",
+            "client_id": "",
+            "client_secret": "",
+            "authority_url": "https://login.microsoftonline.com/consumers/",
+            "local_callback_port": 8000
+        },
+        {
+            "name": "Upload via SFTP",
+            "connection_type": "SFTP",
+            "host": "",
+            "port": "",
+            "login": "",
+            "password": ""
+        }
+    ],
+    "default_profile": 3,
+    "site_details": {
+        "name": "Site Name (as registerd in the database)",
+        "fullname": "Site full name (human friendly)",
+        "location": "City/Location of the site"
+    },
+    "trial_details": [
+        {
+            "name": "trial name (as registered in the database)",
+            "fullname": "Clinical Trial full name (Human Friendly)"
+        }
+    ],
+    "default_trial": 0
+}

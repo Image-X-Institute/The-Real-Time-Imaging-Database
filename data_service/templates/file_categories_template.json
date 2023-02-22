@@ -1,0 +1,131 @@
+{
+	"RT Plan DICOM": {
+		"level": "prescription", 
+		"key":"rt_plan_path", 
+		"allowed":["application/dicom"]
+	}, 
+	"Pre-treatment CT series": {
+		"level": "prescription", 
+		"key":"rt_ct_path",
+		"allowed":["application/dicom"]
+	},
+	"RT Structure set DICOM": {
+		"level": "prescription", 
+		"key":"rt_structure_path", 
+		"allowed":["application/dicom"]
+	},
+	"RT Dose DICOM": {
+		"level": "prescription", 
+		"key":"rt_dose_path", 
+		"allowed":["application/dicom"]
+	},
+	"Pre-treatment MRI series": {
+		"level": "prescription", 
+		"key":"rt_mri_path", 
+		"allowed":["application/dicom"]
+	},
+	"cumulative DVH": {
+		"level": "prescription", 
+		"key":"planned_dvh_path",
+		"allowed":["text/plain"]
+	},
+	"Patient Centroid": {
+		"level": "prescription", 
+		"key":"centroid_path",
+		"allowed":["text/plain"]
+	},
+	"Miscellanious files (patient level)": {
+		"level": "prescription", 
+		"key":"other",
+		"denied": ["application/x-dosexec", 
+					"application/vnd.microsoft.portable-executable", 
+					"text/x-shellscript", 
+					"application/x-sh", 
+					"application/x-csh", 
+					"text/javascript"
+		]
+	},
+	"KIM log files": {
+		"level": "fraction", 
+		"key":"kim_logs",
+		"allowed":["text/plain", "text/csv"]
+	}, 
+	"kV images": {
+		"level": "fraction", 
+		"key":"kv_images",
+		"allowed":["image/tiff", 
+					"application/dicom", 
+					"application/octet-stream"
+		]
+	}, 
+	"MV Images": {
+		"level": "fraction", 
+		"key":"mv_images",
+		"allowed":["image/tiff", 
+					"application/dicom", 
+					"application/octet-stream"
+		]
+	}, 
+	"Metrics Spreadsheet": {
+		"level": "fraction", 
+		"key":"metrics",
+		"allowed": ["text/plain", 
+					"application/vnd.ms-excel", 
+					"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+					"application/vnd.oasis.opendocument.spreadsheet", 
+					"text/csv"
+		]
+	}, 
+	"Triangulation Spreadsheet": {
+		"level": "fraction", 
+		"key":"triangulation",
+		"allowed": ["text/plain", 
+					"application/vnd.ms-excel", 
+					"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+					"application/vnd.oasis.opendocument.spreadsheet", 
+					"text/csv"
+		]
+	}, 
+	"trajectory log files": {
+		"level": "fraction", 
+		"key":"trajectory_logs", 
+		"allowed":["application/octet-stream", 
+					"application/zip", 
+					"application/x-7z-compressed", 
+					"application/gzip", 
+					"application/x-bzip2", 
+					"application/x-bzip"
+		]
+	}, 
+	"fraction level DVH (tracked)": {
+		"level": "fraction", 
+		"key":"DVH_track_path",
+		"allowed":["text/plain"]
+	}, 
+	"fraction level DVH (not tracked)": {
+		"level": "fraction", 
+		"key":"DVH_no_track_path", 
+		"allowed":["text/plain"]
+	}, 
+	"DICOM plan for dose per fraction (tracked)": {
+		"level": "fraction", 
+		"key":"DICOM_track_plan_path", 
+		"allowed":["application/dicom"]
+	},
+	"DICOM plan for dose per fraction (not tracked)": {
+		"level": "fraction", 
+		"key":"DICOM_no_track_plan_path", 
+		"allowed":["application/dicom"]
+	},
+	"Miscellanious files (fraction level)": {
+		"level": "fraction", 
+		"key":"other",
+		"denied": ["application/x-dosexec", 
+					"application/vnd.microsoft.portable-executable", 
+					"text/x-shellscript", 
+					"application/x-sh", 
+					"application/x-csh", 
+					"text/javascript"
+		]
+	}
+}
