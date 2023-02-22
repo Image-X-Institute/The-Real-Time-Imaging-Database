@@ -1,0 +1,20 @@
+{
+	"centroid_path": "/{clinical_trial}/{test_centre}/Patient Files/Patient {centre_patient_no}/",
+	"planned_dvh_path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/PAT{centre_patient_no:02d}/", 
+	"rt_ct_path": "/{clinical_trial}/{test_centre}/Patient Plans/{patient_trial_id}/files/CT/", 
+	"rt_dose_path": "/{clinical_trial}/{test_centre}/Patient Plans/{patient_trial_id}/files/Dose/", 
+	"rt_mri_path": "/{clinical_trial}/{test_centre}/Patient Plans/{patient_trial_id}/files/MRI/", 
+	"rt_plan_path": "/{clinical_trial}/{test_centre}/Patient Plans/{patient_trial_id}/files/Plan/", 
+	"rt_structure_path": "/{clinical_trial}/{test_centre}/Patient Structure Sets/{test_centre} {patient_trial_id}/",
+	"other": "/{clinical_trial}/{test_centre}/Miscellanious/{patient_trial_id}/",
+	"DICOM_no_track_plan_path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/PAT{centre_patient_no:02d}/{fraction_name}/", 
+	"DICOM_track_plan_path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/PAT{centre_patient_no:02d}/{fraction_name}/", 
+	"DVH_no_track_path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/PAT{centre_patient_no:02d}/", 
+	"DVH_track_path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/PAT{centre_patient_no:02d}/", 
+	"kim_logs": "/{clinical_trial}/{test_centre}/Patient Measured Motion/{test_centre}_PAT{centre_patient_no:02d}/{test_centre}_PAT{centre_patient_no:02d}_{fraction_name}/", 
+	"kv_images": "/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/KIM-KV/", 
+	"metrics": "/{clinical_trial}/{test_centre}/Triangulation/Patient {centre_patient_no}/{fraction_name}/", 
+	"mv_images": "/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/KIM-MV/", 
+	"trajectory_logs": "/{clinical_trial}/{test_centre}/Trajectory Logs/Pat{centre_patient_no:02d}-{patient_trial_id}/{fraction_name}/", 
+	"triangulation": "/{clinical_trial}/{test_centre}/Triangulation/Patient {centre_patient_no}/{fraction_name}/"
+}

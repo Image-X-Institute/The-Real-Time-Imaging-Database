@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Application for Access Token</title>
+        <style>
+            .main_title {
+                font-size:x-large;
+                margin-left: 10%;
+            }
+            .regular_cell {
+                word-wrap: break-word;
+                max-width: 160px;
+            }
+            .error_indicator {
+                color: tomato;
+            }
+            table, th, td {
+                 border: 0px solid gray;
+                 border-collapse: collapse;
+            }
+            .centre_aligned_cell {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="main_title">Access Token Application</h1>
+        <hr />
+        To get access to the Real-time Imaging Database, please fill out the 
+        following form and submit the details. You would be able to download an
+        access token, which would be deactivated initially. Please save this
+        token as it would the only way for you to access the database, once 
+        authorised.
+        <br/> <br/>
+
+        <form action="/apply-access" method="POST">
+        <table cellspacing="10" cellpadding="5">
+            <tr>
+                <td>
+                    <label for="subject_name">Name:</label>
+                </td>
+                <td>
+                    <input type="text" name="subject_name" id="subject_name"
+                            value="{{form_data['subject_name']}}" size="35"/>
+                </td>
+                <td class="error_indicator">
+                    {{input_errors["subject_name"]}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="subject_email">e-mail:</label>
+                </td>
+                <td>
+                    <input type="text" name="subject_email" id="subject_email" 
+                            value="{{form_data['subject_email']}}" size="35"/>
+                </td>
+                <td class="error_indicator">
+                    {{input_errors["subject_email"]}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="audience">Intended Use:</label>
+                </td>
+                <td>
+                    <select id="audience" name="audience" value="{{form_data['audience']}}">
+                        <option value="Database Development">Database Development Process</option>
+                        <option value="KIM Testing">KIM Testing</option>
+                        <option value="KIM Production System">KIM Production System</option>
+                        <option value="Clinical Trial Data Management">Clinical Trial Data Management</option>
+                        <option value="Researcher Access">Researcher Access</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </td>
+                <td class="error_indicator">
+                    {{input_errors["audience"]}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="password_once">Set a password:</label>
+                </td>
+                <td>
+                    <input type="password" id="password_once" name="password_once" size="25"/>
+                </td>
+                <td class="error_indicator">
+                    {{input_errors["password_once"]}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="password_twice">Confirm Password:</label>
+                </td>
+                <td>
+                    <input type="password" id="password_twice" name="password_twice" size="25"/>
+                </td>
+                <td class="error_indicator">
+                    {{input_errors["password_twice"]}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="sites">Treatment Sites:</label>
+                </td>
+                <td>
+                    <select id="sites" name="sites" value="{{form_data['sites']}}" multiple>
+                    {% for site_details in site_and_trial_data.sites %}
+                        <option value="{{site_details.name}}">{{site_details.fullName}}</option>
+                    {% endfor %}
+                    </select>
+                    <br/><em>Please multi-select the sites that you need access to.</em>
+                </td>
+                <td class="error_indicator">
+                    {{input_errors["sites"]}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="trials">Clinical Trials:</label>
+                </td>
+                <td>
+                    <select id="trials" name="trials" value="{{form_data['trials']}}" multiple>
+                    {% for trial_details in site_and_trial_data.trials %}
+                        <option value="{{trial_details.name}}">{{trial_details.fullName}}</option>
+                    {% endfor %}
+                    </select>
+                    <br/><em>Please multi-select the trials that you need access to.</em>
+                </td>
+                <td class="error_indicator">
+                    {{input_errors["trials"]}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="notes">Reason for applying:</label>
+                </td>
+                <td>
+                    <textarea id="notes" name="notes" rows="5" cols="30">
+                        {{form_data['notes']}}
+                    </textarea>
+                </td>
+                <td class="error_indicator">
+                    {{input_errors["notes"]}}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="checkbox" id="consent" name="consent" />
+                    <label for="consent">I agree to abide by the terms and 
+                        conditions relevant to <br/>clinical trial
+                        data privacy.</label>
+                </td>
+                <td class="error_indicator">
+                    {{input_errors["consent"]}}
+                </td>
+            </tr>            
+            <tr>
+                <td class="centre_aligned_cell"><input type="submit" value="Submit" /></td>
+                <td></td>
+            </tr>
+        </table>
+        </form>
+    </body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Missing Database Entries</title>
+        <style>
+            .main_title {
+                font-size:x-large;
+                margin-left: 10%;
+            }
+            .regular_cell {
+                word-wrap: break-word;
+                max-width: 160px;
+            }
+            .missing_value_cell {
+                background-color: tomato;
+            }
+            table, th, td {
+                 border: 1px solid gray;
+                 border-collapse: collapse;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="main_title"> Missing Data at {{data['level']}} Level</h1>
+        <a href="{{data['level']}}?format=csv">click here</a> to download 
+        this data in <a href="https://en.wikipedia.org/wiki/Comma-separated_values">CSV</a> 
+        format.
+        <br/>
+
+        {% if 'error' in data['records']%}
+        No data found
+        {% else %}
+            <table>
+                <tr>
+                    {% for column_name in data['records'][0] %}
+                    <th>{{column_name}}</th>
+                    {% endfor %}
+                </tr>
+                {% for record in data['records'] %}
+                <tr>
+                    {% for column in record %}
+                        {% if record[column] == "not found" %}
+                        <td class="missing_value_cell"> {{record[column]}} </td>
+                        {% else %}
+                        <td class="regular_cell"> {{record[column]}} </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    </body>
+</html>

@@ -1,0 +1,48 @@
+Instance Creator UID	(0008,0014)	w
+SOP Instance UID	(0008,0018)	w
+Accession Number	(0008,0050)	w
+Institution Name	(0008,0080)	d
+Institution Address	(0008,0081)	d
+Referring Physician's Name	(0008,0090)	d
+Referring Physician's Address	(0008,0092)	d
+Referring Physician's Telephone Numbers	(0008,0094)	d
+Station Name	(0008,1010)	d
+Study Description	(0008,1030)	d
+Series Description	(0008,103E)	d
+Institutional Department Name	(0008,1040)	d
+Physician(s) of Record	(0008,1048)	d
+Performing Physicians' Name	(0008,1050)	d
+Name of Physician(s) Reading Study	(0008,1060)	d
+Operators' Name	(0008,1070)	d
+Admitting Diagnoses Description	(0008,1080)	d
+Referenced SOP Instance UID	(0008,1155)	w
+Derivation Description	(0008,2111)	d
+Patient's Name	(0010,0010)	w
+Patient ID	(0010,0020)	w
+Patient's Birth Date	(0010,0030)	w
+Patient's Birth Time	(0010,0032)	w
+Patient's Sex	(0010,0040)	w
+Other Patient Ids	(0010,1000)	w
+Other Patient Names	(0010,1001)	w
+Patient's Age	(0010,1010)	w
+Patient's Size	(0010,1020)	w
+Patient's Weight	(0010,1030)	w
+Medical Record Locator	(0010,1090)	d
+Ethnic Group	(0010,2160)	d
+Occupation	(0010,2180)	d
+Additional Patient's History	(0010,21B0)	d
+Patient Comments	(0010,4000)	d
+Device Serial Number	(0018,1000)	w
+Protocol Name	(0018,1030)	d
+Study Instance UID	(0020,000D)	w
+Series Instance UID	(0020,000E)	w
+Study ID	(0020,0010)	w
+Frame of Reference UID	(0020,0052)	w
+Synchronization Frame of Reference UID	(0020,0200)	w
+Image Comments	(0020,4000)	d
+Request Attributes Sequence	(0040,0275)	d
+UID	(0040,A124)	w
+Content Sequence	(0040,A730)	d
+Storage Media File-set UID	(0088,0140)	w
+Referenced Frame of Reference UID	(3006,0024)	w
+Related Frame of Reference UID	(3006,00C2)	w

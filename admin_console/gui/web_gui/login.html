@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <title>Authenticate to access the admin console</title>
+        <link rel="stylesheet" href="../css/light_style.css" />
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td colspan="3"></td>
+            </tr>
+            <tr>
+                <td width="40%"> &nbsp; </td>
+                <td>
+                    <table class="centred">
+                        <form method="post" action="/auth">
+                        <tr>
+                            {% if error_msg %}
+                            <div class="error">{{error_msg}}</div>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td>Email:</td>
+                            <td><input type="text" id="email" name="email" /></td>
+                        </tr>
+                        <tr>
+                            <td>Password:</td>
+                            <td><input type="password" name="password" /></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><input type="submit" value="Login"/></td>
+                        </tr>
+                        </form>
+                        </tr>
+                    </table>
+                </td>
+                <td width="40%"> &nbsp; </td>
+            </tr>
+        </table>
+    </body>
+</html>

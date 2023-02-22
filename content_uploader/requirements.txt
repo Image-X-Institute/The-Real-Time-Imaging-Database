@@ -1,0 +1,6 @@
+PySide6
+pyinstaller
+ImagingDBClient
+python-magic-bin  # for non Windows platforms, use python-magic
+msal
+flask
