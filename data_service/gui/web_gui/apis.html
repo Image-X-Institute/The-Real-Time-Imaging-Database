@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>API Documentation</title>
+        <script type="application/javascript">
+        function hideAllEndPointDetailsExcept(endpointName)
+        {
+            var sidePanelRows = document.getElementsByClassName("side_panel_row");
+            Array.from(sidePanelRows).forEach.call(sidePanelRows, function(sidePanelRow) {
+                if (sidePanelRow.id == (endpointName + "_panel_entry"))
+                {
+                    sidePanelRow.style.backgroundColor = "#ededed";
+                }
+                else
+                {
+                    sidePanelRow.style.backgroundColor = "white";
+                }
+            });
+
+            var displayAreas = document.getElementsByClassName("endpoint_area");
+            Array.from(displayAreas).forEach.call(displayAreas, function(displayArea) {
+                if (displayArea.id == (endpointName + "_details_area"))
+                {
+                    displayArea.style.display = "block";
+                }
+                else
+                {
+                    displayArea.style.display = "none";
+                }
+            });
+        }
+
+        function togglePointDetails(endpointName)
+        {
+            var displayArea = document.getElementById(endpointName + "_details_area");
+            if (displayArea.style.display === "none")
+            {
+                displayArea.style.display = "block"
+            }
+            else
+            {
+                displayArea.style.display = "none"
+            }
+        }
+        </script>
+        <style>
+            .endpoint_header {
+                background-color: #ededed;
+                font-weight: bold;
+                text-align: left;
+                padding: 5%;
+                font-size: larger;
+            }
+            .description {
+                /* background-color:lavender; */
+                font-style: italic;
+                padding: 2%;
+            }
+            .field {
+                background-color:#ededed;
+                text-align: left;
+                padding: 5%;
+            }
+            .main_title {
+                font-size:x-large;
+                /*text-align: center;*/
+                margin-left: 10%;
+            }
+            .param-example {
+                /* background-color: lavender; */
+                padding: 5%;
+            }
+            .side_panel_heading {
+                font-size: larger;
+                margin-top: 5%;
+            }
+            .side_panel_row:hover {
+                text-shadow: 2px 2px lightgray;
+            }
+            .side_panel_description {
+                font-style: italic;
+            }
+            .side_panel_row {
+                vertical-align: top;
+            }
+            .side_panel_area {
+                vertical-align: top;
+            }
+            .vl {
+                border-left: 2px solid gray;
+                /* height: 500px; */
+                /*position: absolute;*/
+                /*left: 50%;*/
+                margin-left: 3px;
+                margin-left: 3px;
+                margin-bottom: 5%;
+                margin-top: 5%;
+            }
+        </style>
+    </head>
+    <body onload="hideAllEndPointDetailsExcept('{{ apis.keys()|first }}')">
+        <h1 class="main_title">Clinical Database RESTful API Reference</h1>
+        <table>
+            <tr>
+                <td class="side_panel_area">
+                    <table>
+                        {% for endpoint in apis %}
+                        <tr class="side_panel_row" id="{{endpoint}}_panel_entry" onclick="hideAllEndPointDetailsExcept('{{endpoint}}')">
+                            <td>
+                                <div class="side_panel_heading" id="{{endpoint}}">
+                                    {{endpoint}}
+                                </div>
+                                <div class="side_panel_description" id="{{endpoint}}">
+                                    {{apis[endpoint]['description']}}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </td>
+                <td class="vl">
+                    &nbsp;
+                </td>
+                <td class="main_display_area">
+                    <table>
+                        {% for endpoint in apis %}
+                        <tr>
+                            <td>
+                                <div class="endpoint_area" id="{{endpoint}}_details_area" >
+                                    <table>
+                                        <tr>
+                                            <th class="endpoint_header">{{endpoint}}</th>
+                                        </tr>
+                                        <tr class="description">
+                                            <td>{{apis[endpoint]['description']}} </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <hr>
+                                                <strong>Search Parameters:</strong>
+                                            </td>
+                                        </tr>
+                                        {% for param in apis[endpoint]['query_params'] %}
+                                        <tr class="field"><td><strong>{{param}}</strong>: {{apis[endpoint]['query_params'][param]['description']}}</td></tr>
+                                        {% set exampleUrl = endpoint+'?'+param+'='+apis[endpoint]['query_params'][param]['example'] %}
+                                        <tr class="param-example"><td><em>Example: <a href="{{exampleUrl}}">{{exampleUrl}}</a></em> </td></tr>
+                                        {% endfor %}
+                                        <tr>
+                                            <td>
+                                                <hr>
+                                                <strong>Response Object Fields:</strong>
+                                                <table>
+                                                {% for field in apis[endpoint]['object_fields'] %}
+                                                <tr class="field">
+                                                    <td>{{ field['property'] }}</td>
+                                                    <td>{{ field['type']}}</td>
+                                                </tr>
+                                                <tr class="description">
+                                                    <td class="description" colspan="2">{{field['description']}}</td>
+                                                </tr>
+                                                {% endfor %}
+                                                </table>
+                                                <br/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}            
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <hr>
+        To access the clinical trail data, a valid authorisation might be required
+        in the form of an access token. To get access to a authorisation token, 
+        please <a href="apply-access">apply here</a>.
+    </body>
+</html>

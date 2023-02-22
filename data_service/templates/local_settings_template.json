@@ -1,0 +1,20 @@
+{
+    "server_instance_name": "<user friendly name>",
+    "root_filesystem_path": "<path to the shared drive location for trials>",
+    "listening_addr": "0.0.0.0",
+    "listening_port": 8090,
+    "imaging_db_host": "localhost",
+    "imaging_db_port": 5432,
+    "imaging_db_user": "<database user name>",
+    "imaging_db_password": "<database password>",
+    "imaging_db_name": "<database name>",
+    "auth_db_name": "<database name>",
+    "auth_db_host": "localhost",
+    "auth_db_port": 5432,
+    "auth_db_user": "<database user name>",
+    "auth_db_password": "<database password>",
+    "upload_folder_path": "<path to the upload folder>",
+    "temp_cache_path": "<path to a temporary location>",
+    "diagnostics": false,
+    "debug_mode": false
+}

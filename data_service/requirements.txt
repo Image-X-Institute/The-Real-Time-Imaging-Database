@@ -1,0 +1,9 @@
+Flask
+flask-mail
+psycopg2-binary
+pyjwt
+gunicorn
+pyinstaller
+pandas
+waitress
+pyminizip

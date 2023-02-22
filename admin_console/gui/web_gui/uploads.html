@@ -1,0 +1,62 @@
+<html>
+    <head>
+        <title>Realtime Imaging Database Admin Console</title>
+        <link rel="stylesheet" href="css/light_style.css" />
+        <script type="text/javascipt" src="js/ui_utils.js"> </script>
+    </head>
+    <body onload="hideAllUploadDetails()">
+       <div class="main_title">Content Uploads Approval</div>
+       <div class="description">The following uploads are ready to be reviewed and imported into the database.</div>
+       <div>
+        {% if 'error' in data['records']%}
+        No data found
+        {% else %}
+            <table class="uploads_list">
+                <tr class="upload_header">
+                    <th></th>
+                    <th>Upload ID</th>
+                    <th>Test Centre</th>
+                    <th>Patient Trial ID</th>
+                    <th>Upload Date</th>
+                    <th>Uploader</th>
+                    <th>Host/IP</th>
+                </tr>
+                {% for item in data %}
+                <tr class="upload_entry" onclick="">
+                    <!-- <td class="upload_entry"><input type="checkbox"></td> -->
+                    <td class="upload_entry"> 
+                        {% if item['processed'] and item['accepted'] %} 
+                            &#x1f4be;
+                        {% else %}
+                            {% if item['processed'] and not item['accepted'] %}
+                            &#x1F5D1;
+                            {% endif %} 
+                        {% endif %} 
+                    </td>
+                    <td class="upload_entry"> <a href="id/{{item['upload_id']}}">{{item['upload_id']}}</a></td>
+                    <td class="upload_entry"> {{item['test_centre']}} </td>
+                    <td class="upload_entry"> {{item['patient_trial_id']}} </td>
+                    <td class="upload_entry"> {{item['upload_time']}} </td>
+                    <td class="upload_entry"> {{item['uploaded_by']}} </td>
+                    <td class="upload_entry"> {{item['upload_host']}} </td>
+                </tr>
+                <!-- <tr class="upload_details" id="{{item['upload_id']}}">
+                    <td colspan="7">
+                        {% for fileUploadDetails in item['uploaded_files'] %}
+                            {% for filePath in fileUploadDetails['Files'] %}
+                                {{filePath}} <br/>
+                            {% endfor %}
+                        {% endfor %}
+                    </td>
+                </tr> -->
+                {% endfor %}
+            </table>
+        {% endif %}
+
+        <!-- <div class="center">
+            <input type="button" class="button" value="Import" onClick=importEntry()> &nbsp;&nbsp;
+            <input type="button" class="button" value="Reject" onClick=rejectRequest()>
+        </div> -->
+   </div>
+    </body>
+</html>
