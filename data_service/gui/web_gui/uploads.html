@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Uploads</title>
+        <style>
+            .main_title {
+                font-size:x-large;
+                margin-left: 10%;
+            }
+            .regular_cell {
+                word-wrap: break-word;
+                max-width: 160px;
+            }
+            .error_indicator {
+                color: tomato;
+            }
+            table, th, td {
+                 border: 0px solid gray;
+                 border-collapse: collapse;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="main_title">Uploads for Approval</h1>
+        <hr />
+        <table>
+            <tr>
+                {% for uploadDetails in data['uploads'] %}
+                <td> <a href="/upload-details/{{uploadDetails['upload_id']}}">{{uploadDetails['upload_id']}}</a> &nbsp;</td>
+                <td>{{uploadDetails['test_centre']}} &nbsp;</td>
+                <td>{{uploadDetails['upload_time']}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

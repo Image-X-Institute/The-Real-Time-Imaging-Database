@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <!-- <link rel="stylesheet" href="../css/light_style.css" /> -->
+        <link rel="stylesheet" href="{{url_for('static', filename='css/light_style.css')}}" />
+    </head>
+    <body>
+        <table class="main_grid" width="100%">
+            <tr>
+                <td width="70px"><img src="{{url_for('static', filename='images/admin_console_logo.png')}}" width="64" height="64" /></td>
+                <td><div class="main_title">LearnDB Administration Console</div></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <div class="topnav">
+                        <a href="uploads">Uploads</a>
+                        <a href="tokens">Users</a>
+                        <a href="Trials">Trials</a>
+                      </div> 
+                    <br/>
+                    Main Body
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <hr />
+                    &copy; Image X Institute - The University of Sydney
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

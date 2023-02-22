@@ -1,0 +1,130 @@
+{
+    "metadata": {
+        "name": "filetype to database mapping",
+        "description": "This JSON file maps the file types mentioned in the upload metadata to the database tables and fields",
+        "version": "0.0.1"
+    },
+    "mapping": {
+        "centroid_path":{
+            "name": "Patient Centroid",
+            "table": "prescription",
+            "field": "centroid_path",
+            "granularity": "file",
+            "multivalues": false
+        },        
+        "planned_dvh_path":{
+            "name": "Cumulative DVH",
+            "table": "prescription",
+            "field": "RT_DVH_original_path",
+            "granularity": "file",
+            "multivalues": false
+        },
+        "rt_ct_path":{
+            "name": "Pre-treatment CT series",
+            "table": "prescription",
+            "field": "RT_CT_path",
+            "granularity": "folder",
+            "multivalues": false
+        },
+        "rt_dose_path":{
+            "name": "RT Dose DICOM",
+            "table": "prescription",
+            "field": "RT_dose_path",
+            "granularity": "file",
+            "multivalues": false
+        },
+        "rt_mri_path":{
+            "name": "Pre-treatment MRI series",
+            "table": "prescription",
+            "field": "RT_MRI_path",
+            "granularity": "folder",
+            "multivalues": false
+        },
+        "rt_plan_path":{
+            "name": "RT Plan DICOM",
+            "table": "prescription",
+            "field": "RT_plan_path",
+            "granularity": "file",
+            "multivalues": false
+        },
+        "rt_structure_path":{
+            "name": "RT Structure set DICOM",
+            "table": "prescription",
+            "field": "RT_structure_path",
+            "granularity": "file",
+            "multivalues": false
+        },
+        "DICOM_no_track_plan_path":{
+            "name": "DICOM plan for dose per fraction (not tracked)",
+            "table": "images",
+            "field": "DICOM_no_track_plan_path",
+            "granularity": "file",
+            "multivalues": false
+        },
+        "DICOM_track_plan_path":{
+            "name": "DICOM plan for dose per fraction (tracked)",
+            "table": "images",
+            "field": "DICOM_track_plan_path",
+            "granularity": "file",
+            "multivalues": false
+        },
+        "DVH_no_track_path":{
+            "name": "Fraction level DVH (not tracked)",
+            "table": "images",
+            "field": "DVH_no_track_path",
+            "granularity": "file",
+            "multivalues": false
+        },
+        "DVH_track_path":{
+            "name": "fraction level DVH (tracked)",
+            "table": "images",
+            "field": "DVH_track_path",
+            "granularity": "file",
+            "multivalues": false
+        },
+        "kim_logs":{
+            "name": "KIM log files",
+            "table": "images",
+            "field": "kim_logs_path",
+            "granularity": "file",
+            "multivalues": false
+        },
+        "kv_images":{
+            "name": "kV images",
+            "table": "images",
+            "field": "KV_images_path",
+            "granularity": "folder",
+            "multivalues": true,
+            "delimiter": ";"
+        },
+        "metrics":{
+            "name": "Metrics Spreadsheet",
+            "table": "images",
+            "field": "metrics_path",
+            "granularity": "file",
+            "multivalues": false
+        },
+        "mv_images":{
+            "name": "cumulative DVH",
+            "table": "images",
+            "field": "MV_images_path",
+            "granularity": "folder",
+            "multivalues": true,
+            "delimiter": ";"
+        },
+        "trajectory_logs":{
+            "name": "trajectory log files",
+            "table": "images",
+            "field": "trajectory_logs_path",
+            "granularity": "file",
+            "multivalues": false
+        },
+        "triangulation":{
+            "name": "Triangulation Spreadsheet",
+            "table": "images",
+            "field": "triangulation_path",
+            "granularity": "file",
+            "multivalues": false
+        }
+    }
+}

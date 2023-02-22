@@ -1,0 +1,93 @@
+{
+    "metadata": {
+        "name": "Add resource field mapping",
+        "description": "This mapping is reffered to by the data service while checking field types and names for incoming add resource requests",
+        "version": "0.0.1"
+    },
+    "resources": {
+        "patient": {
+            "patient": {
+                "age": {
+                    "type": "int",
+                    "required": false
+                },
+                "gender": {
+                    "type": "str",
+                    "required": false
+                },
+                "clinical_diag": {
+                    "type": "str",
+                    "required": false
+                },
+                "tumour_site": {
+                    "type": "str",
+                    "required": true
+                },
+                "patient_trial_id": {
+                    "type": "str",
+                    "required": true
+                },
+                "clinical_trial": {
+                    "type": "str",
+                    "required": true
+                },
+                "test_centre": {
+                    "type": "str",
+                    "required": true
+                },
+                "centre_patient_no": {
+                    "type": "int",
+                    "required": true
+                },
+                "number_of_markers": {
+                    "type": "int",
+                    "required": true,
+                    "default": 0
+                },
+                "avg_treatment_time": {
+                    "type": "str",
+                    "required": false
+                },
+                "kim_accuracy": {
+                    "type": "float",
+                    "required": false
+                }
+            },
+            "prescription": {
+                "LINAC_type": {
+                    "type": "str",
+                    "required": true
+                }
+            }
+        },
+        "fraction": {
+            "fraction": {
+                "fraction_date": {
+                    "type": "str",
+                    "required": true
+                },
+                "fraction_number": {
+                    "type": "int",
+                    "required": true
+                },
+                "num_gating_events": {
+                    "type": "int",
+                    "required": false,
+                    "default": 0
+                },
+                "fraction_name": {
+                    "type": "str",
+                    "required": true
+                },
+                "mvsdd": {
+                    "type": "float",
+                    "required": false
+                },
+                "kvsdd": {
+                    "type": "float",
+                    "required": false
+                }                
+            }
+        }
+    }
+}

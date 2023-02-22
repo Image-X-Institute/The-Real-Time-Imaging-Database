@@ -1,0 +1,979 @@
+{
+    "patients": {
+        "description": "Query the clinical data at the patient level",
+        "query_params": {
+            "centre": {
+                "table": "patient",
+                "column": "test_centre",
+                "description": "Search by specifying the acronym of the test centre",
+                "example": "CMN"
+            },
+            "patient": {
+                "table": "patient",
+                "column": "centre_patient_no",
+                "description": "Search by specifying the sequence number of the patient (not the Id)",
+                "example": "1"
+            },
+            "patient_trial_id": {
+                "table": "patient",
+                "column": "patient_trial_id",
+                "description": "Search by specifying the trial ID of the patient",
+                "example": "1501001"
+            },
+            "tumour_site": {
+                "table": "patient",
+                "column": "tumour_site",
+                "description": "Search by affected organ or anatomical region",
+                "example": "prostate"
+            },
+            "trial": {
+                "table": "patient",
+                "column": "clinical_trial",
+                "description": "Search by clinical trial",
+                "example": "SPARK"
+            }
+        },
+        "object_fields": [
+            {
+                "property" : "patient_trial_id",
+                "description" : "The TROG provided patient ID",
+                "field" : {
+                    "table": "patient", 
+                    "column": "patient_trial_id"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "test_centre",
+                "description" : "Acronym of the test/treatment centre, where the RT fraction was carried out",
+                "field" : {
+                    "table": "patient", 
+                    "column": "test_centre"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "patient_no", 
+                "description" : "The sequence number of the patient within a test centre",
+                "field" : {
+                    "table": "patient", 
+                    "column": "centre_patient_no"
+                },
+                "type": "int"
+            }, 
+            {
+                "property" : "age", 
+                "description" : "Age of the patient at the time of the treatment",
+                "field" : {
+                    "table": "patient", 
+                    "column": "age"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "gender", 
+                "description" : "Administrative sex of the patient",
+                "field" : {
+                    "table": "patient", 
+                    "column": "gender"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "tumour_site", 
+                "description" : "The organ/region of the tumour being treated",
+                "field" : {
+                    "table": "patient", 
+                    "column": "tumour_site"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "num_markers", 
+                "description" : "The number of markers implanted in the treatment region",
+                "field" : {
+                    "table": "patient", 
+                    "column": "number_of_markers"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "trial", 
+                "description" : "Name of the clinical trial",
+                "field" : {
+                    "table": "patient", 
+                    "column": "clinical_trial"
+                },
+                "type": "int"
+            }                
+        ],
+        "db_relations": [
+            {
+                "table": "patient"
+            }
+        ]             
+    },
+    "prescriptions": {
+        "description": "Query the clinical data at the Prescription level",
+        "query_params": {
+            "centre": {
+                "table": "patient",
+                "column": "test_centre",
+                "description": "Search by specifying the acronym of the test centre",
+                "example": "CMN"
+            },
+            "patient": {
+                "table": "patient",
+                "column": "centre_patient_no",
+                "description": "Search by specifying the sequence number of the patient (not the Id)",
+                "example": "1"
+            },
+            "patient_trial_id": {
+                "table": "patient",
+                "column": "patient_trial_id",
+                "description": "Search by specifying the trial ID of the patient",
+                "example": "1501001"
+            },
+            "trial": {
+                "table": "patient",
+                "column": "clinical_trial",
+                "description": "Search by clinical trial",
+                "example": "SPARK"
+            }
+        },
+        "object_fields": [
+            {
+                "property" : "patient_trial_id",
+                "description" : "The TROG provided patient ID (not the hospital one)",
+                "field" : {
+                    "table": "patient", 
+                    "column": "patient_trial_id"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "test_centre",
+                "description" : "Acronym of the test/treatment centre, where the RT fraction was carried out",
+                "field" : {
+                    "table": "patient", 
+                    "column": "test_centre"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "patient_no", 
+                "description" : "The sequence number of the patient within a test centre",
+                "field" : {
+                    "table": "patient", 
+                    "column": "centre_patient_no"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "linac_type", 
+                "description" : "The Manufacturer and model of the LINAC used",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "linac_type"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_plan_path", 
+                "description" : "Location (relative) of the RT Plan file",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "rt_plan_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_ct_path", 
+                "description" : "Location (relative) of the Pre treatment CT series (folder level)",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "rt_ct_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_structure_path", 
+                "description" : "Location (relative) of the RT structure sets",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "rt_structure_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_dose_path",
+                "description" : "Location (relative) of the RT dose",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "rt_dose_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_mri_path",
+                "description" : "Location (relative) of the pre treatment MRI series (folder level). Note: not all patients have an MRI series available",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "rt_mri_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "planned_dvh_path",
+                "description" : "Location of the Original Dose Value Histogram file",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "rt_dvh_original_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "centroid_path",
+                "description" : "Location of the Patient Marker location and centroids file",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "centroid_path"
+                },
+                "type": "str"
+            }
+        ],
+        "db_relations": [
+            {
+                "table": "patient"
+            },
+            {
+                "table": "prescription",
+                "joined_with": [
+                    {
+                        "table": "patient",
+                        "column": "id",
+                        "joined_using": "patient_id"
+                    }
+                ]
+            }
+        ]
+    },    
+    "fractions": {
+        "description": "Query the clinical data at the Fraction level. There may be more than one fraction object matching a fraction number.",
+        "query_params": {
+            "centre": {
+                "table": "patient",
+                "column": "test_centre",
+                "description": "Search by specifying the acronym of the test centre",
+                "example": "CMN"
+            },
+            "patient": {
+                "table": "patient",
+                "column": "centre_patient_no",
+                "description": "Search by specifying the sequence number of the patient (not the Id)",
+                "example": "1"
+            },
+            "patient_trial_id": {
+                "table": "patient",
+                "column": "patient_trial_id",
+                "description": "Search by specifying the trial ID of the patient",
+                "example": "1501001"
+            },
+            "fraction": {
+                "table": "fraction",
+                "column": "fraction_number",
+                "description": "Search by specifying the fraction number",
+                "example": "1"
+            },
+            "trial": {
+                "table": "patient",
+                "column": "clinical_trial",
+                "description": "Search by clinical trial",
+                "example": "SPARK"
+            }
+        },
+        "object_fields": [
+            {
+                "property" : "patient_trial_id",
+                "description" : "The TROG provided patient ID (not the hospital one)",
+                "field" : {
+                    "table": "patient", 
+                    "column": "patient_trial_id"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "test_centre",
+                "description" : "Acronym of the test/treatment centre, where the RT fraction was carried out",
+                "field" : {
+                    "table": "patient", 
+                    "column": "test_centre"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "patient_no", 
+                "description" : "The sequence number of the patient within a test centre",
+                "field" : {
+                    "table": "patient", 
+                    "column": "centre_patient_no"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "fraction_no", 
+                "description" : "The sequence number of a fraction",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "fraction_number"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "fraction_name", 
+                "description" : "The folder name of the fraction",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "fraction_name"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "date", 
+                "description" : "The date on which the fraction was performed",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "fraction_date"
+                },
+                "type": "date"
+            },
+            {
+                "property" : "gating_events", 
+                "description" : "The number of gating events that took place during the fraction",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "num_gating_events"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "kvsdd", 
+                "description" : "The detector distance value (in meters) for the kV beam",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "kvsdd"
+                },
+                "type": "float"
+            },
+            {
+                "property" : "mvsdd", 
+                "description" : "The detector distance value (in meters) for the kV beam",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "mvsdd"
+                },
+                "type": "float"
+            },
+            {
+                "property" : "kim_logs", 
+                "description" : "Location (relative) of the KIM log files",
+                "field" : {
+                    "table": "images", 
+                    "column": "kim_logs_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "kv_images", 
+                "description" : "Location (relative) of the KV images",
+                "field" : {
+                    "table": "images", 
+                    "column": "KV_images_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "mv_images", 
+                "description" : "Location (relative) of the MV images",
+                "field" : {
+                    "table": "images", 
+                    "column": "MV_images_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "metrics", 
+                "description" : "Location (relative) of the metrics file",
+                "field" : {
+                    "table": "images", 
+                    "column": "metrics_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "triangulation",
+                "description" : "Location (relative) of the triangulation files",
+                "field" : {
+                    "table": "images", 
+                    "column": "triangulation_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "trajectory_logs",
+                "description" : "Location (relative) of the trajectory logs",
+                "field" : {
+                    "table": "images", 
+                    "column": "trajectory_logs_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "DVH_track_path",
+                "description" : "Location (relative) of the DVH path for tracked dose",
+                "field" : {
+                    "table": "images", 
+                    "column": "DVH_track_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "DVH_no_track_path",
+                "description" : "Location (relative) of the DVH without tracking",
+                "field" : {
+                    "table": "images", 
+                    "column": "DVH_no_track_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "DICOM_track_plan_path",
+                "description" : "Location (relative) of the DICOM plan with tracking",
+                "field" : {
+                    "table": "images", 
+                    "column": "DICOM_track_plan_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "DICOM_no_track_plan_path",
+                "description" : "Location (relative) of the DICOM plan without tracking",
+                "field" : {
+                    "table": "images", 
+                    "column": "DICOM_no_track_plan_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "respiratory_files_path",
+                "description" : "Semicolon separated Location (relative) of the RPM measurements file",
+                "field" : {
+                    "table": "images", 
+                    "column": "respiratory_files_path"
+                },
+                "type": "str"
+            }
+        ],
+        "db_relations": [
+            {
+                "table": "patient"
+            },
+            {
+                "table": "prescription",
+                "joined_with": [
+                    {
+                        "table": "patient",
+                        "column": "id",
+                        "joined_using": "patient_id"
+                    }
+                ]
+            },
+            {
+                "table": "fraction",
+                "joined_with": [
+                    {
+                        "table": "prescription",
+                        "column": "prescription_id",
+                        "joined_using": "prescription_id"
+                    }
+                ]
+            },
+            {
+                "table": "images",
+                "joined_with": [
+                    {
+                        "table": "fraction",
+                        "column": "fraction_id",
+                        "joined_using": "fraction_id"
+                    }
+                ]
+            }
+        ]
+    },
+    "fractions-dose": {
+        "description": "Query dose related information at the fraction level",
+        "query_params": {
+            "centre": {
+                "table": "patient",
+                "column": "test_centre",
+                "description": "Search by specifying the acronym of the test centre",
+                "example": "CMN"
+            },
+            "patient": {
+                "table": "patient",
+                "column": "centre_patient_no",
+                "description": "Search by specifying the sequence number of the patient (not the Id)",
+                "example": "1"
+            },
+            "fraction": {
+                "table": "fraction",
+                "column": "fraction_number",
+                "description": "Search by specifying the fraction number",
+                "example": "1"
+            },
+            "trial": {
+                "table": "patient",
+                "column": "clinical_trial",
+                "description": "Search by clinical trial",
+                "example": "SPARK"
+            },
+            "structure": {
+                "table": "dose",
+                "column": "structure",
+                "description": "Search by the name of the anatomical structure",
+                "example": "CTV"
+            }
+        },
+        "object_fields": [
+            {
+                "property" : "patient_trial_id",
+                "description" : "The TROG provided patient ID (not the hospital one)",
+                "field" : {
+                    "table": "patient", 
+                    "column": "patient_trial_id"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "test_centre",
+                "description" : "Acronym of the test/treatment centre, where the RT fraction was carried out",
+                "field" : {
+                    "table": "patient", 
+                    "column": "test_centre"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "patient_no", 
+                "description" : "The sequence number of the patient within a test centre",
+                "field" : {
+                    "table": "patient", 
+                    "column": "centre_patient_no"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "fraction_no", 
+                "description" : "The sequence number of a fraction",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "fraction_number"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "fraction_name", 
+                "description" : "The folder name of the fraction",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "fraction_name"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "level", 
+                "description" : "The level of dose value (fraction or prescription)",
+                "field" : {
+                    "table": "dose", 
+                    "column": "dose_level"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "is_tracked", 
+                "description" : "Specifies if the dose is a result of tracking",
+                "field" : {
+                    "table": "dose", 
+                    "column": "is_tracked"
+                },
+                "type": "boolean"
+            },
+            {
+                "property" : "structure", 
+                "description" : "The anatomical/clinical structure for which the dose value is specified",
+                "field" : {
+                    "table": "dose", 
+                    "column": "structure"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "plan", 
+                "description" : "The plan name for which the dose value is specified",
+                "field" : {
+                    "table": "dose",
+                    "column": "plan"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "approved", 
+                "description" : "Specifies if the dose structure has been approved",
+                "field" : {
+                    "table": "dose", 
+                    "column": "approved"
+                },
+                "type": "boolean"
+            },
+            {
+                "property" : "volume", 
+                "description" : "The volume of the anatomical/clinical structure in cubic centimeters",
+                "field" : {
+                    "table": "dose", 
+                    "column": "structure_volume"
+                },
+                "type": "float"
+            },
+            {
+                "property" : "coverage", 
+                "description" : "The percentage coverage of the structure",
+                "field" : {
+                    "table": "dose", 
+                    "column": "dose_coverage"
+                },
+                "type": "float"
+            },            
+            {
+                "property" : "min_dose_in_Gy", 
+                "description" : "The minimum value of dose",
+                "field" : {
+                    "table": "dose", 
+                    "column": "min_dose"
+                },
+                "type": "float"
+            },            
+            {
+                "property" : "max_dose_in_Gy", 
+                "description" : "The maximum value of dose",
+                "field" : {
+                    "table": "dose", 
+                    "column": "max_dose"
+                },
+                "type": "float"
+            },            {
+                "property" : "mean_dose_in_Gy", 
+                "description" : "The mean value of dose",
+                "field" : {
+                    "table": "dose", 
+                    "column": "mean_dose"
+                },
+                "type": "float"
+            },            {
+                "property" : "modal_dose_in_Gy", 
+                "description" : "The modal value of dose",
+                "field" : {
+                    "table": "dose", 
+                    "column": "modal_dose"
+                },
+                "type": "float"
+            },            {
+                "property" : "median_dose_in_Gy", 
+                "description" : "The median value of dose",
+                "field" : {
+                    "table": "dose", 
+                    "column": "median_dose"
+                },
+                "type": "float"
+            },            {
+                "property" : "std_dev_in_Gy", 
+                "description" : "The standard deviation",
+                "field" : {
+                    "table": "dose", 
+                    "column": "std_dev"
+                },
+                "type": "float"
+            },
+            {
+                "property" : "d95_in_Gy", 
+                "description" : "The dose corresponding to 95% volume of organ structure being irradiated",
+                "field" : {
+                    "table": "dose", 
+                    "column": "d95"
+                },
+                "type": "float"
+            },
+            {
+                "property" : "d100_in_Gy", 
+                "description" : "The dose corresponding to the first instance of the 100% volume of organ structure being irradiated",
+                "field" : {
+                    "table": "dose", 
+                    "column": "d100"
+                },
+                "type": "float"
+            }    
+        ],
+        "db_relations": [
+            {
+                "table": "patient"
+            },
+            {
+                "table": "prescription",
+                "joined_with": [
+                    {
+                        "table": "patient",
+                        "column": "id",
+                        "joined_using": "patient_id"
+                    }
+                ]
+            },
+            {
+                "table": "fraction",
+                "joined_with": [
+                    {
+                        "table": "prescription",
+                        "column": "prescription_id",
+                        "joined_using": "prescription_id"
+                    }
+                ]
+            },
+            {
+                "table": "dose",
+                "joined_with": [
+                    {
+                        "table": "fraction",
+                        "column": "fraction_id",
+                        "joined_using": "foreign_id"
+                    }
+                ]
+            }
+        ]
+    },
+    "prescriptions-dose": {
+        "description": "Query dose related information at the prescription level",
+        "query_params": {
+            "centre": {
+                "table": "patient",
+                "column": "test_centre",
+                "description": "Search by specifying the acronym of the test centre",
+                "example": "CMN"
+            },
+            "patient": {
+                "table": "patient",
+                "column": "centre_patient_no",
+                "description": "Search by specifying the sequence number of the patient (not the Id)",
+                "example": "1"
+            },
+            "trial": {
+                "table": "patient",
+                "column": "clinical_trial",
+                "description": "Search by clinical trial",
+                "example": "SPARK"
+            },
+            "structure": {
+                "table": "dose",
+                "column": "structure",
+                "description": "Search by the name of the anatomical structure",
+                "example": "CTV"
+            }
+        },
+        "object_fields": [
+            {
+                "property" : "patient_trial_id",
+                "description" : "The TROG provided patient ID (not the hospital one)",
+                "field" : {
+                    "table": "patient", 
+                    "column": "patient_trial_id"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "test_centre",
+                "description" : "Acronym of the test/treatment centre, where the RT fraction was carried out",
+                "field" : {
+                    "table": "patient", 
+                    "column": "test_centre"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "patient_no", 
+                "description" : "The sequence number of the patient within a test centre",
+                "field" : {
+                    "table": "patient", 
+                    "column": "centre_patient_no"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "level", 
+                "description" : "The level of dose value (fraction or prescription)",
+                "field" : {
+                    "table": "dose", 
+                    "column": "dose_level"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "is_tracked", 
+                "description" : "Specifies if the dose is a result of tracking",
+                "field" : {
+                    "table": "dose", 
+                    "column": "is_tracked"
+                },
+                "type": "boolean"
+            },
+            {
+                "property" : "structure", 
+                "description" : "The anatomical/clinical structure for which the dose value is specified",
+                "field" : {
+                    "table": "dose", 
+                    "column": "structure"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "plan", 
+                "description" : "The plan name for which the dose value is specified",
+                "field" : {
+                    "table": "dose",
+                    "column": "plan"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "approved", 
+                "description" : "Specifies if the dose structure has been approved",
+                "field" : {
+                    "table": "dose", 
+                    "column": "approved"
+                },
+                "type": "boolean"
+            },
+            {
+                "property" : "volume", 
+                "description" : "The volume of the anatomical/clinical structure in cubic centimeters",
+                "field" : {
+                    "table": "dose", 
+                    "column": "structure_volume"
+                },
+                "type": "float"
+            },
+            {
+                "property" : "coverage", 
+                "description" : "The percentage coverage of the structure",
+                "field" : {
+                    "table": "dose", 
+                    "column": "dose_coverage"
+                },
+                "type": "float"
+            },            
+            {
+                "property" : "min_dose_in_Gy", 
+                "description" : "The minimum value of dose",
+                "field" : {
+                    "table": "dose", 
+                    "column": "min_dose"
+                },
+                "type": "float"
+            },            
+            {
+                "property" : "max_dose_in_Gy", 
+                "description" : "The maximum value of dose",
+                "field" : {
+                    "table": "dose", 
+                    "column": "max_dose"
+                },
+                "type": "float"
+            },            
+            {
+                "property" : "mean_dose_in_Gy", 
+                "description" : "The mean value of dose",
+                "field" : {
+                    "table": "dose", 
+                    "column": "mean_dose"
+                },
+                "type": "float"
+            },            
+            {
+                "property" : "modal_dose_in_Gy", 
+                "description" : "The modal value of dose",
+                "field" : {
+                    "table": "dose", 
+                    "column": "modal_dose"
+                },
+                "type": "float"
+            },            
+            {
+                "property" : "median_dose_in_Gy", 
+                "description" : "The median value of dose",
+                "field" : {
+                    "table": "dose", 
+                    "column": "median_dose"
+                },
+                "type": "float"
+            },            
+            {
+                "property" : "std_dev_in_Gy", 
+                "description" : "The standard deviation",
+                "field" : {
+                    "table": "dose", 
+                    "column": "std_dev"
+                },
+                "type": "float"
+            },
+            {
+                "property" : "d95_in_Gy", 
+                "description" : "The dose corresponding to 95% volume of organ structure being irradiated",
+                "field" : {
+                    "table": "dose", 
+                    "column": "d95"
+                },
+                "type": "float"
+            },
+            {
+                "property" : "d100_in_Gy", 
+                "description" : "The dose corresponding to the first instance of the 100% volume of organ structure being irradiated",
+                "field" : {
+                    "table": "dose", 
+                    "column": "d100"
+                },
+                "type": "float"
+            }                             
+        ],
+        "db_relations": [
+            {
+                "table": "patient"
+            },
+            {
+                "table": "prescription",
+                "joined_with": [
+                    {
+                        "table": "patient",
+                        "column": "id",
+                        "joined_using": "patient_id"
+                    }
+                ]
+            },
+            {
+                "table": "dose",
+                "joined_with": [
+                    {
+                        "table": "prescription",
+                        "column": "prescription_id",
+                        "joined_using": "foreign_id"
+                    }
+                ]
+            }
+        ]
+    }
+}

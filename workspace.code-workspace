@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "data_service"
+		},
+		{
+			"path": "db_updater"
+		},
+		{
+			"path": "filesystem_utils"
+		},
+		{
+			"path": "content_uploader"
+		},
+		{
+			"path": "docsrc"
+		},
+		{
+			"path": "scripts/db"
+		}
+	],
+	"settings": {}
+}
