@@ -149,7 +149,7 @@ class ContentManager:
                 processFileUpload = False
 
         requiredFields = ["test_centre", "patient_trial_id", "level", 
-                            "file_type", "fraction", "clinical_trial", 
+                            "file_type", "fraction", "sub_fraction", "clinical_trial", 
                             "centre_patient_no", "upload_context"]
         metadata = {}
 
@@ -224,8 +224,11 @@ class ContentManager:
                                     test_centre=metadata["test_centre"],
                                     patient_trial_id=metadata["patient_trial_id"],
                                     fraction_name=metadata["fraction"],
+                                    sub_fraction_name=metadata["sub_fraction"],
                                     centre_patient_no=int(metadata["centre_patient_no"])
                                 )
+                print("sub_fraction_name:", metadata["sub_fraction"])
+                print("relativeFolderPath:", relativeFolderPath)
                 saveFolderPath = config.UPLOAD_FOLDER + '/' + relativeFolderPath
                 relativePath = relativeFolderPath + filename
                 filesSaved.append(relativePath)
@@ -243,6 +246,7 @@ class ContentManager:
                         "file_type": metadata["file_type"],
                         "level": metadata["level"],
                         "fraction": metadata["fraction"],
+                        "sub_fraction": metadata["sub_fraction"],
                         "Files": [relativePath]
                     }
                 )
@@ -281,6 +285,7 @@ class ContentManager:
                             "file_type": metadata["file_type"],
                             "level": metadata["level"],
                             "fraction": metadata["fraction"],
+                            "sub_fraction": metadata["sub_fraction"],
                             "Files": [filepath]
                         }
                     )
