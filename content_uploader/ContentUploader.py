@@ -3,7 +3,7 @@ from turtle import clearscreen, isvisible, width
 from typing import Dict, List, Optional, Tuple, overload
 import PySide6
 from PySide6.QtWidgets import QApplication, QCheckBox, QLineEdit, QMessageBox, \
-    QProgressBar, QPushButton, QSpinBox, QWidget, \
+    QProgressBar, QPushButton, QSpinBox, QWidget, QGridLayout, \
     QFrame, QLabel, QVBoxLayout, QSizePolicy, QHBoxLayout, QFormLayout, \
     QComboBox, QSizePolicy, QFileDialog, QTableWidget, QTableWidgetItem, \
     QAbstractItemView, QHeaderView, QDateEdit, QCalendarWidget, QGroupBox, \
@@ -230,7 +230,10 @@ class ClinicalTrialsMetaData:
         return self.trials
 
     def getFractionNames(self) -> List[str]:
-        return ["Select Fraction", "FX01", "FX02", "FX03", "FX04", "FX05"]
+        return ["Fraction", "FX01", "FX02", "FX03", "FX04", "FX05"]
+    
+    def getSubFractionNames(self) -> List[str]:
+        return ["Sub-Fraction", "A", "B", "C"]
 
 
 class LoginScreen(QWidget):
@@ -374,7 +377,7 @@ class AddFractionScreen(QWidget):
         self.fractionNumberInput.setValue(1)
         self.fractionNumberInput.valueChanged.connect(self.fractionNumberChanged)
 
-        self.fractionNameInput = QLineEdit("Fx01")
+        self.fractionNameInput = QLineEdit("Fx1")
 
         self.fractionDateInput = QCalendarWidget()
 
@@ -407,7 +410,7 @@ class AddFractionScreen(QWidget):
 
     @Slot(int)
     def fractionNumberChanged(self, value:int):
-        self.fractionNameInput.setText(f"Fx{value:02d}")
+        self.fractionNameInput.setText(f"Fx{value}")
 
 class AddPatientScreen(QWidget):
     addPatient:SignalInstance = Signal(dict)
@@ -693,6 +696,7 @@ class UploadDataScreen(QWidget):
 
         self.fileTypeSelector = QComboBox()
         self.fileTypeSelector.addItems(self.trialsMetaData.getFileTypesSupported())
+        self.fileTypeSelector.setMaximumWidth(200)
         self.fileTypeSelector.currentTextChanged.connect(self.fileTypeSelected)
 
         self.trialSelector = QComboBox()
@@ -700,9 +704,20 @@ class UploadDataScreen(QWidget):
 
         self.fractionSelector = QComboBox()
         self.fractionSelector.addItems(self.trialsMetaData.getFractionNames())
+        self.fractionSelector.currentTextChanged.connect(self.fractionSelected)
+        self.fractionSelector.setDisabled(True)
+
+
         addFractionPushBtn = QPushButton("+")
         addFractionPushBtn.setMaximumSize(30, addFractionPushBtn.height())
         addFractionPushBtn.clicked.connect(self.showNewFractionScreen)
+
+        self.subFractionSelector = QComboBox()
+        self.subFractionSelector.addItems(self.trialsMetaData.getSubFractionNames())
+        addSubFractionPushBtn = QPushButton("+")
+        addSubFractionPushBtn.setMaximumSize(30, addSubFractionPushBtn.height())
+        addSubFractionPushBtn.clicked.connect(self.addNewSubFraction)
+        self.subFractionSelector.setDisabled(True)
 
         self.patientTrialIdLineEdit = QLineEdit()
 
@@ -738,17 +753,31 @@ class UploadDataScreen(QWidget):
         testCentreLayout.addWidget(trialNameLabel)
         testCentreLayout.addWidget(self.trialSelector)
 
+        inputLayout = QGridLayout()
         fileTypeLayout = QHBoxLayout()
         typeofFileLabel = QLabel("Type of file:")
         typeofFileLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
         fileTypeLayout.addWidget(typeofFileLabel)
         fileTypeLayout.addWidget(self.fileTypeSelector)
-        fileTypeLayout.addSpacing(20)
+
+        mainFractionLayout = QHBoxLayout()
         fractionLabel = QLabel("Fraction:")
         fractionLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
-        fileTypeLayout.addWidget(fractionLabel)
-        fileTypeLayout.addWidget(self.fractionSelector)
-        fileTypeLayout.addWidget(addFractionPushBtn)
+        mainFractionLayout.addWidget(fractionLabel)
+        mainFractionLayout.addWidget(self.fractionSelector)
+        mainFractionLayout.addWidget(addFractionPushBtn)
+
+        subFractionLayout = QHBoxLayout()
+        subFractionLabel = QLabel("Sub-Fraction:")
+        subFractionLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        subFractionLayout.addWidget(subFractionLabel)
+        subFractionLayout.addWidget(self.subFractionSelector)
+        subFractionLayout.addWidget(addSubFractionPushBtn)
+
+        inputLayout.addLayout(fileTypeLayout, 0, 0)
+        inputLayout.addLayout(mainFractionLayout, 0, 1)
+        inputLayout.addLayout(subFractionLayout, 1, 1)
+        inputLayout.setVerticalSpacing(0)
 
         self.dropArea = DropArea()
         self.dropArea.signalFilesDropped.connect(self.filesDropped)
@@ -762,7 +791,7 @@ class UploadDataScreen(QWidget):
         addFilesPushBtn.clicked.connect(self.addEntryForUpload)
 
         addFilesFrameLayout = QVBoxLayout()
-        addFilesFrameLayout.addLayout(fileTypeLayout)
+        addFilesFrameLayout.addLayout(inputLayout)
         addFilesFrameLayout.addWidget(QLabel("Please drag and drop files/folders " \
                                             "to be uploaded in the area below:"))
         addFilesFrameLayout.addWidget(self.dropArea)
@@ -975,11 +1004,30 @@ class UploadDataScreen(QWidget):
     def fetchFractionDetails(self):
         fracDetails = self.dbClient.getFractionDetailsForPatient(
                                             self.patientTrialIdLineEdit.text())
-        fractionsAvailable = ["Select Fraction"]
+        fractionsAvailable = ["Fraction"]
         if "fractions" in fracDetails:
             for fraction in fracDetails["fractions"]:
-                fractionsAvailable.append(fraction["fraction_name"])
+                if not f'FX{fraction["fraction_no"]}' in fractionsAvailable:
+                    fractionsAvailable.append(f'FX{fraction["fraction_no"]}')
         return fractionsAvailable
+    
+    @Slot()
+    def fetchSubFractionDetails(self):
+        fracDetails = self.dbClient.getFractionDetailsForPatient(
+                                            self.patientTrialIdLineEdit.text())
+        subFractionsDetails = {
+            "subFractionsAvailable": ["Sub-Fraction"]
+        }
+        fractionNumber = self.fractionSelector.currentText().split("FX")[-1]
+        if "fractions" in fracDetails:
+            for fraction in fracDetails["fractions"]:
+                if fractionNumber and fraction["fraction_no"] == int(fractionNumber):
+                    subFractionsDetails["subFractionsAvailable"].append(fraction["fraction_name"])
+                    subFractionsDetails["date"] = fraction["date"]
+                    subFractionsDetails["patient_trial_id"] = fraction["patient_trial_id"]
+                    subFractionsDetails["number"] = fraction["fraction_no"]
+        return subFractionsDetails
+
 
     @Slot()
     def updateFractionsListForCurrentPatient(self):
@@ -987,6 +1035,13 @@ class UploadDataScreen(QWidget):
         fractionsAvailable = self.fetchFractionDetails()
         for index,frac in enumerate(fractionsAvailable):
             self.fractionSelector.insertItem(index, frac)
+
+    @Slot()
+    def updateSubFractionsListForCurrentPatient(self):
+        self.subFractionSelector.clear()
+        subFractionsDetails = self.fetchSubFractionDetails()
+        for index,subFrac in enumerate(subFractionsDetails["subFractionsAvailable"]):
+            self.subFractionSelector.insertItem(index, subFrac)
 
     @Slot()
     def showAddPatientScreen(self):
@@ -1019,11 +1074,48 @@ class UploadDataScreen(QWidget):
         windowGeometry = self.addFractionScreen.geometry()
         windowGeometry.moveCenter(self.geometry().center())
         self.addFractionScreen.setGeometry(windowGeometry)
+    
+    def _getNewSubFractionName(self, fractionDetails:Dict):
+        subFractionList = sorted(fractionDetails["subFractionsAvailable"])
+        fractionNumber = fractionDetails["number"]
+        subFractionList.remove("Sub-Fraction")
+        if len(subFractionList) == 0:
+            newSubFraction = f'Fx{fractionNumber}-A'
+        else:
+            lastSubFraction = subFractionList[-1].split("-")[-1]
+            newSubFraction = f'Fx{fractionNumber}-{chr(ord(lastSubFraction)+1)}'
+        return newSubFraction
+    
+    @Slot()
+    def addNewSubFraction(self):
+        if self.subFractionSelector.count() >28:
+            QMessageBox.warning(self.addFractionScreen, "Adding sub-fraction", 
+                                "The maximum number of sub-fractions (26) have been added")
+            self.statusLabel.setText("Sub-fraction could not added")
+            return
+        fractionDetails = self.fetchSubFractionDetails()
+        newSubFractionName = self._getNewSubFractionName(fractionDetails)
+        fractionDetailsPackage = {
+            "patient_trial_id": fractionDetails["patient_trial_id"],
+            "number": fractionDetails["number"],
+            "name": newSubFractionName,
+            "date": fractionDetails["date"]
+        }
+        result:Clients.Result = self.dbClient.addFraction(fractionDetailsPackage)
+        if not result.success:
+            QMessageBox.warning(self.addFractionScreen, "Adding sub-fraction", 
+                                "The new sub-fraction could not be added: " \
+                                    + result.message )
+            self.statusLabel.setText("Sub-fraction could not added")
+        else:
+            self.updateSubFractionsListForCurrentPatient()
+
 
     @Slot(dict)
     def addNewFraction(self, fractionDetails:Dict):
         fractionDetails["patient_trial_id"] = self.patientTrialIdLineEdit.text()
         print("Got fraction details:", fractionDetails)
+        fractionDetails["name"] = fractionDetails["name"]+"-A"
         result:Clients.Result = self.dbClient.addFraction(fractionDetails)
         if not result.success:
             QMessageBox.warning(self.addFractionScreen, "Adding fraction", 
@@ -1110,6 +1202,9 @@ class UploadDataScreen(QWidget):
                 "fraction": self.fractionSelector.currentText() \
                         if self.fractionSelector.currentText() != "Fraction" \
                         else "N/A",
+                "sub_fraction": self.subFractionSelector.currentText() \
+                        if self.subFractionSelector.currentText() != "Sub-Fraction" \
+                        else "N/A",
                 "clinical_trial": self.trialSelector.currentText()
             },
             "files": files,
@@ -1130,7 +1225,18 @@ class UploadDataScreen(QWidget):
         if self.trialsMetaData.getLevelofFileType(fileType) == "fraction":
             self.fractionSelector.setEnabled(True)
         else:
+            self.fractionSelector.setCurrentText("Fraction")
+            self.subFractionSelector.setCurrentText("Sub-Fraction")
             self.fractionSelector.setEnabled(False)
+            self.subFractionSelector.setEnabled(False)
+
+    @Slot(str)
+    def fractionSelected(self, fraction:str):
+        if fraction == "Fraction":
+            self.subFractionSelector.setEnabled(False)
+        else:
+            self.updateSubFractionsListForCurrentPatient()
+            self.subFractionSelector.setEnabled(True)
 
     @Slot()
     def getPatientDetails(self):
