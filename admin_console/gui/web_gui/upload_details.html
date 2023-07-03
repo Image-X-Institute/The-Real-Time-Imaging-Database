@@ -47,7 +47,11 @@
                         </select> -->
                         <ul class="files-list">
                             {% for file in uploaded_file['Files'] %}
+                            {% if file[-3:] == 'txt' %}
+                            <li><a href="/download/{{file}}">{{ file }}</a></li>
+                            {% else %}
                             <li>{{ file }}</li>
+                            {% endif %}
                             {% endfor %}
                         </ul>
                         <br>
