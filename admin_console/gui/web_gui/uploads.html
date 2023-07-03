@@ -15,6 +15,7 @@
                 <tr class="upload_header">
                     <th></th>
                     <th>Upload ID</th>
+                    <th>Clinical Trial</th>
                     <th>Test Centre</th>
                     <th>Patient Trial ID</th>
                     <th>Upload Date</th>
@@ -34,6 +35,7 @@
                         {% endif %} 
                     </td>
                     <td class="upload_entry"> <a href="id/{{item['upload_id']}}">{{item['upload_id']}}</a></td>
+                    <td class="upload_entry"> {{item['clinical_trial']}} </td>
                     <td class="upload_entry"> {{item['test_centre']}} </td>
                     <td class="upload_entry"> {{item['patient_trial_id']}} </td>
                     <td class="upload_entry"> {{item['upload_time']}} </td>
