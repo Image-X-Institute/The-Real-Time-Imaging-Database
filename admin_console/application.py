@@ -99,6 +99,10 @@ def importUploadPacket(upload_id):
         make_response({"status": "error", "message": result[1]})
     return redirect("/")
 
+@app.route('/download/<path:filename>')
+@autheticated_access
+def downloadFile(filename):
+    return send_from_directory(config.UPLOAD_FOLDER, filename)
 
 @app.route('/tokens')
 @autheticated_access
