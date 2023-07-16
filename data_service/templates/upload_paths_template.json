@@ -16,5 +16,6 @@
 	"metrics": "/{clinical_trial}/{test_centre}/Triangulation/Patient {centre_patient_no}/{fraction_name}/{sub_fraction_name}/",
 	"mv_images": "/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/{sub_fraction_name}/KIM-MV/",
 	"trajectory_logs": "/{clinical_trial}/{test_centre}/Trajectory Logs/Pat{centre_patient_no:02d}-{patient_trial_id}/{fraction_name}/{sub_fraction_name}/",
-	"triangulation": "/{clinical_trial}/{test_centre}/Triangulation/Patient {centre_patient_no}/{fraction_name}/{sub_fraction_name}/"
+	"triangulation": "/{clinical_trial}/{test_centre}/Triangulation/Patient {centre_patient_no}/{fraction_name}/{sub_fraction_name}/",
+	"fraction_folder": "/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/"
 }
