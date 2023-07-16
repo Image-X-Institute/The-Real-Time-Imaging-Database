@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from flask import make_response, send_from_directory, request
 from werkzeug.utils import secure_filename
 from typing import Dict, List
@@ -211,53 +212,91 @@ class ContentManager:
             
             with open(fileTypeToPathMappingPath, "r") as pathMappingFile:
                 fileTypeToPathMapping = json.load(pathMappingFile)
-            # print(fileTypeToPathMapping)
 
             filesSaved = []
             for fileFieldName in req.files.keys():
                 uploadedFile = req.files[fileFieldName]
                 filename = secure_filename(uploadedFile.filename)
-                
-                relativeFolderPath =  uploadId + \
+                if metadata["file_type"] == "fraction_folder":
+                    formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
+                    print(formatedPath)
+                    fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
+                    fractionName = ""
+                    if formatedPath.count("/") == 3:
+                        fractionName = re.search(r'/(?P<result>[^/]+)', formatedPath).group("result")
+                    relativeFolderPath =  uploadId + \
                                 fileTypeToPathMapping[metadata["file_type"]].format(
                                     clinical_trial=metadata['clinical_trial'],
                                     test_centre=metadata["test_centre"],
                                     patient_trial_id=metadata["patient_trial_id"],
-                                    fraction_name=metadata["fraction"],
-                                    sub_fraction_name=metadata["sub_fraction"],
                                     centre_patient_no=int(metadata["centre_patient_no"])
-                                )
-                print("sub_fraction_name:", metadata["sub_fraction"])
-                print("relativeFolderPath:", relativeFolderPath)
-                saveFolderPath = config.UPLOAD_FOLDER + '/' + relativeFolderPath
-                relativePath = relativeFolderPath + filename
-                filesSaved.append(relativePath)
+                                ) + \
+                                formatedPath
+                    relativePath = relativeFolderPath + filename
+                    saveFolderPath = config.UPLOAD_FOLDER + '/' + relativeFolderPath
+                    filesSaved.append(relativePath)
 
-            filePathAppended:bool = False
-            for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
-                if uploadedFileRecord["file_type"] == metadata["file_type"]:
-                    uploadedFileRecord["Files"].append(relativePath)
-                    filePathAppended = True
-                    break
+                    filePathAppended:bool = False
+                    for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
+                        if uploadedFileRecord["file_type"] == metadata["file_type"]:
+                            uploadedFileRecord["Files"].append(relativePath)
+                            if fractionName and fractionName not in uploadedFileRecord["sub_fraction"]:
+                                uploadedFileRecord["sub_fraction"].append(fractionName)
+                            filePathAppended = True
+                            break
 
-            if not filePathAppended:
-                uploadMetaData["uploaded_files"].append(
-                    {
-                        "file_type": metadata["file_type"],
-                        "level": metadata["level"],
-                        "fraction": metadata["fraction"],
-                        "sub_fraction": metadata["sub_fraction"],
-                        "Files": [relativePath]
-                    }
-                )
-            print(f"saving {filename} in {saveFolderPath}")
-            Path(saveFolderPath).mkdir(parents=True, exist_ok=True)
-            uploadedFile.save(os.path.join(saveFolderPath, filename))
+                    if not filePathAppended:
+                        uploadMetaData["uploaded_files"].append(
+                            {
+                                "file_type": metadata["file_type"],
+                                "level": metadata["level"],
+                                "fraction": fractionNumber,
+                                "sub_fraction":[fractionName],
+                                "Files": [relativePath]
+                            }
+                        )
 
-            with open(config.UPLOAD_FOLDER + '/' + uploadId + '/summary.txt', 'a') \
-                    as uploadSummaryFile:
-                for savedFilePath in filesSaved:
-                    uploadSummaryFile.write(savedFilePath + "\n")
+
+                else:
+                    relativeFolderPath =  uploadId + \
+                                    fileTypeToPathMapping[metadata["file_type"]].format(
+                                        clinical_trial=metadata['clinical_trial'],
+                                        test_centre=metadata["test_centre"],
+                                        patient_trial_id=metadata["patient_trial_id"],
+                                        fraction_name=metadata["fraction"],
+                                        sub_fraction_name=metadata["sub_fraction"],
+                                        centre_patient_no=int(metadata["centre_patient_no"])
+                                    )
+                    relativePath = relativeFolderPath + filename
+                    saveFolderPath = config.UPLOAD_FOLDER + '/' + relativeFolderPath
+                    filesSaved.append(relativePath)
+
+                    filePathAppended:bool = False
+                    for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
+                        if uploadedFileRecord["file_type"] == metadata["file_type"]:
+                            uploadedFileRecord["Files"].append(relativePath)
+                            filePathAppended = True
+                            break
+
+                    if not filePathAppended:
+                        uploadMetaData["uploaded_files"].append(
+                            {
+                                "file_type": metadata["file_type"],
+                                "level": metadata["level"],
+                                "fraction": metadata["fraction"],
+                                "sub_fraction": metadata["sub_fraction"],
+                                "Files": [relativePath]
+                            }
+                        )
+                print(f"saving {filename} in {saveFolderPath}")
+                if not os.path.isdir(saveFolderPath):
+                    Path(saveFolderPath).mkdir(parents=True, exist_ok=True)
+                uploadedFile.save(os.path.join(saveFolderPath, filename))
+
+                with open(config.UPLOAD_FOLDER + '/' + uploadId + '/summary.txt', 'a') \
+                        as uploadSummaryFile:
+                    for savedFilePath in filesSaved:
+                        uploadSummaryFile.write(savedFilePath + "\n")
 
         else:  # if not direct file upload, just metadata
             if "files" not in req.form.keys():
@@ -289,7 +328,6 @@ class ContentManager:
                             "Files": [filepath]
                         }
                     )
-
         with open(config.UPLOAD_FOLDER + '/' + uploadId + '/upload_metadata.json', 'w') \
                 as uploadMetaFile:
             json.dump(uploadMetaData, uploadMetaFile, indent=4)
