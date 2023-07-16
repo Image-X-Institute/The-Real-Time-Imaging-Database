@@ -81,34 +81,46 @@ class ClinicalTrialsMetaData:
                             "text/javascript"
                 ]
             },
+            "Fraction Folder (Images Only)": {
+                "level":"image",
+                "key":"fraction_folder",
+                "field_type":"folder",
+                "allowed":[
+                    "text/plain", 
+                    "image/tiff", 
+                    "application/dicom", 
+                    "application/octet-stream",
+                    "text/xml",
+                ]
+            },
             "KIM log files": {
                 "level": "fraction", 
                 "key":"kim_logs",
                 "field_type": "file",
                 "allowed":["text/plain", "text/csv"]
             }, 
-            "kV images": {
-                "level": "fraction", 
-                "key":"kv_images",
-                "field_type": "folder",
-                "allowed":["image/tiff", 
-                            "application/dicom", 
-                            "application/octet-stream",
-                            "text/plain",
-                            "text/xml",
-                ]
-            }, 
-            "MV Images": {
-                "level": "fraction", 
-                "key":"mv_images",
-                "field_type": "folder",
-                "allowed":["image/tiff", 
-                            "application/dicom", 
-                            "application/octet-stream",
-                            "text/plain",
-                            "text/xml",
-                ]
-            }, 
+            # "kV images": {
+            #     "level": "fraction", 
+            #     "key":"kv_images",
+            #     "field_type": "folder",
+            #     "allowed":["image/tiff", 
+            #                 "application/dicom", 
+            #                 "application/octet-stream",
+            #                 "text/plain",
+            #                 "text/xml",
+            #     ]
+            # }, 
+            # "MV Images": {
+            #     "level": "fraction", 
+            #     "key":"mv_images",
+            #     "field_type": "folder",
+            #     "allowed":["image/tiff", 
+            #                 "application/dicom", 
+            #                 "application/octet-stream",
+            #                 "text/plain",
+            #                 "text/xml",
+            #     ]
+            # }, 
             "Metrics Spreadsheet": {
                 "level": "fraction", 
                 "key":"metrics",
@@ -359,6 +371,44 @@ class LoginScreen(QWidget):
             tokenStr = None
         return tokenStr
 
+class AddSubFractionScreen(QWidget):
+    addSubFraction:SignalInstance = Signal(dict)
+    def __init__(self, parent: Optional[QWidget]=None) -> None:
+        super().__init__(parent)
+        self.initGUI()
+
+    def initGUI(self):
+        self.setWindowFlags(self.windowFlags() & Qt.CustomizeWindowHint)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowMinMaxButtonsHint)
+        self.setWindowTitle("Add Sub-Fraction")
+
+        self.fractionNameInput = QLineEdit("Fx1")
+
+        fractionDetailsLayout = QFormLayout()
+        fractionDetailsLayout.addRow("Name:", self.fractionNameInput)
+
+        self.pushBtnAdd = QPushButton("Add Fraction")
+        self.pushBtnAdd.clicked.connect(self.addFractionSlot)
+        pushBtnCancel = QPushButton("Cancel")
+        pushBtnCancel.clicked.connect(self.close)
+        buttonsLayout = QHBoxLayout()
+        buttonsLayout.addStretch()
+        buttonsLayout.addWidget(self.pushBtnAdd)
+        buttonsLayout.addWidget(pushBtnCancel)
+
+        mainLayout = QVBoxLayout()
+        mainLayout.addLayout(fractionDetailsLayout)
+        mainLayout.addLayout(buttonsLayout)
+        self.setLayout(mainLayout)
+        
+    @Slot()
+    def addFractionSlot(self):
+        subFractionDetails = { 
+                "name": self.fractionNameInput.text(), 
+                }
+        self.addSubFraction.emit(subFractionDetails)
+ 
+    
 
 class AddFractionScreen(QWidget):
     addFraction:SignalInstance = Signal(dict)
@@ -671,6 +721,11 @@ class UploadDataScreen(QWidget):
         self.addFractionScreen = AddFractionScreen()
         self.addFractionScreen.setVisible(False)
         self.addFractionScreen.addFraction.connect(self.addNewFraction)
+        
+        self.addSubFractionScreen = AddSubFractionScreen()
+        self.addSubFractionScreen.setVisible(False)
+        self.addSubFractionScreen.addSubFraction.connect(self.addNewSubFraction)
+        
 
         self.addPatientScreen = AddPatientScreen()
         self.addPatientScreen.setVisible(False)
@@ -716,7 +771,7 @@ class UploadDataScreen(QWidget):
         self.subFractionSelector.addItems(self.trialsMetaData.getSubFractionNames())
         addSubFractionPushBtn = QPushButton("+")
         addSubFractionPushBtn.setMaximumSize(30, addSubFractionPushBtn.height())
-        addSubFractionPushBtn.clicked.connect(self.addNewSubFraction)
+        addSubFractionPushBtn.clicked.connect(self.showNewSubFractionScreen)
         self.subFractionSelector.setDisabled(True)
 
         self.patientTrialIdLineEdit = QLineEdit()
@@ -910,7 +965,6 @@ class UploadDataScreen(QWidget):
                     totalSize += os.stat(path).st_size
                     numberOfFiles += 1
                     files.append(path)
-
         QApplication.restoreOverrideCursor()
         return numberOfFiles, files, totalSize
 
@@ -942,6 +996,7 @@ class UploadDataScreen(QWidget):
             if self.currentProfile["connection_type"] == "DIRECT" \
                     or self.currentProfile["connection_type"] == "IMPORT_ONLY":
                 self.dbClient.baseUrl = self.currentProfile["url"]
+                # self.dbClient.baseUrl = "http://10.48.22.156:8090"
                 self.dbClient.authToken = self.currentProfile["token"]
                 if not self.dbClient.makeAuthRequest(
                         {"password": self.currentProfile["password"]}):
@@ -1074,6 +1129,13 @@ class UploadDataScreen(QWidget):
         windowGeometry = self.addFractionScreen.geometry()
         windowGeometry.moveCenter(self.geometry().center())
         self.addFractionScreen.setGeometry(windowGeometry)
+        
+    @Slot()
+    def showNewSubFractionScreen(self):
+        self.addSubFractionScreen.setVisible(True)
+        windowGeometry = self.addSubFractionScreen.geometry()
+        windowGeometry.moveCenter(self.geometry().center())
+        self.addSubFractionScreen.setGeometry(windowGeometry)
     
     def _getNewSubFractionName(self, fractionDetails:Dict):
         subFractionList = sorted(fractionDetails["subFractionsAvailable"])
@@ -1087,19 +1149,15 @@ class UploadDataScreen(QWidget):
         return newSubFraction
     
     @Slot()
-    def addNewSubFraction(self):
-        if self.subFractionSelector.count() >28:
-            QMessageBox.warning(self.addFractionScreen, "Adding sub-fraction", 
-                                "The maximum number of sub-fractions (26) have been added")
-            self.statusLabel.setText("Sub-fraction could not added")
-            return
+    def addNewSubFraction(self, subFractionDetail:Dict):
+        subFractionDetail["patient_trial_id"] = self.patientTrialIdLineEdit.text()
+        subFractionDetail["number"] = int(self.fractionSelector.currentText().split("FX")[-1])
         fractionDetails = self.fetchSubFractionDetails()
-        newSubFractionName = self._getNewSubFractionName(fractionDetails)
         fractionDetailsPackage = {
-            "patient_trial_id": fractionDetails["patient_trial_id"],
-            "number": fractionDetails["number"],
-            "name": newSubFractionName,
-            "date": fractionDetails["date"]
+            "patient_trial_id": subFractionDetail["patient_trial_id"],
+            "number": subFractionDetail["number"],
+            "name":  subFractionDetail ["name"],
+            "date": fractionDetails["date"],
         }
         result:Clients.Result = self.dbClient.addFraction(fractionDetailsPackage)
         if not result.success:
@@ -1108,6 +1166,7 @@ class UploadDataScreen(QWidget):
                                     + result.message )
             self.statusLabel.setText("Sub-fraction could not added")
         else:
+            self.addSubFractionScreen.setVisible(False)
             self.updateSubFractionsListForCurrentPatient()
 
 
@@ -1115,7 +1174,6 @@ class UploadDataScreen(QWidget):
     def addNewFraction(self, fractionDetails:Dict):
         fractionDetails["patient_trial_id"] = self.patientTrialIdLineEdit.text()
         print("Got fraction details:", fractionDetails)
-        fractionDetails["name"] = fractionDetails["name"]+"-A"
         result:Clients.Result = self.dbClient.addFraction(fractionDetails)
         if not result.success:
             QMessageBox.warning(self.addFractionScreen, "Adding fraction", 
@@ -1205,13 +1263,12 @@ class UploadDataScreen(QWidget):
                 "sub_fraction": self.subFractionSelector.currentText() \
                         if self.subFractionSelector.currentText() != "Sub-Fraction" \
                         else "N/A",
-                "clinical_trial": self.trialSelector.currentText()
+                "clinical_trial": self.trialSelector.currentText(),
             },
             "files": files,
             "uploaded": False
         }
         self.uploadQueue.append(uploadEntity)
-        
         self.statusLabel.setText("Ready")
         self.droppedFileLabel.clear()
         self.dropArea.clear()
@@ -1328,6 +1385,7 @@ class UploadDataScreen(QWidget):
 
                     filename = uploadFilePath.split("/")[-1]
                     fileptr = open(uploadFilePath, "rb")
+                    uploadEntity["data"]["file_path"] = uploadFilePath
                     uploadEntity["data"]["upload_context"] = uploadContext
                     status = self.dbClient.uploadContent(files={filename: fileptr}, 
                                                         data=uploadEntity["data"])
