@@ -82,7 +82,7 @@ class ClinicalTrialsMetaData:
                 ]
             },
             "Fraction Folder (Images Only)": {
-                "level":"image",
+                "level":"fraction",
                 "key":"fraction_folder",
                 "field_type":"folder",
                 "allowed":[
@@ -996,7 +996,7 @@ class UploadDataScreen(QWidget):
             if self.currentProfile["connection_type"] == "DIRECT" \
                     or self.currentProfile["connection_type"] == "IMPORT_ONLY":
                 self.dbClient.baseUrl = self.currentProfile["url"]
-                # self.dbClient.baseUrl = "http://10.48.22.156:8090"
+                # self.dbClient.baseUrl = "http://10.48.16.163:8090"
                 self.dbClient.authToken = self.currentProfile["token"]
                 if not self.dbClient.makeAuthRequest(
                         {"password": self.currentProfile["password"]}):
