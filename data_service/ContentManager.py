@@ -14,6 +14,8 @@ from dbconnector import DBConnector
 from flask_mail import Mail, Message
 import random
 import string
+from ClinicalTrials import ClinicalTrials
+from werkzeug.datastructures import MultiDict
 
 class ContentManager:
     def __init__(self) -> None:
@@ -160,7 +162,6 @@ class ContentManager:
                     "status": "error",
                     "message": f"Field {requiredField} missing in the submitted form"
                 }
-                print(returnMessage)
                 return make_response(returnMessage)
             metadata[requiredField] = req.form[requiredField]
 
@@ -219,43 +220,68 @@ class ContentManager:
                 filename = secure_filename(uploadedFile.filename)
                 if metadata["file_type"] == "fraction_folder":
                     formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
-                    print(formatedPath)
                     fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
                     fractionName = ""
                     if formatedPath.count("/") == 3:
                         fractionName = re.search(r'/(?P<result>[^/]+)', formatedPath).group("result")
-                    relativeFolderPath =  uploadId + \
-                                fileTypeToPathMapping[metadata["file_type"]].format(
+                    relativeFolderPath =  fileTypeToPathMapping[metadata["file_type"]].format(
                                     clinical_trial=metadata['clinical_trial'],
                                     test_centre=metadata["test_centre"],
                                     patient_trial_id=metadata["patient_trial_id"],
                                     centre_patient_no=int(metadata["centre_patient_no"])
                                 ) + \
                                 formatedPath
-                    relativePath = relativeFolderPath + filename
-                    saveFolderPath = config.UPLOAD_FOLDER + '/' + relativeFolderPath
+                    relativePath = uploadId + relativeFolderPath + filename
+                    saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId +relativeFolderPath
                     filesSaved.append(relativePath)
 
+                    KV_pattern = r"(?i)\bKV\b"
+                    MV_pattern = r"(?i)\bMV\b"
                     filePathAppended:bool = False
                     for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
                         if uploadedFileRecord["file_type"] == metadata["file_type"]:
                             uploadedFileRecord["Files"].append(relativePath)
-                            if fractionName and fractionName not in uploadedFileRecord["sub_fraction"]:
+                            if fractionName not in uploadedFileRecord["sub_fraction"]:
                                 uploadedFileRecord["sub_fraction"].append(fractionName)
+                                uploadedFileRecord["image_path"][fractionName] = {
+                                    "KV": "",
+                                    "MV": ""
+                                }
+                            if relativeFolderPath not in uploadedFileRecord["folder_path"]:
+                                uploadedFileRecord["folder_path"].append(relativeFolderPath)
+                                if fractionName:
+                                    if re.search(KV_pattern, relativeFolderPath):
+                                        uploadedFileRecord["image_path"][fractionName]["KV"] = relativeFolderPath
+                                    if re.search(MV_pattern, relativeFolderPath):
+                                        uploadedFileRecord["image_path"][fractionName]["MV"] = relativeFolderPath
                             filePathAppended = True
                             break
 
                     if not filePathAppended:
+                        pack = {}
+                        if fractionName and re.search(KV_pattern, relativeFolderPath):
+                            pack = {
+                                fractionName: {
+                                    "KV": relativeFolderPath
+                                }
+                            }
+                        if fractionName and re.search(MV_pattern, relativeFolderPath):
+                            pack = {
+                                fractionName: {
+                                    "MV": relativeFolderPath
+                                }
+                            }
                         uploadMetaData["uploaded_files"].append(
                             {
                                 "file_type": metadata["file_type"],
                                 "level": metadata["level"],
                                 "fraction": fractionNumber,
                                 "sub_fraction":[fractionName],
-                                "Files": [relativePath]
+                                "Files": [relativePath],
+                                "folder_path": [relativeFolderPath],
+                                "image_path": pack
                             }
                         )
-
 
                 else:
                     relativeFolderPath =  uploadId + \
@@ -328,6 +354,7 @@ class ContentManager:
                             "Files": [filepath]
                         }
                     )
+        
         with open(config.UPLOAD_FOLDER + '/' + uploadId + '/upload_metadata.json', 'w') \
                 as uploadMetaFile:
             json.dump(uploadMetaData, uploadMetaFile, indent=4)
