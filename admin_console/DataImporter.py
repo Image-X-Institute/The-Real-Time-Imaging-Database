@@ -7,12 +7,14 @@ import config
 from DatabaseAdapter import DatabaseAdapter
 import sys
 import shutil as sh
+import re
 
 
 class DataImporter:
     def __init__(self) -> None:
         self.metadata:Dict = None
         self.currentContextId:str = None
+        self.fileInfo:Dict = None
         self.dbAdapter = DatabaseAdapter()
         self._initialiseStateVariables()
 
@@ -20,6 +22,13 @@ class DataImporter:
         self.dataIsValid = False
         self.conflictFree = True
         self.contentCopied = False
+
+    def _initialiseFileInfo(self):
+        uploadContextPath = config.UPLOAD_FOLDER + '/' + self.currentContextId
+        metatdataPath = uploadContextPath + '/' + config.UPLOAD_METADATA_FILENAME
+        with open(metatdataPath, 'r') as metadataFile:
+            metadata = json.load(metadataFile)
+        self.fileInfo = metadata["uploaded_files"][0]
 
     def _persistMetadata(self):
         uploadContextPath = config.UPLOAD_FOLDER + '/' + self.currentContextId
@@ -35,7 +44,11 @@ class DataImporter:
             raise ValueError("Context ID does not seem to contain a valid upload")
         self.currentContextId = contextId
         self._initialiseStateVariables()
+        self._initialiseFileInfo()
 
+    def getUploadFileInfo(self) -> Dict:
+        return self.fileInfo
+    
     def verifyUploadPacket(self) -> Tuple[bool, str]:
         uploadContextPath = config.UPLOAD_FOLDER + '/' + self.currentContextId
         metatdataPath = uploadContextPath + '/' + config.UPLOAD_METADATA_FILENAME
@@ -151,7 +164,6 @@ class DataImporter:
                                 + f"AND patient.patient_trial_id=\'{self.metadata['patient_trial_id']}\' " \
                                 + f"AND patient.clinical_trial=\'{self.metadata['clinical_trial']}\' " \
                                 + f"AND patient.test_centre=\'{self.metadata['test_centre']}\'"
-
                 result = self.dbAdapter.executeUpdateOnImageDB(insertStmt)
                 if not result.success:
                     return result.success, result.message
@@ -180,6 +192,61 @@ class DataImporter:
         self.metadata["accepted"] = True
         self._persistMetadata()
         # self.clearUploadPacket()
+
+    def insertFractionDataIntoDatabase(self) -> Tuple[bool, str]:
+        if not self.fileInfo or not self.dataIsValid:
+            return False, "Please set an upload context and validate it before importing"
+        fractionIdAndName = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], self.fileInfo["fraction"])
+        fractionNameList = [name[1] for name in fractionIdAndName]
+        subFractionList = self.fileInfo['sub_fraction'][:]
+        if self.fileInfo["sub_fraction"] and set(fractionNameList) != set(subFractionList):
+            initFractionDetail = self.dbAdapter.getFractionIdAndDate(self.metadata["patient_trial_id"], self.fileInfo["fraction"])
+            subFractionList = self.fileInfo['sub_fraction'][:]
+            firstSubFraction = subFractionList.pop(0)
+            self.dbAdapter.updateFractionName(initFractionDetail[0], firstSubFraction)
+            allUpdate = True
+            for subFraction in subFractionList:
+                fractionPack = {
+                    "patient_trial_id": self.metadata["patient_trial_id"],
+                    "number": self.fileInfo["fraction"],
+                    "name": subFraction,
+                    "date": str(initFractionDetail[1]),
+                }
+                result = self.dbAdapter.insertFractionIntoDB(fractionPack)
+                if not result:
+                    allUpdate = False
+            return allUpdate, "Success"
+        else:
+            return True, "Success"
+    
+    def insertImagePathIntoDatabase(self) -> Tuple[bool, str]:
+        if not self.fileInfo or not self.dataIsValid:
+            return False, "Please set an upload context and validate it before importing"
+        
+        fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], self.fileInfo["fraction"])
+        if len(fractionDetailList) == 1:
+            fractionId = fractionDetailList[0][0]
+            KV_pattern = r"(?i)\bKV\b"
+            MV_pattern = r"(?i)\bMV\b"
+            for folderPath in self.fileInfo["folder_path"]:
+                if re.search(KV_pattern, folderPath):
+                    kvQueryStr = f"UPDATE images SET kv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
+                    self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
+                elif re.search(MV_pattern, folderPath):
+                    mvQueryStr = f"UPDATE images SET mv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
+                    self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
+        if len(fractionDetailList) > 1:
+            for fractionDetail in fractionDetailList:
+                print(fractionDetail)
+                fractionId = fractionDetail[0]
+                fractionName = fractionDetail[1]
+                imagePathPack = self.fileInfo["image_path"][fractionName]
+                kvQueryStr = f"UPDATE images SET kv_images_path = \'{imagePathPack['KV']}\' WHERE fraction_id = \'{fractionId}\'"
+                mvQueryStr = f"UPDATE images SET mv_images_path = \'{imagePathPack['MV']}\' WHERE fraction_id = \'{fractionId}\'"
+                self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
+                self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
+        self.markPacketAsImported()
+        return True, "Success"
 
 def prepareArgumentParser():
     argParser = argparse.ArgumentParser(description="data Importer Tool")

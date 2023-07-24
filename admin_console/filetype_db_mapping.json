@@ -105,7 +105,7 @@
             "multivalues": false
         },
         "mv_images":{
-            "name": "cumulative DVH",
+            "name": "MV images",
             "table": "images",
             "field": "MV_images_path",
             "granularity": "folder",

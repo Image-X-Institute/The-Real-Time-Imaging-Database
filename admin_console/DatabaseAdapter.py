@@ -152,13 +152,11 @@ class DatabaseAdapter:
                 "AND acl_roles.read_access = true " \
                 "AND acl_roles.trial_id = trials.trial_id " \
                 "AND acl_roles.site_id = treatment_sites.site_id"
-        print(query)
         try:
             conn = self.getAuthDBConnection()
             cur = conn.cursor()
             cur.execute(query)
             trialsAndSites = cur.fetchall()
-            print("result:", trialsAndSites)
             for trialAndSite in trialsAndSites:
                 if trialAndSite[0] not in result:
                     result[trialAndSite[0]] = []
@@ -197,3 +195,90 @@ class DatabaseAdapter:
             print(error, file=sys.stderr)
             return DBUpdateResult(success=False, rowsUpdated=0, message=str(error)) 
         return DBUpdateResult(success=True, rowsUpdated=rowsUpdated, message="Success")
+    
+    def getFractionIdAndDate(self, patientTrialId:str, fractionNumber:int) -> tuple:
+        strQuery = "SELECT fraction_id, fraction_date FROM fraction, patient, prescription " \
+                    + "WHERE patient.patient_trial_id = '" + patientTrialId + "' " \
+                    + "AND prescription.patient_id = patient.id " \
+                    + "AND fraction.prescription_id = prescription.prescription_id " \
+                    + "AND fraction.fraction_number = " + str(fractionNumber) + ";"
+        if config.APP_DEBUG_MODE:
+            print("Executing Query:", strQuery)
+
+        try:
+            conn = self.getImageDBConnection()
+            cur = conn.cursor()
+            cur.execute(strQuery)
+            fractionIdAndDate = cur.fetchone()
+            cur.close()
+        except (Exception, pg.DatabaseError) as error:
+            print(error, file=sys.stderr)
+            return (None, None)
+        return fractionIdAndDate
+    
+    def getFractionIdAndName(self, patientTrialId:str, fractionNumber:int) -> List[tuple]:
+        strQuery = "SELECT fraction_id, fraction_name FROM fraction, patient, prescription " \
+                    + "WHERE patient.patient_trial_id = '" + patientTrialId + "' " \
+                    + "AND prescription.patient_id = patient.id " \
+                    + "AND fraction.prescription_id = prescription.prescription_id " \
+                    + "AND fraction.fraction_number = " + str(fractionNumber) + ";"
+        if config.APP_DEBUG_MODE:
+            print("Executing Query:", strQuery)
+
+        try:
+            conn = self.getImageDBConnection()
+            cur = conn.cursor()
+            cur.execute(strQuery)
+            fractionIdAndName = cur.fetchall()
+            cur.close()
+        except (Exception, pg.DatabaseError) as error:
+            print(error, file=sys.stderr)
+            return []
+        return fractionIdAndName
+    
+    def updateFractionName(self, fractionId:str, fractionName:str) -> DBUpdateResult:
+        stmt = "UPDATE fraction SET fraction_name = '" + fractionName + "' " \
+                + "WHERE fraction_id = '" + fractionId + "';"
+        return self.executeUpdateOnImageDB(stmt=stmt)
+    
+    def insertFractionIntoDB(self, fractionDetails:Dict)  -> bool:
+        insertStmt = "INSERT INTO fraction (prescription_id, " \
+                                + "fraction_date, fraction_number, " \
+                                + "fraction_name) " \
+                                + "SELECT get_prescription_id_for_patient('" \
+                                +  fractionDetails["patient_trial_id"] + "'), " \
+                                + "'" + fractionDetails["date"] + "', " \
+                                + str(fractionDetails["number"]) + ", " \
+                                + "'" + fractionDetails["name"] + "' " \
+                                + "RETURNING fraction_id"
+        if config.APP_DEBUG_MODE:
+            print(insertStmt)
+        
+        try:
+            conn = self.getImageDBConnection()
+            cur = conn.cursor()
+            cur.execute(insertStmt)
+            fractionUUID = cur.fetchone()[0]
+            if config.APP_DEBUG_MODE:
+                print("Cursor Description after insert:", cur.description, fractionUUID)
+            self.getImageDBConnection().commit()
+            cur.close()
+        except(Exception, pg.DatabaseError) as error:
+            return False, str(error)
+
+        insertStmt = "INSERT INTO images (fraction_id) " \
+                    + "VALUES ('" \
+                    + fractionUUID + "')"
+        try:
+            conn = self.getImageDBConnection()
+            cur = conn.cursor()
+            cur.execute(insertStmt)
+            if config.APP_DEBUG_MODE:
+                print("Cursor Description after insert:", cur.description)
+            self.getImageDBConnection().commit()
+            cur.close()
+        except(Exception, pg.DatabaseError) as error:
+            return False
+                    
+        return True
+
