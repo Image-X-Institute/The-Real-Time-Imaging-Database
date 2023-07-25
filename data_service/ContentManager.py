@@ -232,9 +232,9 @@ class ContentManager:
                                 ) + \
                                 formatedPath
                     relativePath = uploadId + relativeFolderPath + filename
-                    saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId +relativeFolderPath
+                    saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId + relativeFolderPath
                     filesSaved.append(relativePath)
-
+                    
                     KV_pattern = r"(?i)\bKV\b"
                     MV_pattern = r"(?i)\bMV\b"
                     filePathAppended:bool = False
