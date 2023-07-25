@@ -90,9 +90,18 @@ def importUploadPacket(upload_id):
             if result[0]:
                 if config.APP_DEBUG_MODE:
                     print("Copied files into storage", result[1])
-                result = di.insertMetadataIntoDatabase()
-                if config.APP_DEBUG_MODE:
-                    print("Inserted metadata into database", result[1])
+                fileInfo = di.getUploadFileInfo()
+
+                if fileInfo['file_type'] == "fraction_folder":
+                    result = di.insertFractionDataIntoDatabase()
+                    result2 = di.insertImagePathIntoDatabase()
+                    if config.APP_DEBUG_MODE:
+                        print("Inserted fraction data into database", result[1])
+                        print("Inserted image path into database", result2[1])
+                else:
+                    result = di.insertMetadataIntoDatabase()
+                    if config.APP_DEBUG_MODE:
+                        print("Inserted metadata into database", result[1])
 
     if not result[0]:
         print("Error importing data:", result[1])
