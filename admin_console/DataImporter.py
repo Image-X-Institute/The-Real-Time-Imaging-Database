@@ -199,9 +199,9 @@ class DataImporter:
         fractionIdAndName = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], self.fileInfo["fraction"])
         fractionNameList = [name[1] for name in fractionIdAndName]
         subFractionList = self.fileInfo['sub_fraction'][:]
-        if self.fileInfo["sub_fraction"] and set(fractionNameList) != set(subFractionList):
+        if self.fileInfo["sub_fraction"] != [""] and set(fractionNameList) != set(subFractionList):
             initFractionDetail = self.dbAdapter.getFractionIdAndDate(self.metadata["patient_trial_id"], self.fileInfo["fraction"])
-            subFractionList = self.fileInfo['sub_fraction'][:]
+            subFractionList = [x for x in self.fileInfo['sub_fraction'] if x !=""]
             firstSubFraction = subFractionList.pop(0)
             self.dbAdapter.updateFractionName(initFractionDetail[0], firstSubFraction)
             allUpdate = True
@@ -237,14 +237,14 @@ class DataImporter:
                     self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
         if len(fractionDetailList) > 1:
             for fractionDetail in fractionDetailList:
-                print(fractionDetail)
-                fractionId = fractionDetail[0]
-                fractionName = fractionDetail[1]
-                imagePathPack = self.fileInfo["image_path"][fractionName]
-                kvQueryStr = f"UPDATE images SET kv_images_path = \'{imagePathPack['KV']}\' WHERE fraction_id = \'{fractionId}\'"
-                mvQueryStr = f"UPDATE images SET mv_images_path = \'{imagePathPack['MV']}\' WHERE fraction_id = \'{fractionId}\'"
-                self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
-                self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
+                if fractionDetail[1]:
+                    fractionId = fractionDetail[0]
+                    fractionName = fractionDetail[1]
+                    imagePathPack = self.fileInfo["image_path"][fractionName]
+                    kvQueryStr = f"UPDATE images SET kv_images_path = \'{imagePathPack['KV']}\' WHERE fraction_id = \'{fractionId}\'"
+                    mvQueryStr = f"UPDATE images SET mv_images_path = \'{imagePathPack['MV']}\' WHERE fraction_id = \'{fractionId}\'"
+                    self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
+                    self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
         self.markPacketAsImported()
         return True, "Success"
 
