@@ -95,7 +95,6 @@ class ClinicalTrials:
         
         if endpoint not in self.apiMapping:
             return {"error": "invalid endpoint"}
-
         objectFields = self.apiMapping[endpoint]["object_fields"]
         paramsOfInterest = self.apiMapping[endpoint]["query_params"]
         dbRelations = self.apiMapping[endpoint]["db_relations"]
@@ -176,7 +175,6 @@ class ClinicalTrials:
 
             for rowCounter in range(len(rows)):
                 data = {}
-                print(rows[rowCounter])
                 for columnCounter in range(len(objectFields)):
                     fieldValue = rows[rowCounter][columnCounter]
                     if objectFields[columnCounter]["type"] == "date":
@@ -383,6 +381,46 @@ class ClinicalTrials:
         if config.APP_DEBUG_MODE:
             print(patientsData)
         return patientsData
+
+    def getFractionIdAndDate(self, patientTrialId:str, fractionNumber:int) -> str:
+        strQuery = "SELECT fraction_id, fraction_date FROM fraction, patient, prescription " \
+                    + "WHERE patient.patient_trial_id = '" + patientTrialId + "' " \
+                    + "AND prescription.patient_id = patient.id " \
+                    + "AND fraction.prescription_id = prescription.prescription_id " \
+                    + "AND fraction.fraction_number = " + str(fractionNumber) + ";"
+        if config.APP_DEBUG_MODE:
+            print("Executing Query:", strQuery)
+
+        try:
+            cur = self.connector.getConnection().cursor()
+            cur.execute(strQuery)
+            if config.APP_DEBUG_MODE:
+                print("number of rows returned:", cur.rowcount)
+            rows = cur.fetchall()
+            cur.close()
+
+            if len(rows) == 0:
+                return None
+            return rows
+        except(Exception, pg.DatabaseError) as error:
+            print(error)
+
+    def updateFractionName(self, fractionId, fractionName:str) -> Tuple[bool, str]:
+        strQuery = "UPDATE fraction SET fraction_name = '" + fractionName + "' " \
+                    + "WHERE fraction_id = '" + fractionId + "';"
+        if config.APP_DEBUG_MODE:
+            print("Executing Query:", strQuery)
+
+        try:
+            cur = self.connector.getConnection().cursor()
+            cur.execute(strQuery)
+            self.connector.getConnection().commit()
+            cur.close()
+            return True, f"Updated fraction name to {fractionName}"
+        except(Exception, pg.DatabaseError) as error:
+            print(error)
+            return False, str(error)
+
 
     def getFractions(self, requestParams) -> Dict:
         """ Deprecated """
