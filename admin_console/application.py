@@ -98,6 +98,8 @@ def importUploadPacket(upload_id):
                     if config.APP_DEBUG_MODE:
                         print("Inserted fraction data into database", result[1])
                         print("Inserted image path into database", result2[1])
+                elif fileInfo['file_type'] == "DVH_folder" or fileInfo['file_type'] == "DICOM_folder":
+                    result = di.insertDoseReconstrcutionFileIntoDatabase()
                 else:
                     result = di.insertMetadataIntoDatabase()
                     if config.APP_DEBUG_MODE:
