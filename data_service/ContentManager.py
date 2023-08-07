@@ -135,6 +135,167 @@ class ContentManager:
     def generateUploadId(self, size:int=8) -> str:
         chars = string.ascii_uppercase + string.digits
         return ''.join(random.choice(chars) for _ in range(size))
+    
+    def _processImageFolder(self, metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath):
+        uploadId:str = metadata["upload_context"]
+        fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
+        fractionName = ""
+        if formatedPath.count("/") == 3:
+            fractionName = re.search(r'/(?P<result>[^/]+)', formatedPath).group("result")
+        relativeFolderPath =  fileTypeToPathMapping[metadata["file_type"]].format(
+                        clinical_trial=metadata['clinical_trial'],
+                        test_centre=metadata["test_centre"],
+                        patient_trial_id=metadata["patient_trial_id"],
+                        centre_patient_no=int(metadata["centre_patient_no"])
+                    ) + \
+                    formatedPath
+        relativePath = uploadId + relativeFolderPath + filename
+        saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId + relativeFolderPath
+        filesSaved.append(relativePath)
+        
+        KV_pattern = r"(?i)\bKV\b"
+        MV_pattern = r"(?i)\bMV\b"
+        filePathAppended:bool = False
+        for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
+            if uploadedFileRecord["file_type"] == metadata["file_type"]:
+                uploadedFileRecord["Files"].append(relativePath)
+                if fractionName not in uploadedFileRecord["sub_fraction"]:
+                    uploadedFileRecord["sub_fraction"].append(fractionName)
+                    uploadedFileRecord["image_path"][fractionName] = {
+                        "KV": "",
+                        "MV": ""
+                    }
+                if relativeFolderPath not in uploadedFileRecord["folder_path"]:
+                    uploadedFileRecord["folder_path"].append(relativeFolderPath)
+                    if fractionName:
+                        if re.search(KV_pattern, relativeFolderPath):
+                            uploadedFileRecord["image_path"][fractionName]["KV"] = relativeFolderPath
+                        if re.search(MV_pattern, relativeFolderPath):
+                            uploadedFileRecord["image_path"][fractionName]["MV"] = relativeFolderPath
+                filePathAppended = True
+                break
+
+        if not filePathAppended:
+            pack = {}
+            if fractionName and re.search(KV_pattern, relativeFolderPath):
+                pack = {
+                    fractionName: {
+                        "KV": relativeFolderPath
+                    }
+                }
+            if fractionName and re.search(MV_pattern, relativeFolderPath):
+                pack = {
+                    fractionName: {
+                        "MV": relativeFolderPath
+                    }
+                }
+            uploadMetaData["uploaded_files"].append(
+                {
+                    "file_type": metadata["file_type"],
+                    "level": metadata["level"],
+                    "fraction": fractionNumber,
+                    "sub_fraction":[fractionName],
+                    "Files": [relativePath],
+                    "folder_path": [relativeFolderPath],
+                    "image_path": pack
+                }
+            )
+        return saveFolderPath
+
+    def _processDoseReconstructionPlan(self, metadata, filename, uploadMetaData, fileTypeToPathMapping, filesSaved, formatedPath):
+        subFolder = {
+            "DICOM_folder": {
+                "path_name": "DICOM_folder",
+                "no_track_pattern": re.compile(r'.*(?:dicom_no_track).*', re.IGNORECASE),
+                "track_pattern": re.compile(r'.*(?:dicom_track).*', re.IGNORECASE),
+                "track_name": "dicom_track_plan_path",
+                "no_track_name": "dicom_no_track_plan_path"
+
+            },
+            "DVH_folder": {
+                "path_name": "DVH_folder",
+                "no_track_pattern": re.compile(r'.*(?:dvh_no_track).*', re.IGNORECASE),
+                "track_pattern": re.compile(r'.*(?:dvh_track).*', re.IGNORECASE),
+                "track_name": "dvh_track_path",
+                "no_track_name": "dvh_no_track_path"
+            }
+        }
+        noTrackPattern = subFolder[metadata["file_type"]]["no_track_pattern"]
+        trackPattern = subFolder[metadata["file_type"]]["track_pattern"]
+        recordPath = subFolder[metadata["file_type"]]["path_name"]
+        trackName = subFolder[metadata["file_type"]]["track_name"]
+        noTrackName = subFolder[metadata["file_type"]]["no_track_name"]
+
+        if noTrackPattern.match(filename) or trackPattern.match(filename):
+            uploadId:str = metadata["upload_context"]
+            fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
+            fractionName = re.search(r'/(?P<result>[^/]+)', formatedPath).group("result")
+            relativeFolderPath =  fileTypeToPathMapping[metadata["file_type"]].format(
+                            clinical_trial=metadata['clinical_trial'],
+                            test_centre=metadata["test_centre"],
+                            patient_trial_id=metadata["patient_trial_id"],
+                            centre_patient_no=int(metadata["centre_patient_no"])
+                        ) + fractionName
+            relativePath = uploadId + relativeFolderPath + '/' + filename
+            relativeFilePath = relativeFolderPath + '/' + filename
+            filesSaved.append(relativePath)
+            saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId + relativeFolderPath
+            filePathAppended:bool = False
+
+            for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
+                if uploadedFileRecord["file_type"] == metadata["file_type"]:
+                    uploadedFileRecord["Files"].append(relativePath)
+                    if fractionName not in uploadedFileRecord["fraction_name"]:
+                        uploadedFileRecord["fraction_name"].append(fractionName)
+                    if fractionNumber not in uploadedFileRecord["fraction"]:
+                        uploadedFileRecord["fraction"].append(fractionNumber)
+                    if fractionNumber not in uploadedFileRecord[recordPath].keys():
+                        uploadedFileRecord[recordPath][fractionNumber] = {
+                            noTrackName: "",
+                            trackName: ""
+                        }
+                        if noTrackPattern.match(filename):
+                            uploadedFileRecord[recordPath][fractionNumber][noTrackName] = relativeFilePath
+                        else:
+                            uploadedFileRecord[recordPath][fractionNumber][trackName] = relativeFilePath
+                    else:
+                        if noTrackPattern.match(filename):
+                            uploadedFileRecord[recordPath][fractionNumber][noTrackName] = relativeFilePath
+                        else:
+                            uploadedFileRecord[recordPath][fractionNumber][trackName] = relativeFilePath
+                    if relativeFolderPath not in uploadedFileRecord["folder_path"]:
+                        uploadedFileRecord["folder_path"].append(relativeFolderPath)
+                    filePathAppended = True
+                    break
+                    
+            if not filePathAppended:
+                pack = {}
+                if noTrackPattern.match(filename):
+                    pack = {
+                        fractionNumber: {
+                            noTrackName: relativeFilePath
+                        }
+                    }
+                else:
+                    pack = {
+                        fractionNumber: {
+                            trackName: relativeFilePath
+                        }
+                    }
+
+                uploadMetaData["uploaded_files"].append(
+                    {
+                        "file_type": metadata["file_type"],
+                        "level": metadata["level"],
+                        "fraction": [fractionNumber],
+                        "fraction_name":[fractionName],
+                        "Files": [relativePath],
+                        "folder_path": [relativeFolderPath],
+                        recordPath: pack
+                    }
+                )
+            return saveFolderPath
+        return ""
 
     def acceptAndSaveFile(self, req:request):
         # print("Files:", req.files)
@@ -220,69 +381,10 @@ class ContentManager:
                 filename = secure_filename(uploadedFile.filename)
                 if metadata["file_type"] == "fraction_folder":
                     formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
-                    fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
-                    fractionName = ""
-                    if formatedPath.count("/") == 3:
-                        fractionName = re.search(r'/(?P<result>[^/]+)', formatedPath).group("result")
-                    relativeFolderPath =  fileTypeToPathMapping[metadata["file_type"]].format(
-                                    clinical_trial=metadata['clinical_trial'],
-                                    test_centre=metadata["test_centre"],
-                                    patient_trial_id=metadata["patient_trial_id"],
-                                    centre_patient_no=int(metadata["centre_patient_no"])
-                                ) + \
-                                formatedPath
-                    relativePath = uploadId + relativeFolderPath + filename
-                    saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId + relativeFolderPath
-                    filesSaved.append(relativePath)
-                    
-                    KV_pattern = r"(?i)\bKV\b"
-                    MV_pattern = r"(?i)\bMV\b"
-                    filePathAppended:bool = False
-                    for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
-                        if uploadedFileRecord["file_type"] == metadata["file_type"]:
-                            uploadedFileRecord["Files"].append(relativePath)
-                            if fractionName not in uploadedFileRecord["sub_fraction"]:
-                                uploadedFileRecord["sub_fraction"].append(fractionName)
-                                uploadedFileRecord["image_path"][fractionName] = {
-                                    "KV": "",
-                                    "MV": ""
-                                }
-                            if relativeFolderPath not in uploadedFileRecord["folder_path"]:
-                                uploadedFileRecord["folder_path"].append(relativeFolderPath)
-                                if fractionName:
-                                    if re.search(KV_pattern, relativeFolderPath):
-                                        uploadedFileRecord["image_path"][fractionName]["KV"] = relativeFolderPath
-                                    if re.search(MV_pattern, relativeFolderPath):
-                                        uploadedFileRecord["image_path"][fractionName]["MV"] = relativeFolderPath
-                            filePathAppended = True
-                            break
-
-                    if not filePathAppended:
-                        pack = {}
-                        if fractionName and re.search(KV_pattern, relativeFolderPath):
-                            pack = {
-                                fractionName: {
-                                    "KV": relativeFolderPath
-                                }
-                            }
-                        if fractionName and re.search(MV_pattern, relativeFolderPath):
-                            pack = {
-                                fractionName: {
-                                    "MV": relativeFolderPath
-                                }
-                            }
-                        uploadMetaData["uploaded_files"].append(
-                            {
-                                "file_type": metadata["file_type"],
-                                "level": metadata["level"],
-                                "fraction": fractionNumber,
-                                "sub_fraction":[fractionName],
-                                "Files": [relativePath],
-                                "folder_path": [relativeFolderPath],
-                                "image_path": pack
-                            }
-                        )
-
+                    saveFolderPath = self._processImageFolder(metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath)
+                elif metadata["file_type"] == "DICOM_folder" or metadata["file_type"] == "DVH_folder":
+                    formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
+                    saveFolderPath = self._processDoseReconstructionPlan(metadata, filename, uploadMetaData, fileTypeToPathMapping, filesSaved, formatedPath)
                 else:
                     relativeFolderPath =  uploadId + \
                                     fileTypeToPathMapping[metadata["file_type"]].format(
@@ -315,15 +417,15 @@ class ContentManager:
                             }
                         )
                 print(f"saving {filename} in {saveFolderPath}")
-                if not os.path.isdir(saveFolderPath):
-                    Path(saveFolderPath).mkdir(parents=True, exist_ok=True)
-                uploadedFile.save(os.path.join(saveFolderPath, filename))
+                if saveFolderPath is not None:
+                    if not os.path.isdir(saveFolderPath):
+                        Path(saveFolderPath).mkdir(parents=True, exist_ok=True)
+                    uploadedFile.save(os.path.join(saveFolderPath, filename))
 
-                with open(config.UPLOAD_FOLDER + '/' + uploadId + '/summary.txt', 'a') \
-                        as uploadSummaryFile:
-                    for savedFilePath in filesSaved:
-                        uploadSummaryFile.write(savedFilePath + "\n")
-
+                    with open(config.UPLOAD_FOLDER + '/' + uploadId + '/summary.txt', 'a') \
+                            as uploadSummaryFile:
+                        for savedFilePath in filesSaved:
+                            uploadSummaryFile.write(savedFilePath + "\n")
         else:  # if not direct file upload, just metadata
             if "files" not in req.form.keys():
                 returnMessage = {
