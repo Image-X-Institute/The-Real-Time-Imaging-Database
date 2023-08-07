@@ -27,6 +27,18 @@ import json
 class ClinicalTrialsMetaData:
     def __init__(self) -> None:
         self.fileTypes = {
+             "DICOM Folder": {
+                "level": "fraction", 
+                "key":"DICOM_folder", 
+                "field_type": "folder",
+                "allowed":["application/dicom"]
+            },
+            "DVH Folder": {
+                "level": "fraction", 
+                "key":"DVH_folder",
+                "field_type": "folder",
+                "allowed":["text/plain"]
+            }, 
             "RT Plan DICOM": {
                 "level": "prescription", 
                 "key":"rt_plan_path",
@@ -161,24 +173,18 @@ class ClinicalTrialsMetaData:
                 "field_type": "file",
                 "allowed":["text/plain"]
             }, 
-            "fraction level DVH (not tracked)": {
-                "level": "fraction", 
-                "key":"DVH_no_track_path", 
-                "field_type": "file",
-                "allowed":["text/plain"]
-            }, 
-            "DICOM plan for dose per fraction (tracked)": {
-                "level": "fraction", 
-                "key":"DICOM_track_plan_path", 
-                "field_type": "file",
-                "allowed":["application/dicom"]
-            },
-            "DICOM plan for dose per fraction (not tracked)": {
-                "level": "fraction", 
-                "key":"DICOM_no_track_plan_path", 
-                "field_type": "file",
-                "allowed":["application/dicom"]
-            },
+            # "fraction level DVH (not tracked)": {
+            #     "level": "fraction", 
+            #     "key":"DVH_no_track_path", 
+            #     "field_type": "file",
+            #     "allowed":["text/plain"]
+            # }, 
+            # "DICOM plan for dose per fraction (not tracked)": {
+            #     "level": "fraction", 
+            #     "key":"DICOM_no_track_plan_path", 
+            #     "field_type": "file",
+            #     "allowed":["application/dicom"]
+            # },
             "Miscellanious files (fraction level)": {
                 "level": "fraction", 
                 "key":"other",
@@ -996,7 +1002,7 @@ class UploadDataScreen(QWidget):
             if self.currentProfile["connection_type"] == "DIRECT" \
                     or self.currentProfile["connection_type"] == "IMPORT_ONLY":
                 self.dbClient.baseUrl = self.currentProfile["url"]
-                # self.dbClient.baseUrl = "http://10.48.16.163:8090"
+                # self.dbClient.baseUrl = "http://192.168.50.165:8090"
                 self.dbClient.authToken = self.currentProfile["token"]
                 if not self.dbClient.makeAuthRequest(
                         {"password": self.currentProfile["password"]}):
