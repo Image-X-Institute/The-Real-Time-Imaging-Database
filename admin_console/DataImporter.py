@@ -247,6 +247,22 @@ class DataImporter:
                     self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
         self.markPacketAsImported()
         return True, "Success"
+    
+    def insertDoseReconstrcutionFileIntoDatabase(self) -> Tuple[bool, str]:
+        fileType = self.fileInfo["file_type"]
+        for factionNumber in self.fileInfo["fraction"]:
+            fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], factionNumber)
+            for fraction in fractionDetailList:
+                if fraction[1]:
+                    fractionId = fraction[0]
+                    dosePathPack:dict = self.fileInfo[fileType][factionNumber]
+                    for key in dosePathPack.keys():
+                        dosePath = dosePathPack[key]
+                        if dosePath:
+                            doseQueryStr = f"UPDATE images SET {key} = \'{dosePath}\' WHERE fraction_id = \'{fractionId}\'"
+                            self.dbAdapter.executeUpdateOnImageDB(doseQueryStr)
+        self.markPacketAsImported()
+        return True, "Success"
 
 def prepareArgumentParser():
     argParser = argparse.ArgumentParser(description="data Importer Tool")
