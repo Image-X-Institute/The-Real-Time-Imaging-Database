@@ -240,11 +240,14 @@ class DataImporter:
                 if fractionDetail[1]:
                     fractionId = fractionDetail[0]
                     fractionName = fractionDetail[1]
-                    imagePathPack = self.fileInfo["image_path"][fractionName]
-                    kvQueryStr = f"UPDATE images SET kv_images_path = \'{imagePathPack['KV']}\' WHERE fraction_id = \'{fractionId}\'"
-                    mvQueryStr = f"UPDATE images SET mv_images_path = \'{imagePathPack['MV']}\' WHERE fraction_id = \'{fractionId}\'"
-                    self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
-                    self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
+                    try:
+                        imagePathPack = self.fileInfo["image_path"][fractionName]
+                        kvQueryStr = f"UPDATE images SET kv_images_path = \'{imagePathPack['KV']}\' WHERE fraction_id = \'{fractionId}\'"
+                        mvQueryStr = f"UPDATE images SET mv_images_path = \'{imagePathPack['MV']}\' WHERE fraction_id = \'{fractionId}\'"
+                        self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
+                        self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
+                    except KeyError:
+                        pass
         self.markPacketAsImported()
         return True, "Success"
     
