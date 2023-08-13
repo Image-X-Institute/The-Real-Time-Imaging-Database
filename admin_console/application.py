@@ -100,6 +100,12 @@ def importUploadPacket(upload_id):
                         print("Inserted image path into database", result2[1])
                 elif fileInfo['file_type'] == "DVH_folder" or fileInfo['file_type'] == "DICOM_folder":
                     result = di.insertDoseReconstrcutionFileIntoDatabase()
+                elif fileInfo['file_type'] == "triangulation_folder" or fileInfo['file_type'] == "kim_logs":
+                    result = di.checkAndInsertFractionDataIntoDatabase()
+                    result2 = di.insertFractionFilePathIntoDatabase()
+                    if config.APP_DEBUG_MODE:
+                        print("Inserted fraction data into database", result[1])
+                        print("Inserted image path into database", result2[1])
                 else:
                     result = di.insertMetadataIntoDatabase()
                     if config.APP_DEBUG_MODE:
