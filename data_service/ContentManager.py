@@ -308,7 +308,7 @@ class ContentManager:
                 "pattern": re.compile(r"(?i)\btriangulation\b")
             },
             "kim": {
-                "path_name": "kim_path",
+                "path_name": "kim_logs_path",
                 "pattern": re.compile(r"(?i)\bkim_logs\b.*")
             }
         }
@@ -322,6 +322,8 @@ class ContentManager:
             fractionName = ""
             if formatedPath.count("/") == 3:
                 fractionName = re.search(r'\/([^\/]+)\/$', formatedPath).group(1)
+            if fractionName=="":
+                fractionName = fractionNumber
             relativeFolderPath =  fileTypeToPathMapping[metadata["file_type"]].format(
                             clinical_trial=metadata['clinical_trial'],
                             test_centre=metadata["test_centre"],
@@ -331,29 +333,30 @@ class ContentManager:
                         formatedPath
             relativePath = uploadId + relativeFolderPath + filename
             saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId + relativeFolderPath
+            relativeFilePath = relativeFolderPath + filename
             filesSaved.append(relativePath)
 
             filePathAppended:bool = False
             for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
                 if uploadedFileRecord["file_type"] == metadata["file_type"]:
                     uploadedFileRecord["Files"].append(relativePath)
-                    if fractionName not in uploadedFileRecord["sub_fraction"]:
-                        uploadedFileRecord["sub_fraction"].append(fractionName)
                     if fractionNumber not in uploadedFileRecord["fraction"]:
                         uploadedFileRecord["fraction"].append(fractionNumber)
-                    
+                        uploadedFileRecord["sub_fraction"][fractionNumber] = [fractionName]
+                    if fractionName not in uploadedFileRecord["sub_fraction"][fractionNumber]:
+                        uploadedFileRecord["sub_fraction"][fractionNumber].append(fractionName)
                     if fractionName not in uploadedFileRecord["db_file_name"].keys():
                         uploadedFileRecord["db_file_name"][fractionName] = {
-                            "triangulation": "",
-                            "metrics": "",
-                            "kim_logs": ""
+                            fileInfo["triangulation"]["path_name"]: "",
+                            fileInfo["metrics"]["path_name"]: "",
+                            fileInfo["kim"]["path_name"]: ""
                         }
                     if triangulationPattern.match(filename):
-                        uploadedFileRecord["db_file_name"][fractionName]["triangulation"] = relativeFolderPath
+                        uploadedFileRecord["db_file_name"][fractionName][fileInfo["triangulation"]["path_name"]]= relativeFilePath
                     if metricsPattern.match(filename):
-                        uploadedFileRecord["db_file_name"][fractionName]["metrics"] = relativeFolderPath
+                        uploadedFileRecord["db_file_name"][fractionName][fileInfo["metrics"]["path_name"]] = relativeFilePath
                     if kimPattern.match(filename):
-                        uploadedFileRecord["db_file_name"][fractionName]["kim_logs"] = relativeFolderPath
+                        uploadedFileRecord["db_file_name"][fractionName][fileInfo["kim"]["path_name"]] = relativeFilePath
                     if relativeFolderPath not in uploadedFileRecord["folder_path"]:
                         uploadedFileRecord["folder_path"].append(relativeFolderPath)
                     filePathAppended = True
@@ -364,19 +367,19 @@ class ContentManager:
                 if fractionName and triangulationPattern.match(filename):
                     pack = {
                         fractionName: {
-                            "triangulation": relativeFolderPath
+                            fileInfo["triangulation"]["path_name"]: relativeFilePath
                         }
                     }
                 if fractionName and metricsPattern.match(filename):
                     pack = {
                         fractionName: {
-                            "metrics": relativeFolderPath
+                            fileInfo["metrics"]["path_name"]: relativeFilePath
                         }
                     }
                 if fractionName and kimPattern.match(filename):
                     pack = {
                         fractionName: {
-                            "kim_logs": relativeFolderPath
+                            fileInfo["kim"]["path_name"]: relativeFilePath
                         }
                     }
                 uploadMetaData["uploaded_files"].append(
@@ -384,7 +387,9 @@ class ContentManager:
                         "file_type": metadata["file_type"],
                         "level": metadata["level"],
                         "fraction": [fractionNumber],
-                        "sub_fraction":[fractionName],
+                        "sub_fraction":{
+                            fractionNumber: [fractionName]
+                        },
                         "Files": [relativePath],
                         "folder_path": [relativeFolderPath],
                         "db_file_name": pack
