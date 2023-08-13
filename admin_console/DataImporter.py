@@ -215,10 +215,68 @@ class DataImporter:
                 result = self.dbAdapter.insertFractionIntoDB(fractionPack)
                 if not result:
                     allUpdate = False
+                    return allUpdate, "Failed"
             return allUpdate, "Success"
         else:
             return True, "Success"
+        
+    def checkAndInsertFractionDataIntoDatabase(self) -> Tuple[bool, str]:  
+        for fraction in self.fileInfo["fraction"]:
+            fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
+            fractionNameList = [name[1] for name in fractionDetailList]
+            subFractionList = self.fileInfo['sub_fraction'][fraction][:]
+            if len(fractionDetailList) == 0:
+                return False, "Failed"
+            else:
+                result = True
+                if subFractionList and set(fractionNameList) != set(subFractionList):
+                    initFractionDetail = self.dbAdapter.getFractionIdAndDate(self.metadata["patient_trial_id"], fraction)
+                    firstSubFraction = subFractionList.pop(0)
+                    self.dbAdapter.updateFractionName(initFractionDetail[0], firstSubFraction)
+                    for subFraction in subFractionList:
+                        if subFraction and subFraction not in fractionNameList:
+                            fractionPack = {
+                                "patient_trial_id": self.metadata["patient_trial_id"],
+                                "number": fraction,
+                                "name": subFraction,
+                                "date": str(initFractionDetail[1]),
+                            }
+                            self.dbAdapter.insertFractionIntoDB(fractionPack)
+                if not result:
+                    return result, "Failed"
+        return True, "Success"
     
+    def insertFractionFilePathIntoDatabase(self) -> Tuple[bool, str]:
+        if not self.fileInfo or not self.dataIsValid:
+            return False, "Please set an upload context and validate it before importing"
+        for fraction in self.fileInfo["fraction"]:
+            fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
+            if len(fractionDetailList) == 1:
+                print(fractionDetailList)
+                fractionId = fractionDetailList[0][0]
+                if self.fileInfo["db_file_name"][fraction]:
+                    for dbFilePath in self.fileInfo["db_file_name"][fraction].keys():
+                        print(dbFilePath)
+                        if self.fileInfo["db_file_name"][fraction][dbFilePath] != "":
+                            dbQueryStr = f"UPDATE images SET {dbFilePath} = \'{self.fileInfo['db_file_name'][fraction][dbFilePath]}\' WHERE fraction_id = \'{fractionId}\'"
+                            self.dbAdapter.executeUpdateOnImageDB(dbQueryStr)
+            if len(fractionDetailList) > 1:
+                for fractionDetail in fractionDetailList:
+                    if fractionDetail[1]:
+                        fractionId = fractionDetail[0]
+                        fractionName = fractionDetail[1]
+                        try:
+                            dbFilePaths = self.fileInfo["db_file_name"][fractionName].keys()
+                            for dbFilePath in dbFilePaths:
+                                if self.fileInfo["db_file_name"][fractionName][dbFilePath] != "":
+                                    dbQueryStr = f"UPDATE images SET {dbFilePath} = \'{self.fileInfo['db_file_name'][fractionName][dbFilePath]}\' WHERE fraction_id = \'{fractionId}\'"
+                                    self.dbAdapter.executeUpdateOnImageDB(dbQueryStr)
+                        except KeyError:
+                            return False, "Failed"
+        self.markPacketAsImported()
+        return True, "Success"
+            
+
     def insertImagePathIntoDatabase(self) -> Tuple[bool, str]:
         if not self.fileInfo or not self.dataIsValid:
             return False, "Please set an upload context and validate it before importing"
@@ -247,7 +305,7 @@ class DataImporter:
                         self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
                         self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
                     except KeyError:
-                        pass
+                        return False, "Failed"
         self.markPacketAsImported()
         return True, "Success"
     
