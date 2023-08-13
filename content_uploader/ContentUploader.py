@@ -992,8 +992,8 @@ class UploadDataScreen(QWidget):
             self.instanceNameLabel.setText(self.loginScreen.serverInstanceName)
             if self.currentProfile["connection_type"] == "DIRECT" \
                     or self.currentProfile["connection_type"] == "IMPORT_ONLY":
-                # self.dbClient.baseUrl = self.currentProfile["url"]
-                self.dbClient.baseUrl = "http://192.168.50.165:8090"
+                self.dbClient.baseUrl = self.currentProfile["url"]
+                # self.dbClient.baseUrl = "http://192.168.50.165:8090"
                 self.dbClient.authToken = self.currentProfile["token"]
                 if not self.dbClient.makeAuthRequest(
                         {"password": self.currentProfile["password"]}):
