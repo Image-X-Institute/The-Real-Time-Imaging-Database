@@ -296,6 +296,107 @@ class ContentManager:
                 )
             return saveFolderPath
         return ""
+    
+    def _processTriangulationAndKimLogs(self, metadata, filename, uploadMetaData, fileTypeToPathMapping, filesSaved, formatedPath):
+        fileInfo = {
+            "metrics": {
+                "path_name": "metrics_path",
+                "pattern": re.compile(r"(?i)\bmetrics\b")
+            },
+            "triangulation": {
+                "path_name": "triangulation_path",
+                "pattern": re.compile(r"(?i)\btriangulation\b")
+            },
+            "kim": {
+                "path_name": "kim_logs_path",
+                "pattern": re.compile(r"(?i)\bkim_logs\b.*")
+            }
+        }
+        metricsPattern = fileInfo["metrics"]["pattern"]
+        triangulationPattern = fileInfo["triangulation"]["pattern"]
+        kimPattern = fileInfo["kim"]["pattern"]
+
+        if triangulationPattern.match(filename) or metricsPattern.match(filename) or kimPattern.match(filename):
+            uploadId:str = metadata["upload_context"]
+            fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
+            fractionName = ""
+            if formatedPath.count("/") == 3:
+                fractionName = re.search(r'\/([^\/]+)\/$', formatedPath).group(1)
+            if fractionName=="":
+                fractionName = fractionNumber
+            relativeFolderPath =  fileTypeToPathMapping[metadata["file_type"]].format(
+                            clinical_trial=metadata['clinical_trial'],
+                            test_centre=metadata["test_centre"],
+                            patient_trial_id=metadata["patient_trial_id"],
+                            centre_patient_no=int(metadata["centre_patient_no"])
+                        ) + \
+                        formatedPath
+            relativePath = uploadId + relativeFolderPath + filename
+            saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId + relativeFolderPath
+            relativeFilePath = relativeFolderPath + filename
+            filesSaved.append(relativePath)
+
+            filePathAppended:bool = False
+            for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
+                if uploadedFileRecord["file_type"] == metadata["file_type"]:
+                    uploadedFileRecord["Files"].append(relativePath)
+                    if fractionNumber not in uploadedFileRecord["fraction"]:
+                        uploadedFileRecord["fraction"].append(fractionNumber)
+                        uploadedFileRecord["sub_fraction"][fractionNumber] = [fractionName]
+                    if fractionName not in uploadedFileRecord["sub_fraction"][fractionNumber]:
+                        uploadedFileRecord["sub_fraction"][fractionNumber].append(fractionName)
+                    if fractionName not in uploadedFileRecord["db_file_name"].keys():
+                        uploadedFileRecord["db_file_name"][fractionName] = {
+                            fileInfo["triangulation"]["path_name"]: "",
+                            fileInfo["metrics"]["path_name"]: "",
+                            fileInfo["kim"]["path_name"]: ""
+                        }
+                    if triangulationPattern.match(filename):
+                        uploadedFileRecord["db_file_name"][fractionName][fileInfo["triangulation"]["path_name"]]= relativeFilePath
+                    if metricsPattern.match(filename):
+                        uploadedFileRecord["db_file_name"][fractionName][fileInfo["metrics"]["path_name"]] = relativeFilePath
+                    if kimPattern.match(filename):
+                        uploadedFileRecord["db_file_name"][fractionName][fileInfo["kim"]["path_name"]] = relativeFilePath
+                    if relativeFolderPath not in uploadedFileRecord["folder_path"]:
+                        uploadedFileRecord["folder_path"].append(relativeFolderPath)
+                    filePathAppended = True
+                    break
+
+            if not filePathAppended:
+                pack = {}
+                if fractionName and triangulationPattern.match(filename):
+                    pack = {
+                        fractionName: {
+                            fileInfo["triangulation"]["path_name"]: relativeFilePath
+                        }
+                    }
+                if fractionName and metricsPattern.match(filename):
+                    pack = {
+                        fractionName: {
+                            fileInfo["metrics"]["path_name"]: relativeFilePath
+                        }
+                    }
+                if fractionName and kimPattern.match(filename):
+                    pack = {
+                        fractionName: {
+                            fileInfo["kim"]["path_name"]: relativeFilePath
+                        }
+                    }
+                uploadMetaData["uploaded_files"].append(
+                    {
+                        "file_type": metadata["file_type"],
+                        "level": metadata["level"],
+                        "fraction": [fractionNumber],
+                        "sub_fraction":{
+                            fractionNumber: [fractionName]
+                        },
+                        "Files": [relativePath],
+                        "folder_path": [relativeFolderPath],
+                        "db_file_name": pack
+                    }
+                )
+            return saveFolderPath
+        return ""
 
     def acceptAndSaveFile(self, req:request):
         # print("Files:", req.files)
@@ -385,6 +486,9 @@ class ContentManager:
                 elif metadata["file_type"] == "DICOM_folder" or metadata["file_type"] == "DVH_folder":
                     formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
                     saveFolderPath = self._processDoseReconstructionPlan(metadata, filename, uploadMetaData, fileTypeToPathMapping, filesSaved, formatedPath)
+                elif metadata["file_type"] == "triangulation_folder" or metadata["file_type"] == "kim_logs":
+                    formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
+                    saveFolderPath = self._processTriangulationAndKimLogs(metadata, filename, uploadMetaData, fileTypeToPathMapping, filesSaved, formatedPath)
                 else:
                     relativeFolderPath =  uploadId + \
                                     fileTypeToPathMapping[metadata["file_type"]].format(
