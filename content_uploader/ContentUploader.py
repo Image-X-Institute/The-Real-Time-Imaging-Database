@@ -27,6 +27,18 @@ import json
 class ClinicalTrialsMetaData:
     def __init__(self) -> None:
         self.fileTypes = {
+            "Fraction Folder (Images Only)": {
+                "level":"fraction",
+                "key":"fraction_folder",
+                "field_type":"folder",
+                "allowed":[
+                    "text/plain", 
+                    "image/tiff", 
+                    "application/dicom", 
+                    "application/octet-stream",
+                    "text/xml",
+                ]
+            },
              "DICOM Folder": {
                 "level": "fraction", 
                 "key":"DICOM_folder", 
@@ -38,6 +50,23 @@ class ClinicalTrialsMetaData:
                 "key":"DVH_folder",
                 "field_type": "folder",
                 "allowed":["text/plain"]
+            }, 
+            "Triangulation Folder": {
+                "level": "fraction", 
+                "key":"triangulation_folder",
+                "field_type": "file",
+                "allowed": ["text/plain", 
+                    "application/vnd.ms-excel", 
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+                    "application/vnd.oasis.opendocument.spreadsheet", 
+                    "text/csv"
+                ]		
+            }, 
+             "KIM log files": {
+                "level": "fraction", 
+                "key":"kim_logs",
+                "field_type": "file",
+                "allowed":["text/plain", "text/csv"]
             }, 
             "RT Plan DICOM": {
                 "level": "prescription", 
@@ -93,24 +122,7 @@ class ClinicalTrialsMetaData:
                             "text/javascript"
                 ]
             },
-            "Fraction Folder (Images Only)": {
-                "level":"fraction",
-                "key":"fraction_folder",
-                "field_type":"folder",
-                "allowed":[
-                    "text/plain", 
-                    "image/tiff", 
-                    "application/dicom", 
-                    "application/octet-stream",
-                    "text/xml",
-                ]
-            },
-            "KIM log files": {
-                "level": "fraction", 
-                "key":"kim_logs",
-                "field_type": "file",
-                "allowed":["text/plain", "text/csv"]
-            }, 
+
             # "kV images": {
             #     "level": "fraction", 
             #     "key":"kv_images",
@@ -133,28 +145,7 @@ class ClinicalTrialsMetaData:
             #                 "text/xml",
             #     ]
             # }, 
-            "Metrics Spreadsheet": {
-                "level": "fraction", 
-                "key":"metrics",
-                "field_type": "file",
-                "allowed": ["text/plain", 
-                            "application/vnd.ms-excel", 
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
-                            "application/vnd.oasis.opendocument.spreadsheet", 
-                            "text/csv"
-                ]		
-            }, 
-            "Triangulation Spreadsheet": {
-                "level": "fraction", 
-                "key":"triangulation",
-                "field_type": "file",
-                "allowed": ["text/plain", 
-                            "application/vnd.ms-excel", 
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
-                            "application/vnd.oasis.opendocument.spreadsheet", 
-                            "text/csv"
-                ]
-            }, 
+
             "trajectory log files": {
                 "level": "fraction", 
                 "key":"trajectory_logs", 
@@ -167,12 +158,12 @@ class ClinicalTrialsMetaData:
                             "application/x-bzip"
                 ]
             }, 
-            "fraction level DVH (tracked)": {
-                "level": "fraction", 
-                "key":"DVH_track_path",
-                "field_type": "file",
-                "allowed":["text/plain"]
-            }, 
+            # "fraction level DVH (tracked)": {
+            #     "level": "fraction", 
+            #     "key":"DVH_track_path",
+            #     "field_type": "file",
+            #     "allowed":["text/plain"]
+            # }, 
             # "fraction level DVH (not tracked)": {
             #     "level": "fraction", 
             #     "key":"DVH_no_track_path", 
