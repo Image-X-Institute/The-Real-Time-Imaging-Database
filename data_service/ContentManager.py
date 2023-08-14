@@ -324,8 +324,7 @@ class ContentManager:
                 fractionName = re.search(r'\/([^\/]+)\/$', formatedPath).group(1)
             if fractionName=="":
                 fractionName = fractionNumber
-            formatedPath = re.replace(r'^([^\/]+)\/', "", formatedPath)
-            formatedPath = formatedPath[1:]
+            formatedPath = re.sub(r'^([^\/]+)\/', "", formatedPath)
             relativeFolderPath =  fileTypeToPathMapping[metadata["file_type"]].format(
                             clinical_trial=metadata['clinical_trial'],
                             test_centre=metadata["test_centre"],
