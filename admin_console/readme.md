@@ -23,3 +23,18 @@ It uses a PostgreSQL backend to manage the user access using the `auth_db`. The 
 | `trials` | registered trials |
 | `acl_roles` | access control |
 | `trial_site_mapping` | mapping of sites to centres |
+
+## How to use
+To use the Admin Console, a local_settings.json file is required in the root folder of the project. This file contains the database connection details and the secret key for the Flask application. A sample file is provided in ./templates/local_settings.json. The file should be renamed to local_settings.json and the values should be updated as per the local environment.
+
+After the local_settings.json file is created, the required Python packages can be installed by running the following command from the root folder of the project:
+
+```bash
+pip install -r requirements.txt
+```
+
+The Admin Console can be started by running the following command from the root folder of the project:
+
+```bash
+python application.py
+```
