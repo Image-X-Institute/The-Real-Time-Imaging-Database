@@ -1,65 +1,72 @@
-# The Real-time Imaging Database and Analysis Project Repository
 
-## Introduction
+<h1 align="center">
+  <br>
+  <a href="https://image-x.sydney.edu.au/"><img src="./assets/logo.png" alt="Markdownify"></a>
+  <br>
+  The Real-time Imaging Database
+  <br>
+</h1>
+
+![Python](https://img.shields.io/badge/python-3.9-blue.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14.x-blue)
+![PySide6](https://img.shields.io/badge/PySide-6.x-green)
+![Conda](https://img.shields.io/badge/Conda-23.x-black)
+![Flask](https://img.shields.io/badge/Flask-2.3.x-orange)
+
+<p>
 This project aims to create a database of the clinical data accumulated over the years from the various projects into a central searchable service, which can be used to analyse the existing data and create models for predicting various features of interest. These features of interest can enable a customised treatment plan for the patients taking part in future clinical trials.
+</p>
 
-![deployment scenario](docsrc/images/deployment_scenario.png)
+<p align="center">
+  <a href="#key-features">Key Features</a> •
+  <a href="#design">Design</a> •
+  <a href="#how-to-use">How To Use</a> •
+  <a href="#user-guide-and-documentation">Documentation</a> •
+  <a href="#license">License</a>
+</p>
 
-## Scope
-The high-level scope of the project are as follows:
-
-- Restructuring of clinical data currently existing in the research network share into a hierarchy that is efficient to access and easy to use
-- Implementing a relational database-based data catalogue that can be looked up in an efficient manner without needing to parse the individual files on disk
-- Ensuring the integrity of data and preventing its accidental modification: enabling role-based access to data with proper authentication mechanism
-- Implementing a multi-platform set of interfaces, which can be used by various applications to access the data for retrieving, adding, and updating the underlying database
-- Implement a logistical regression-based prediction mechanism for marker sizes, dose and imaging properties using key features to support PERK applications
-- Implement a deep learning-based recommendation mechanism for marker sizes, dose and imaging properties
+## Key Features
+* Restructuring of clinical data into a hierarchy that is efficient to access for research purposes.
+* Host of a relational database to manage the clinical data record. 
+* Role-based access control system to manage the access to the database.
+* Web-based user interface to manage the database and access the data.
+* Python-flask API server for researchers to access the data.
+* Python PySide6 application for importing data into the database.
 
 ## Design
 ![Architecture](docsrc/images/architecture.png)
 
-## Repository Layout
+## How To Use
+The project contains three main components:
+* The database server ([data_service](data_service))
+* The web application ([admin_console](admin_console))
+* The content uploader application ([content_uploader](content_uploader))
 
-The following structure lists the repository folder structure and can be a helpful reference while adding new projects and files to it.
+In order to setup the project in a new environment, the prerequisites are:
+* Python 3.9+
+* PostgreSQL 14
+* Conda 4.10
 
-```
-.
-├── data_service       (The data service implementation)
-├── db_updater         (Application to parse files and update the database)
-├── content_uploader   (Frontend for supporting import of files into the database)
-├── filesystem_utils   (Collection of filesystem utilities)
-├── docs               (documentation)
-├── scripts            (all sorts of scripts used here)
-│   └── db               (Database schema and other scripts)
-└── test_clients       (test clients for the data service)
-    ├── dot_net_clients
-    ├── matlab_clients
-    └── python_clients
+After installing the prerequisites, the database server can be setup by following the documentation in the [LEARN DB Deployment Guide](docsrc/Local_Deployment_Guide.md) folder.
 
-```
+The web application is a flask application with simple Jinja templates. The application can be setup by following the documentation in the [Admin Console Deployment Guide](admin_console/readme.md).
 
-## Project Documentation
+## User Guide and Documentation
+The user guide for general users can be found in the [docs](docs/User_Guide_Data_import.pdf) folder.
 
-To refer to the project documentation for further details, please use the `Real-time imaging DB and Analysis Project` channel of the Microsoft Teams group of Image-X.
+The documentation for the project can be found in the [docsrc](docsrc) folder.
 
-## Working with code
+## License
+TBA
 
-This repository uses a variety of coding platforms to implement the data access service and provide API support for various test clients. This section explains how to browse and modify the source code in this repository. While any choice of editors/IDE may be used, the [Visual Studo Code](https://code.visualstudio.com/download) is highly recommended as it is a one stop shop for various languages and development platorms and would support opening most of the code files in this repository. To open the netire workspace containing all the projects, open visual Studio Code and then select the File > Open Workspace menu and open the `workspace.code-workspace` file.
-
-### Data Access Service
-The data access service is located in the data_service subfolder and is written ins Python using Flask for enabling a web based interface and psypopg2 for database access. The easiest way to setup the development environment for this project is to create a Python environment (either via [Anaconda](https://www.anaconda.com)/[Miniconda](https://docs.conda.io) or Python's [virtualenv module](https://docs.python.org/3/library/venv.html) ) and use [pip](https://packaging.python.org/tutorials/installing-packages/) with the following command to install all the required dependencies:
-
-```bash
-python3 -m pip -r requirements.txt
-```
-
-The detailed instructions to run the data service are covered in the [README](data_service/README.md) file under the data_service folder.
-
-### Database creation and querying
-
-All the database related scripts including the schema required to initally setup the database are kept in the `scripts/db` folder. To connect with the database service, the [dbeaver](https://dbeaver.io/download/) universal DB client is recommended.
-
-### API Test Code
-
-The test code for multiple languages is kept under the `test_clients` folder and can be opened as per the instructions in the individual README files. These test clients help test the APIs and provide a reference code for connecting to the data access service.
-
+External Packages used:
+* [Flask](https://flask.palletsprojects.com/en/2.0.x/) - [BSD-3-Clause Source License](https://flask.palletsprojects.com/en/2.0.x/license/)
+* [PySide6](https://doc.qt.io/qtforpython/PySide6/PySide6-index.html) - [LGPLv3 License](https://doc.qt.io/qtforpython/licenses.html)
+* [pyinstaller](https://www.pyinstaller.org/) - [GPLv2 License](https://www.pyinstaller.org/license.html)
+* [waitress](https://docs.pylonsproject.org/projects/waitress/en/stable/) - [ZPL License](https://docs.pylonsproject.org/projects/waitress/en/stable/license.html)
+* [msal](https://github.com/AzureAD/microsoft-authentication-library-for-python) - [MIT License](https://github.com/AzureAD/microsoft-authentication-library-for-python/blob/dev/LICENSE)
+* [psycopg2](https://www.psycopg.org/docs/) - [LGPLv3 License](https://www.psycopg.org/docs/license.html)
+* [pyjwt](https://pyjwt.readthedocs.io/en/stable/) - [MIT License](https://github.com/jpadilla/pyjwt/blob/master/LICENSE)
+* [gunicorn](https://gunicorn.org/) - [MIT License](https://github.com/benoitc/gunicorn/blob/master/LICENSE)
+* [pandas](https://pandas.pydata.org/) - [BSD-3-Clause License](https://pandas.pydata.org/docs/)
+* [pyminizip](https://pypi.org/project/pyminizip/) - [zlib License](https://github.com/smihica/pyminizip/blob/master/COPYING.txt)
