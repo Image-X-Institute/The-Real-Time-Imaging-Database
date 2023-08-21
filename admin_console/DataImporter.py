@@ -252,11 +252,9 @@ class DataImporter:
         for fraction in self.fileInfo["fraction"]:
             fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
             if len(fractionDetailList) == 1:
-                print(fractionDetailList)
                 fractionId = fractionDetailList[0][0]
                 if self.fileInfo["db_file_name"][fraction]:
                     for dbFilePath in self.fileInfo["db_file_name"][fraction].keys():
-                        print(dbFilePath)
                         if self.fileInfo["db_file_name"][fraction][dbFilePath] != "":
                             dbQueryStr = f"UPDATE images SET {dbFilePath} = \'{self.fileInfo['db_file_name'][fraction][dbFilePath]}\' WHERE fraction_id = \'{fractionId}\'"
                             self.dbAdapter.executeUpdateOnImageDB(dbQueryStr)
@@ -276,7 +274,52 @@ class DataImporter:
         self.markPacketAsImported()
         return True, "Success"
             
-
+    def insertPatientLevelImagePathIntoDatabase(self) -> Tuple[bool, str]:
+        if not self.fileInfo or not self.dataIsValid:
+            return False, "Please set an upload context and validate it before importing"
+        
+        for fraction in self.fileInfo["fraction"]:
+            fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
+            if len(fractionDetailList) == 1:
+                fractionId = fractionDetailList[0][0]
+                KV_pattern = r"(?i)\bKV\b"
+                MV_pattern = r"(?i)\bMV\b"
+                for folderPth in self.fileInfo["iamge_path"][fraction][fraction]:
+                    if re.search(KV_pattern, folderPth):
+                        kvQueryStr = f"UPDATE images SET kv_images_path = \'{folderPth}\' WHERE fraction_id = \'{fractionId}\'"
+                        self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
+                    elif re.search(MV_pattern, folderPth):
+                        mvQueryStr = f"UPDATE images SET mv_images_path = \'{folderPth}\' WHERE fraction_id = \'{fractionId}\'"
+                        self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
+            if len(fractionDetailList) > 1:
+                for fractionDetail in fractionDetailList:
+                    if fractionDetail[1]:
+                        fractionId = fractionDetail[0]
+                        fractionName = fractionDetail[1]
+                        try:
+                            imagePathPack = self.fileInfo["image_path"][fraction][fractionName]
+                            kvQueryStr = f"UPDATE images SET kv_images_path = \'{imagePathPack['KV']}\' WHERE fraction_id = \'{fractionId}\'"
+                            mvQueryStr = f"UPDATE images SET mv_images_path = \'{imagePathPack['MV']}\' WHERE fraction_id = \'{fractionId}\'"
+                            self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
+                            self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
+                        except KeyError:
+                            return False, "Failed"
+                        
+        self.markPacketAsImported()
+        return True, "Success"
+    
+    def insertTrajectoryLogIntoDatabase(self) -> Tuple[bool, str]:
+        for fractionNumber in self.fileInfo["fraction"]:
+            fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fractionNumber)
+            for fraction in fractionDetailList:
+                if fraction[1]:
+                    fractionId = fraction[0]
+                    trajectoryLogPath = self.fileInfo["trajectory_log"][fractionNumber]
+                    if trajectoryLogPath:
+                        trajectoryLogQueryStr = f"UPDATE images SET trajectory_log = \'{trajectoryLogPath}\' WHERE fraction_id = \'{fractionId}\'"
+                        self.dbAdapter.executeUpdateOnImageDB(trajectoryLogQueryStr)
+        self.markPacketAsImported()
+        return True, "Success"
     def insertImagePathIntoDatabase(self) -> Tuple[bool, str]:
         if not self.fileInfo or not self.dataIsValid:
             return False, "Please set an upload context and validate it before importing"
