@@ -27,7 +27,19 @@ import json
 class ClinicalTrialsMetaData:
     def __init__(self) -> None:
         self.fileTypes = {
-            "Fraction Folder (Images Only)": {
+            "Images Folder (Patient level)": {
+                "level":"fraction",
+                "key":"image_folder",
+                "field_type":"folder",
+                "allowed":[
+                    "text/plain", 
+                    "image/tiff", 
+                    "application/dicom", 
+                    "application/octet-stream",
+                    "text/xml",
+                ]
+            },
+             "Images Folder (Fraction level)": {
                 "level":"fraction",
                 "key":"fraction_folder",
                 "field_type":"folder",
@@ -62,66 +74,78 @@ class ClinicalTrialsMetaData:
                     "text/csv"
                 ]		
             }, 
+            "Trajectory log folder": {
+                "level": "fraction", 
+                "key":"trajectory_log_folder", 
+                "field_type": "file",
+                "allowed":["application/octet-stream", 
+                            "application/zip", 
+                            "application/x-7z-compressed", 
+                            "application/gzip", 
+                            "application/x-bzip2", 
+                            "application/x-bzip"
+                ]
+            }, 
              "KIM log files": {
                 "level": "fraction", 
                 "key":"kim_logs",
                 "field_type": "file",
                 "allowed":["text/plain", "text/csv"]
             }, 
-            "RT Plan DICOM": {
-                "level": "prescription", 
-                "key":"rt_plan_path",
-                "field_type": "file",
-                "allowed":["application/dicom"]
-            }, 
-            "Pre-treatment CT series": {
-                "level": "prescription", 
-                "key":"rt_ct_path",
-                "field_type": "folder",
-                "allowed":["application/dicom"]
-            },
-            "RT Structure set DICOM": {
-                "level": "prescription", 
-                "key":"rt_structure_path", 
-                "field_type": "file",
-                "allowed":["application/dicom"]
-            },
-            "RT Dose DICOM": {
-                "level": "prescription", 
-                "key":"rt_dose_path",
-                "field_type": "file", 
-                "allowed":["application/dicom"]
-            },
-            "Pre-treatment MRI series": {
-                "level": "prescription", 
-                "key":"rt_mri_path", 
-                "field_type": "folder",
-                "allowed":["application/dicom"]
-            },
-            "cumulative DVH": {
-                "level": "prescription", 
-                "key":"planned_dvh_path",
-                "field_type": "file",
-                "allowed":["text/plain"]
-            },
-            "Patient Centroid": {
-                "level": "prescription", 
-                "key":"centroid_path",
-                "field_type": "file",
-                "allowed":["text/plain"]
-            },
-            "Miscellanious files (patient level)": {
-                "level": "prescription", 
-                "key":"other",
-                "field_type": "file",
-                "denied": ["application/x-dosexec", 
-                            "application/vnd.microsoft.portable-executable", 
-                            "text/x-shellscript", 
-                            "application/x-sh", 
-                            "application/x-csh", 
-                            "text/javascript"
-                ]
-            },
+            # "RT Plan DICOM": {
+            #     "level": "prescription", 
+            #     "key":"rt_plan_path",
+            #     "field_type": "file",
+            #     "allowed":["application/dicom"]
+            # }, 
+            # "Pre-treatment CT series": {
+            #     "level": "prescription", 
+            #     "key":"rt_ct_path",
+            #     "field_type": "folder",
+            #     "allowed":["application/dicom"]
+            # },
+            # "RT Structure set DICOM": {
+            #     "level": "prescription", 
+            #     "key":"rt_structure_path", 
+            #     "field_type": "file",
+            #     "allowed":["application/dicom"]
+            # },
+            # "RT Dose DICOM": {
+            #     "level": "prescription", 
+            #     "key":"rt_dose_path",
+            #     "field_type": "file", 
+            #     "allowed":["application/dicom"]
+            # },
+            # "Pre-treatment MRI series": {
+            #     "level": "prescription", 
+            #     "key":"rt_mri_path", 
+            #     "field_type": "folder",
+            #     "allowed":["application/dicom"]
+            # },
+            # "cumulative DVH": {
+            #     "level": "prescription", 
+            #     "key":"planned_dvh_path",
+            #     "field_type": "file",
+            #     "allowed":["text/plain"]
+            # },
+            # "Patient Centroid": {
+            #     "level": "prescription", 
+            #     "key":"centroid_path",
+            #     "field_type": "file",
+            #     "allowed":["text/plain"]
+            # },
+            # "Miscellanious files (patient level)": {
+            #     "level": "prescription", 
+            #     "key":"other",
+            #     "field_type": "file",
+            #     "denied": ["application/x-dosexec", 
+            #                 "application/vnd.microsoft.portable-executable", 
+            #                 "text/x-shellscript", 
+            #                 "application/x-sh", 
+            #                 "application/x-csh", 
+            #                 "text/javascript"
+            #     ]
+            # },
 
             # "kV images": {
             #     "level": "fraction", 
@@ -146,18 +170,18 @@ class ClinicalTrialsMetaData:
             #     ]
             # }, 
 
-            "trajectory log files": {
-                "level": "fraction", 
-                "key":"trajectory_logs", 
-                "field_type": "file",
-                "allowed":["application/octet-stream", 
-                            "application/zip", 
-                            "application/x-7z-compressed", 
-                            "application/gzip", 
-                            "application/x-bzip2", 
-                            "application/x-bzip"
-                ]
-            }, 
+            # "trajectory log files": {
+            #     "level": "fraction", 
+            #     "key":"trajectory_log_folder", 
+            #     "field_type": "file",
+            #     "allowed":["application/octet-stream", 
+            #                 "application/zip", 
+            #                 "application/x-7z-compressed", 
+            #                 "application/gzip", 
+            #                 "application/x-bzip2", 
+            #                 "application/x-bzip"
+            #     ]
+            # }, 
             # "fraction level DVH (tracked)": {
             #     "level": "fraction", 
             #     "key":"DVH_track_path",
@@ -176,18 +200,18 @@ class ClinicalTrialsMetaData:
             #     "field_type": "file",
             #     "allowed":["application/dicom"]
             # },
-            "Miscellanious files (fraction level)": {
-                "level": "fraction", 
-                "key":"other",
-                "field_type": "file",
-                "denied": ["application/x-dosexec", 
-                            "application/vnd.microsoft.portable-executable", 
-                            "text/x-shellscript", 
-                            "application/x-sh", 
-                            "application/x-csh", 
-                            "text/javascript"
-                ]
-            }
+            # "Miscellanious files (fraction level)": {
+            #     "level": "fraction", 
+            #     "key":"other",
+            #     "field_type": "file",
+            #     "denied": ["application/x-dosexec", 
+            #                 "application/vnd.microsoft.portable-executable", 
+            #                 "text/x-shellscript", 
+            #                 "application/x-sh", 
+            #                 "application/x-csh", 
+            #                 "text/javascript"
+            #     ]
+            # }
         }
         self.centres = ["Select Centre", 
                         "CMN", 
@@ -757,7 +781,6 @@ class UploadDataScreen(QWidget):
         self.fractionSelector = QComboBox()
         self.fractionSelector.addItems(self.trialsMetaData.getFractionNames())
         self.fractionSelector.currentTextChanged.connect(self.fractionSelected)
-        self.fractionSelector.setDisabled(True)
 
 
         addFractionPushBtn = QPushButton("+")
@@ -769,7 +792,6 @@ class UploadDataScreen(QWidget):
         addSubFractionPushBtn = QPushButton("+")
         addSubFractionPushBtn.setMaximumSize(30, addSubFractionPushBtn.height())
         addSubFractionPushBtn.clicked.connect(self.showNewSubFractionScreen)
-        self.subFractionSelector.setDisabled(True)
 
         self.patientTrialIdLineEdit = QLineEdit()
 
@@ -992,8 +1014,8 @@ class UploadDataScreen(QWidget):
             self.instanceNameLabel.setText(self.loginScreen.serverInstanceName)
             if self.currentProfile["connection_type"] == "DIRECT" \
                     or self.currentProfile["connection_type"] == "IMPORT_ONLY":
-                self.dbClient.baseUrl = self.currentProfile["url"]
-                # self.dbClient.baseUrl = "http://192.168.50.165:8090"
+                # self.dbClient.baseUrl = self.currentProfile["url"]
+                self.dbClient.baseUrl = "http://192.168.50.165:8090"
                 self.dbClient.authToken = self.currentProfile["token"]
                 if not self.dbClient.makeAuthRequest(
                         {"password": self.currentProfile["password"]}):
