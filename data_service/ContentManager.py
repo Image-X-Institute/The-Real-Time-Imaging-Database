@@ -136,7 +136,7 @@ class ContentManager:
         chars = string.ascii_uppercase + string.digits
         return ''.join(random.choice(chars) for _ in range(size))
     
-    def _processImageFolder(self, metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath):
+    def _processImageFractionFolder(self, metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath):
         uploadId:str = metadata["upload_context"]
         fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
         fractionName = ""
@@ -201,6 +201,149 @@ class ContentManager:
                 }
             )
         return saveFolderPath
+    
+    def _processImagePatientFolder(self, metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath):
+        uploadId:str = metadata["upload_context"]
+        fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
+        fractionName = ""
+        if formatedPath.count("/") == 4:
+            fractionName = re.search(r'\/([^\/]+)\/KIM', formatedPath, re.IGNORECASE).group(1)
+        if fractionName=="":
+            fractionName = fractionNumber
+        formatedPath = re.sub(r'^([^\/]+)\/', "", formatedPath)
+        relativeFolderPath =  fileTypeToPathMapping[metadata["file_type"]].format(
+                        clinical_trial=metadata['clinical_trial'],
+                        test_centre=metadata["test_centre"],
+                        patient_trial_id=metadata["patient_trial_id"],
+                        centre_patient_no=int(metadata["centre_patient_no"])
+                    ) + formatedPath
+        relativePath = uploadId + relativeFolderPath + filename
+        saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId + relativeFolderPath
+        filesSaved.append(relativePath)
+        
+        KV_pattern = r"(?i)\bKV\b"
+        MV_pattern = r"(?i)\bMV\b"
+
+        filePathAppended:bool = False
+        for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
+            if uploadedFileRecord["file_type"] == metadata["file_type"]:
+                uploadedFileRecord["Files"].append(relativePath)
+                if fractionNumber not in uploadedFileRecord["fraction"]:
+                    uploadedFileRecord["fraction"].append(fractionNumber)
+                    uploadedFileRecord["folder_path"].append(relativeFolderPath)
+                    uploadedFileRecord["sub_fraction"][fractionNumber] = [fractionName]
+                    uploadedFileRecord["image_path"][fractionNumber] = {
+                        fractionName: {
+                            "KV": "",
+                            "MV": ""
+                        }
+                    }
+                    if re.search(KV_pattern, relativeFolderPath):
+                        uploadedFileRecord["image_path"][fractionNumber][fractionName]["KV"] = relativeFolderPath
+                    if re.search(MV_pattern, relativeFolderPath):
+                        uploadedFileRecord["image_path"][fractionNumber][fractionName]["MV"] = relativeFolderPath
+                else:
+                    if fractionName not in uploadedFileRecord["sub_fraction"][fractionNumber]:
+                        uploadedFileRecord["sub_fraction"][fractionNumber].append(fractionName)
+                        uploadedFileRecord["folder_path"].append(relativeFolderPath)
+                        uploadedFileRecord["image_path"][fractionNumber][fractionName] = {
+                            "KV": "",
+                            "MV": ""
+                        }
+                        if re.search(KV_pattern, relativeFolderPath):
+                            uploadedFileRecord["image_path"][fractionNumber][fractionName]["KV"] = relativeFolderPath
+                        if re.search(MV_pattern, relativeFolderPath):
+                            uploadedFileRecord["image_path"][fractionNumber][fractionName]["MV"] = relativeFolderPath
+                    else:
+                        if re.search(KV_pattern, relativeFolderPath):
+                            uploadedFileRecord["image_path"][fractionNumber][fractionName]["KV"] = relativeFolderPath
+                        if re.search(MV_pattern, relativeFolderPath):
+                            uploadedFileRecord["image_path"][fractionNumber][fractionName]["MV"] = relativeFolderPath
+                filePathAppended = True
+                break
+                        
+        if not filePathAppended:
+            pack = {}
+            if re.search(KV_pattern, relativeFolderPath):
+                pack = {
+                    fractionNumber: {
+                        fractionName: {
+                            "KV": relativeFolderPath
+                        }
+                    }
+                }
+            if re.search(MV_pattern, relativeFolderPath):
+                pack = {
+                    fractionNumber: {
+                        fractionName: {
+                            "MV": relativeFolderPath
+                        }
+                    }
+                }
+            uploadMetaData["uploaded_files"].append(
+                {
+                    "file_type": metadata["file_type"],
+                    "level": metadata["level"],
+                    "fraction": [fractionNumber],
+                    "sub_fraction": {
+                        fractionNumber: [fractionName]
+                    },
+                    "Files": [relativePath],
+                    "folder_path": [relativeFolderPath],
+                    "image_path": pack
+                }
+            )
+
+        return saveFolderPath
+    
+    def _processTrajectoryLog(self, metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath):
+        uploadId:str = metadata["upload_context"]
+        fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
+        fractionName = re.search(r'/(?P<result>[^/]+)', formatedPath).group("result")
+        relativeFolderPath =  fileTypeToPathMapping[metadata["file_type"]].format(
+                        clinical_trial=metadata['clinical_trial'],
+                        test_centre=metadata["test_centre"],
+                        patient_trial_id=metadata["patient_trial_id"],
+                        centre_patient_no=int(metadata["centre_patient_no"])
+                    ) + fractionName
+        relativePath = uploadId + relativeFolderPath + '/' + filename
+        filesSaved.append(relativePath)
+        saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId + relativeFolderPath
+        filePathAppended:bool = False
+
+        for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
+            if uploadedFileRecord["file_type"] == metadata["file_type"]:
+                uploadedFileRecord["Files"].append(relativePath)
+                if fractionNumber not in uploadedFileRecord["fraction"]:
+                    uploadedFileRecord["folder_path"].append(relativeFolderPath)
+                    uploadedFileRecord["fraction"].append(fractionNumber)
+                    uploadedFileRecord["sub_fraction"][fractionNumber] = [fractionName]
+                    uploadedFileRecord["trajectory_logs_path"][fractionNumber] = relativeFolderPath
+                filePathAppended = True
+                break
+
+
+        if not filePathAppended:
+            pack = {
+                fractionNumber: relativeFolderPath
+            }
+            uploadMetaData["uploaded_files"].append(
+                {
+                    "file_type": metadata["file_type"],
+                    "level": metadata["level"],
+                    "fraction": [fractionNumber],
+                    "sub_fraction": {
+                        fractionNumber: [fractionName]
+                    },
+                    "Files": [relativePath],
+                    "folder_path": [relativeFolderPath],
+                    "trajectory_logs_path": pack
+                }
+            )
+        return saveFolderPath
+
+
+        
 
     def _processDoseReconstructionPlan(self, metadata, filename, uploadMetaData, fileTypeToPathMapping, filesSaved, formatedPath):
         subFolder = {
@@ -480,15 +623,17 @@ class ContentManager:
             for fileFieldName in req.files.keys():
                 uploadedFile = req.files[fileFieldName]
                 filename = secure_filename(uploadedFile.filename)
+                formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
                 if metadata["file_type"] == "fraction_folder":
-                    formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
-                    saveFolderPath = self._processImageFolder(metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath)
+                    saveFolderPath = self._processImageFractionFolder(metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath)
                 elif metadata["file_type"] == "DICOM_folder" or metadata["file_type"] == "DVH_folder":
-                    formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
                     saveFolderPath = self._processDoseReconstructionPlan(metadata, filename, uploadMetaData, fileTypeToPathMapping, filesSaved, formatedPath)
                 elif metadata["file_type"] == "triangulation_folder" or metadata["file_type"] == "kim_logs":
-                    formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
                     saveFolderPath = self._processTriangulationAndKimLogs(metadata, filename, uploadMetaData, fileTypeToPathMapping, filesSaved, formatedPath)
+                elif metadata["file_type"] == "image_folder":
+                    saveFolderPath = self._processImagePatientFolder(metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath)
+                elif metadata["file_type"] == "trajectory_log_folder":
+                    saveFolderPath =  self._processTrajectoryLog(metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath)
                 else:
                     relativeFolderPath =  uploadId + \
                                     fileTypeToPathMapping[metadata["file_type"]].format(
