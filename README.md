@@ -14,7 +14,7 @@
 ![Flask](https://img.shields.io/badge/Flask-2.3.x-orange)
 
 <p>
-This project aims to create a database of the clinical data accumulated over the years from the various projects into a central searchable service, which can be used to analyse the existing data and create models for predicting various features of interest. These features of interest can enable a customised treatment plan for the patients taking part in future clinical trials.
+This project aims to create a cloud-based secure and easy-to-use mechanism for managing the already acquired and to-be-generated clinical trial data into a central searchable service, which can be used to analyse clinical data and create deep-learning models for predicting various features of interest. The learning system provides a RESTful API and token-based authentication for ease of integration with existing and new applications that produce or require access to the de-identified patient data to researchers, clinicians, and other health professionals who want to use the available clinical data.
 </p>
 
 <p align="center">
