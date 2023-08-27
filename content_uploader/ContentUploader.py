@@ -794,7 +794,6 @@ class UploadDataScreen(QWidget):
         addSubFractionPushBtn.clicked.connect(self.showNewSubFractionScreen)
 
         self.patientTrialIdLineEdit = QLineEdit()
-
         self.patientIdVerifiedIndicator = QLabel()
         
         verifyIdPushBtn = QPushButton("⟲")
