@@ -1,3 +1,0 @@
-pydicom
-python-magic
-pyinstaller
