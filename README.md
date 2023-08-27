@@ -22,7 +22,9 @@ This project aims to create a cloud-based secure and easy-to-use mechanism for m
   <a href="#design">Design</a> •
   <a href="#how-to-use">How To Use</a> •
   <a href="#user-guide-and-documentation">Documentation</a> •
-  <a href="#license">License</a>
+  <a href="#license">License</a> •
+  <a href="#authors">Authors</a> •
+  <a href="#acknowledgements">Acknowledgements</a>
 </p>
 
 ## Key Features
@@ -57,7 +59,7 @@ The user guide for general users can be found in the [docs](docs/User_Guide_Data
 The documentation for the project can be found in the [docsrc](docsrc) folder.
 
 ## License
-TBA
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 External Packages used:
 * [Flask](https://flask.palletsprojects.com/en/2.0.x/) - [BSD-3-Clause Source License](https://flask.palletsprojects.com/en/2.0.x/license/)
@@ -70,3 +72,9 @@ External Packages used:
 * [gunicorn](https://gunicorn.org/) - [MIT License](https://github.com/benoitc/gunicorn/blob/master/LICENSE)
 * [pandas](https://pandas.pydata.org/) - [BSD-3-Clause License](https://pandas.pydata.org/docs/)
 * [pyminizip](https://pypi.org/project/pyminizip/) - [zlib License](https://github.com/smihica/pyminizip/blob/master/COPYING.txt)
+
+## Authors
+Mr Indrajit Ghosh
+
+## Acknowledgements
+The authors thank all the contributors, Dr. Chandrima Sengupta, Dr. Brendan Whelan, Dr. Doan Trang Nguyen, Yu Liang, Dr. Ricky O'Brien, and Prof. Paul J Keall for lending their valuable input and expertise leading up to the initial release. Thanks to the Image-X team for providing valuable input in developing this repository.
