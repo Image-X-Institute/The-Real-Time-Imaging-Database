@@ -314,12 +314,13 @@ class DataImporter:
             for fraction in fractionDetailList:
                 if fraction[1]:
                     fractionId = fraction[0]
-                    trajectoryLogPath = self.fileInfo["trajectory_log"][fractionNumber]
+                    trajectoryLogPath = self.fileInfo["trajectory_logs_path"][fractionNumber]
                     if trajectoryLogPath:
-                        trajectoryLogQueryStr = f"UPDATE images SET trajectory_log = \'{trajectoryLogPath}\' WHERE fraction_id = \'{fractionId}\'"
+                        trajectoryLogQueryStr = f"UPDATE images SET trajectory_logs_path = \'{trajectoryLogPath}\' WHERE fraction_id = \'{fractionId}\'"
                         self.dbAdapter.executeUpdateOnImageDB(trajectoryLogQueryStr)
         self.markPacketAsImported()
         return True, "Success"
+    
     def insertImagePathIntoDatabase(self) -> Tuple[bool, str]:
         if not self.fileInfo or not self.dataIsValid:
             return False, "Please set an upload context and validate it before importing"
