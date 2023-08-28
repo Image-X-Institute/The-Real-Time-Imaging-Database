@@ -80,4 +80,4 @@ Chandrima.Sengupta@sydney.edu.au.
 Mr Indrajit Ghosh and Mr Yu Liang. 
 
 ## Acknowledgements
-The authors thank all the contributors Dr. Chandrima Sengupta, Dr. Brendan Whelan, Dr. Doan Trang Nguyen, Dr. Ricky O'Brien, and Prof. Paul J Keall for lending their valuable input and expertise leading up to the initial release. 
+The authors thank all the contributors Dr. Chandrima Sengupta, Dr. Brendan Whelan, Dr. Doan Trang Nguyen, Prof. Ricky O'Brien, and Prof. Paul J Keall for lending their valuable input and expertise leading up to the initial release. 
