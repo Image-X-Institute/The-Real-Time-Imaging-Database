@@ -40,9 +40,26 @@ This project aims to create a cloud-based secure and easy-to-use mechanism for m
 
 ## How To Use
 The project contains three main components:
-* The database server ([data_service](data_service))
-* The web application ([admin_console](admin_console))
-* The content uploader application ([content_uploader](content_uploader))
+* The database server ([data_service](src/data_service))
+* The web application ([admin_console](src/admin_console))
+* The content uploader application ([content_uploader](src/content_uploader))
+
+The file structure of the project is as follows:
+```
+.
+├── src/
+│   ├── admin_console/ (The web application for management of import data)
+│   ├── content_uploader/ (Frontend for supporting import of files into the database)
+│   ├── data_service (The main database server hoster)
+│   └── db_updater (Application to parse files and update the database)
+└── scripts/
+    ├── db/ (Database schema and other scripts)
+    └── service/
+        ├── data_service.sh (The script to start the database server on Linux system)
+        ├── install_service.bat
+        └── learndb.service (The service file of the database server for linux system)
+```
+
 
 In order to setup the project in a new environment, the prerequisites are:
 * Python 3.9+
