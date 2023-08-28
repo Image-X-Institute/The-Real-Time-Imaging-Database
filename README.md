@@ -73,8 +73,11 @@ External Packages used:
 * [pandas](https://pandas.pydata.org/) - [BSD-3-Clause License](https://pandas.pydata.org/docs/)
 * [pyminizip](https://pypi.org/project/pyminizip/) - [zlib License](https://github.com/smihica/pyminizip/blob/master/COPYING.txt)
 
+## Contact information
+Chandrima.Sengupta@sydney.edu.au.
+
 ## Authors
-Mr Indrajit Ghosh
+Mr Indrajit Ghosh and Mr Yu Liang. 
 
 ## Acknowledgements
-The authors thank all the contributors, Dr. Chandrima Sengupta, Dr. Brendan Whelan, Dr. Doan Trang Nguyen, Yu Liang, Dr. Ricky O'Brien, and Prof. Paul J Keall for lending their valuable input and expertise leading up to the initial release. Thanks to the Image-X team for providing valuable input in developing this repository.
+The authors thank all the contributors Dr. Chandrima Sengupta, Dr. Brendan Whelan, Dr. Doan Trang Nguyen, Dr. Ricky O'Brien, and Prof. Paul J Keall for lending their valuable input and expertise leading up to the initial release. 
