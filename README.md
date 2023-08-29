@@ -3,7 +3,7 @@
   <br>
   <a href="https://image-x.sydney.edu.au/"><img src="./assets/logo.png" alt="Markdownify"></a>
   <br>
-  The Real-time Imaging Database
+  The Real Time Imaging Database
   <br>
 </h1>
 
