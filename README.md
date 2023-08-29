@@ -21,7 +21,6 @@ This project aims to create a cloud-based secure and easy-to-use mechanism for m
   <a href="#key-features">Key Features</a> •
   <a href="#design">Design</a> •
   <a href="#how-to-use">How To Use</a> •
-  <a href="#user-guide-and-documentation">Documentation</a> •
   <a href="#license">License</a> •
   <a href="#authors">Authors</a> •
   <a href="#acknowledgements">Acknowledgements</a>
