@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>LEARN DB Deployment Guide &#8212; Packaging Demo  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Setting up VPN access to the University Network from an EC2 instance" href="HOWTO_VPN_from_AWS_EC2_instance_to_the_University.html" />
+    <link rel="prev" title="Landing page" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="learn-db-deployment-guide">
+<h1>LEARN DB Deployment Guide<a class="headerlink" href="#learn-db-deployment-guide" title="Permalink to this heading">¶</a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h2>
+<p>This document describes the process of setting up the Clinical Trial database, the data service and populating the database with data catalogued from the clinical trail data shared drive. It assumes that the person setting up the service has access to the codebase (which is composed mostly of Python files) and the relevant data shares.</p>
+</section>
+<section id="pre-install-requirements">
+<h2>Pre Install Requirements<a class="headerlink" href="#pre-install-requirements" title="Permalink to this heading">¶</a></h2>
+<section id="hardware-requirements">
+<h3>Hardware Requirements<a class="headerlink" href="#hardware-requirements" title="Permalink to this heading">¶</a></h3>
+<p>There are no specific hardware requirements for the database service to be installed. The system on which the service is installed should be capable of running either Windows 10 or any of the latest distributions of Linux and have sufficient resources to host the PostgreSQL database server.</p>
+</section>
+<section id="software-and-environment-setup">
+<h3>Software and Environment Setup<a class="headerlink" href="#software-and-environment-setup" title="Permalink to this heading">¶</a></h3>
+<p>The data service has been designed to run on a windows based system (as a service, after being compiled into an executable) or a Linux based system. In either case, the following requirements should be met.</p>
+<ul class="simple">
+<li><p><strong>Database server:</strong> The data service uses PostgreSQL as the backend database for both the clinical trial data as well as the user authentication and authorisation functionality. It has been tested with PostgreSQL versions 12.x, 13.x and 14.x and should be able to function satisfactorily with an install of either of these versions. To install the database server, please use the system packages in case of Ubuntu, RedHat or any other Linux distribution of choice and in case of Windows, EDB provides opensource <a class="reference external" href="https://www.enterprisedb.com/downloads/postgres-postgresql-downloads">Windows installer builds</a>.</p></li>
+<li><p><strong>Python Environment:</strong> Python should be installed to be able to run the data service and other related modules. While the default system python install can be used directly, it would be preferable to either use a <a class="reference external" href="https://docs.python.org/3/library/venv.html">virtual environment</a> or <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html"><code class="docutils literal notranslate"><span class="pre">Miniconda</span></code></a> for setting up the appropriate environments.</p></li>
+<li><p><strong>Storage Access:</strong> The actual clinical trial data is kept in the University of Sydney <a class="reference external" href="https://sydneyuni.atlassian.net/wiki/spaces/RC/pages/228589620/Research+Data+Store">research drives</a>. Hence, the system running the data service should have access to these (or an alternative in case being run on a different storage location). It should be possible to mount the CIFS/Windows Share using a valid <code class="docutils literal notranslate"><span class="pre">unikey</span></code>, which has the authorisation to access the Image-X shared drive.</p></li>
+<li><p><strong>Source Control Tools:</strong> The source and scripts for the service is kept under source control in GitHub and hence the git client side tools would be required to clone the repository and access them. The git <a class="reference external" href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">command line tool</a> should be sufficient to do this.</p></li>
+</ul>
+</section>
+</section>
+<section id="setup-and-deployment">
+<h2>Setup and Deployment<a class="headerlink" href="#setup-and-deployment" title="Permalink to this heading">¶</a></h2>
+<p>We would be taking a build from scratch approach for setting up the data service and the following sections would guide one though the process of doing so.</p>
+<section id="setting-up-a-staging-area">
+<h3>Setting Up a Staging Area<a class="headerlink" href="#setting-up-a-staging-area" title="Permalink to this heading">¶</a></h3>
+<p>The staging area is the filesystem path in which the source code is placed (by cloning from <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">origin</span></code> or, less preferably, by copying the source).</p>
+<p>This staging area is referred to as the <em>&lt;REPO_ROOT&gt;</em> in the rest of the document.</p>
+</section>
+<section id="creating-databases">
+<h3>Creating Databases<a class="headerlink" href="#creating-databases" title="Permalink to this heading">¶</a></h3>
+<p>There are two databases that need to be created on PostgreSQL as well as a user role to grant access to them. The scripts for creating and initialising the databases is kept in <code class="docutils literal notranslate"><span class="pre">&lt;RPO_ROOT&gt;/scripts/db</span></code> and this would be referred to as the DB scripts folder in the sections below. To run the database SQL scripts, the PostgreSQL command line tool <code class="docutils literal notranslate"><span class="pre">psql</span></code> can be used.</p>
+<section id="creating-a-user-role-and-databases">
+<h4>Creating a User Role and Databases<a class="headerlink" href="#creating-a-user-role-and-databases" title="Permalink to this heading">¶</a></h4>
+<p>The template for the database user role creation is present in the script <code class="docutils literal notranslate"><span class="pre">db_init.sql</span></code> in the DB scripts folder. It can be run as-is using the default <code class="docutils literal notranslate"><span class="pre">postgres</span></code> user and it would create the default user defined in the scripts. However, for additional security, it is recommended the name and password for the database user be changed in this script by opening it in a text editor and setting the database user and password in the <code class="docutils literal notranslate"><span class="pre">&lt;database</span> <span class="pre">user</span> <span class="pre">name&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;password</span> <span class="pre">of</span> <span class="pre">your</span> <span class="pre">choice&gt;</span></code> placeholders in the following lines:</p>
+<div class="highlight-SQL notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="o">&lt;</span><span class="k">database</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="n">name</span><span class="o">&gt;</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="k">CREATEDB</span><span class="w"> </span><span class="n">PASSWORD</span><span class="w"> </span><span class="o">&lt;</span><span class="n">password</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">your</span><span class="w"> </span><span class="n">choice</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">testdb</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="k">OWNER</span><span class="w"> </span><span class="o">&lt;</span><span class="k">database</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="n">name</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">auth_audit_db</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="k">OWNER</span><span class="w"> </span><span class="o">&lt;</span><span class="k">database</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="n">name</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p><strong>NOTE:</strong> For a development setup, these modifications are not required and the data service can run properly even with the default values defined in the script. If these values are changed, then they should be updated in the configuration file that would be described in configuration step below.</p>
+<p>To create the user role, the <code class="docutils literal notranslate"><span class="pre">db_init.sql</span></code> (or the modified one) can be run as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>psql -U postgres -f db_init.sql
+</pre></div>
+</div>
+<p><strong>NOTE:</strong> On Linux, it might be necessary to <code class="docutils literal notranslate"><span class="pre">su</span></code> to the <code class="docutils literal notranslate"><span class="pre">postgres</span></code> user, which is created when PostgreSQL is installed on the system. Since this is a system user, it might not have any password assigned to it. In that case, using <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">su</span> <span class="pre">-</span> <span class="pre">postgres</span></code> might do the trick. On Windows, running the above command would prompt for the password that was set while installing the PostgreSQL server.</p>
+<p>The script should produce a <code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">ROLE</span></code> followed by a number of <code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">DATABASE</span></code> output without any errors to indicate successful creation of the appropriate role and databases.</p>
+</section>
+<section id="setting-up-the-databases">
+<h4>Setting up the Databases<a class="headerlink" href="#setting-up-the-databases" title="Permalink to this heading">¶</a></h4>
+<p>In the DB scripts folder, the following scripts need to be executed using the PostgreSQL client one by one to setup the actual tables in the databases created above and initialise them with some required data. Replace the <code class="docutils literal notranslate"><span class="pre">&lt;database</span> <span class="pre">user</span> <span class="pre">name&gt;</span></code> in the statements below with the appropriate user name (or <code class="docutils literal notranslate"><span class="pre">indrajit</span></code> if the script was executed unchanged in the previous section),</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>psql -U &lt;database user name&gt; -d testdb -f db_schema.sql
+
+psql -U &lt;database user name&gt; -d auth_audit_db -f auth_db_schema.sql
+
+psql -U &lt;database user name&gt; -d auth_audit_db -f auth_db_init.sql
+</pre></div>
+</div>
+<p><strong>NOTE:</strong> If the above scripts are executed for the very first time on a new install of PostgreSQL, it is normal to see a number of <code class="docutils literal notranslate"><span class="pre">NOTICE:</span> <span class="pre">table</span> <span class="pre">&lt;table</span> <span class="pre">name&gt;</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">exist,</span> <span class="pre">skipping</span></code> errors.</p>
+<p><strong>NOTE:</strong> Be careful with the name of the database (the <code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">&lt;database</span> <span class="pre">name&gt;</span></code> parameter while executing the <code class="docutils literal notranslate"><span class="pre">psql</span></code> statements)</p>
+</section>
+</section>
+<section id="setting-up-the-configuration">
+<h3>Setting Up the Configuration<a class="headerlink" href="#setting-up-the-configuration" title="Permalink to this heading">¶</a></h3>
+<p>The configuration related to the data service should be present in the folder <code class="docutils literal notranslate"><span class="pre">&lt;REPO_ROOT&gt;/data_service</span></code>. However, no default configuration is provided in the codebase. Instead, a configuration file template is provided in <code class="docutils literal notranslate"><span class="pre">&lt;REPO_ROOT&gt;/data_service/templates</span></code> folder by the name <code class="docutils literal notranslate"><span class="pre">local_settings_template.json</span></code>. Copy this template file into the <code class="docutils literal notranslate"><span class="pre">data_service</span></code> folder and rename it as <code class="docutils literal notranslate"><span class="pre">local_settings.json</span></code></p>
+<p>Next, the <code class="docutils literal notranslate"><span class="pre">local_settings.json</span></code> configuration file would need to be modified to match the local system settings. To do this, open the <code class="docutils literal notranslate"><span class="pre">local_settings.json</span></code> file in a text editor and change the key-value pairs specified below.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>    &quot;root_filesystem_path&quot;: &quot;X:\\2RESEARCH\\1_ClinicalData&quot;,
+    ...
+
+    &quot;imaging_db_user&quot;: &quot;&lt;database user name&gt;&quot;,
+    &quot;imaging_db_password&quot;: &quot;&lt;database password&gt;&quot;,
+    &quot;imaging_db_name&quot;: &quot;testdb&quot;,
+    ...
+
+    &quot;auth_db_name&quot;: &quot;auth_audit_db&quot;,
+    &quot;auth_db_user&quot;: &quot;&lt;database user name&gt;&quot;,
+    &quot;auth_db_password&quot;: &quot;&lt;database password&gt;&quot;,
+    ...
+    
+    &quot;debug_mode&quot;: true,
+</pre></div>
+</div>
+<p><strong>NOTE:</strong> The <code class="docutils literal notranslate"><span class="pre">root_filesystem_path</span></code> should be set to the shared drive path, which has been mapped in case of windows or mounted in case of Linux. The <code class="docutils literal notranslate"><span class="pre">debug_mode</span></code> key is set to <code class="docutils literal notranslate"><span class="pre">false</span></code> by default and this can be set to <code class="docutils literal notranslate"><span class="pre">true</span></code> in a development setup to be able to look at extra debug messages.</p>
+</section>
+<section id="running-the-data-service">
+<h3>Running The Data Service<a class="headerlink" href="#running-the-data-service" title="Permalink to this heading">¶</a></h3>
+<p>The data service provides the RESTful API based interface for clinical trail data and is a web service, which can be queried manually using a web browser or through the client libraries. to run this service, a Python environment needs to be setup for executing the service. In the following set of instructions, it is assumed that <code class="docutils literal notranslate"><span class="pre">miniconda</span></code> is used. However, any python environment with the <code class="docutils literal notranslate"><span class="pre">pip</span></code> tool can be used to do so.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda create -n data_service_env <span class="nv">python</span><span class="o">=</span><span class="m">3</span>
+
+conda activate data_service_env
+
+<span class="nb">cd</span> &lt;REPT_ROOT&gt;/data_service
+
+pip install -r requirements.txt
+</pre></div>
+</div>
+<p><strong>NOTE:</strong> The name of the environment in the above instructions is <code class="docutils literal notranslate"><span class="pre">data_service_env</span></code>. It can be instead set to any other convenient name.</p>
+<p>To run the data service, the <code class="docutils literal notranslate"><span class="pre">application.py</span></code> module can be executed in the python environment with all the requirements installed.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python application.py
+</pre></div>
+</div>
+<p>By default, the web service starts listening on the port 8090 of the system, on which it is run. To test the service, a web browser can be used as follows.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>firefox http://localhost:8090/apidoc
+</pre></div>
+</div>
+<p>This would open the API documentation page, which can be used to access the individual APIs.</p>
+<p><strong>NOTE:</strong> The default configuration of the data service runs it in a token validation mode, where access to all of the API endpoints used for accessing the data are protected via an authentication mechanism. This is an appropriate behaviour for the actual production deployment. However, for development and testing the APIs can be used from a web browser without needing to add an authentication token by modifying the <code class="docutils literal notranslate"><span class="pre">config.py</span></code> file and setting the <code class="docutils literal notranslate"><span class="pre">VALIDATE_TOKEN</span></code> value to <code class="docutils literal notranslate"><span class="pre">False</span></code> instead of <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</section>
+<section id="installing-data-service-as-an-os-service">
+<h3>Installing Data Service as an OS Service<a class="headerlink" href="#installing-data-service-as-an-os-service" title="Permalink to this heading">¶</a></h3>
+<p><strong>NOTE:</strong> This section is currently applicable only to a Windows based platform and is not required for a development (or any non-production) environment.</p>
+<p>The data service can be built into a windows executable using the <code class="docutils literal notranslate"><span class="pre">pyinstaller</span></code> package that is installed by the <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> of the data service. To build the service the <code class="docutils literal notranslate"><span class="pre">build_win_service.bat</span></code> script can be used.</p>
+<div class="highlight-cmd notranslate"><div class="highlight"><pre><span></span>conda activate data_service_env
+
+cd &lt;REPT_ROOT&gt;/data_service
+
+build_win_service.bat
+</pre></div>
+</div>
+<p>This would build a Windows executable of the service, which can then be installed on a Windows system as a background service using the service installer script as follows.</p>
+<p><strong>NOTE:</strong> The following commands need to be executed with the administrator privilege. To do so, open a command prompt by right clicking and selecting “run as administrator”.</p>
+<div class="highlight-cmd notranslate"><div class="highlight"><pre><span></span>cd &lt;REPT_ROOT&gt;
+
+scripts/service/install_service.bat
+</pre></div>
+</div>
+</section>
+</section>
+<section id="importing-clinical-trial-data">
+<h2>Importing Clinical Trial Data<a class="headerlink" href="#importing-clinical-trial-data" title="Permalink to this heading">¶</a></h2>
+<p>The database uses a JSON based clinical trial data template to go though the physical data storage filesystem and then catalogue it. This is done using the <code class="docutils literal notranslate"><span class="pre">db_updater</span></code> tools.</p>
+<p>The data ingest occurs as a two step process: first the <code class="docutils literal notranslate"><span class="pre">FilesystemScrubber</span></code> needs to be run, which uses the <code class="docutils literal notranslate"><span class="pre">patients_meta_data.json</span></code> file kept in <code class="docutils literal notranslate"><span class="pre">&lt;REPO_ROOT&gt;/db_updater/data</span></code>. This file is a registry of clinical trial patients (using an ID that is either generated by TROG or a similar authority) and contains a high level information about each patient. It also needs the “site and trial” data description file (one for each site-trial combination), which should also be present in <code class="docutils literal notranslate"><span class="pre">&lt;REPO_ROOT&gt;/db_updater/data</span></code>. The <code class="docutils literal notranslate"><span class="pre">FilesystemScrubber</span></code> generates an intermediate JSON file, which is then used by the next step of the ingest process.</p>
+<p>The next step is handled by <code class="docutils literal notranslate"><span class="pre">PatientDataReader</span></code>, which uses the intermediate file generated by the <code class="docutils literal notranslate"><span class="pre">FilesystemScrubber</span></code> to finally produce an SQL script that contains a long list of statements to insert the clinical trail catalogue into the appropriate database tables.</p>
+<section id="setting-up-the-python-environment">
+<h3>Setting Up the Python Environment<a class="headerlink" href="#setting-up-the-python-environment" title="Permalink to this heading">¶</a></h3>
+<p>A separate Python environment needs to be setup for the <code class="docutils literal notranslate"><span class="pre">db_updater</span></code> tools. This can done similar to the previous section, using <code class="docutils literal notranslate"><span class="pre">miniconda</span></code>, as an example, to create the environment.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda create -n db_updater_env <span class="nv">python</span><span class="o">=</span><span class="m">3</span>
+
+conda activate db_updater_env
+
+<span class="nb">cd</span> &lt;REPT_ROOT&gt;/db_updater
+
+pip install -r requirements.txt
+</pre></div>
+</div>
+</section>
+<section id="scrubbing-the-filesystem">
+<h3>Scrubbing the Filesystem<a class="headerlink" href="#scrubbing-the-filesystem" title="Permalink to this heading">¶</a></h3>
+<p>To scrub the clinical trial storage filesystem, the first step is to create a local settings file similar to the data service’s local settings. To do so, copy the configurations template from <code class="docutils literal notranslate"><span class="pre">&lt;REPO_DATA&gt;/db_updater/data/templates/local_settings_template.json</span></code> into the data folder as <code class="docutils literal notranslate"><span class="pre">local_settings.json</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cp &lt;REPO_DATA&gt;/db_updater/data/templates/local_settings_template.json &lt;REPO_DATA&gt;/db_updater/data/local_settings.json
+</pre></div>
+</div>
+<p>Next, open the configuration JSON file in a text editor and then modify the <code class="docutils literal notranslate"><span class="pre">root_filesystem_path</span></code> key to have the path to the clinical trail data similar to the following example.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>    &quot;root_filesystem_path&quot;: &quot;X:\\2RESEARCH\\1_ClinicalData&quot;
+
+    OR
+
+    &quot;root_filesystem_path&quot;: &quot;/mnt/rds/2RESEARCH/1_ClinicalData&quot;
+
+</pre></div>
+</div>
+<p>With the clinical trail data path set, the file system scrubber can be executed to collect the data after an appropriate python environment is setup for this tool.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate db_updater_env
+
+<span class="nb">cd</span> &lt;REPT_ROOT&gt;/db_updater
+
+python FilesystemScrubber.py
+</pre></div>
+</div>
+<p><strong>NOTE:</strong> Running the <code class="docutils literal notranslate"><span class="pre">FilesystemScrubber</span></code> would take anything between 15 to 20 minutes  based on the current amount of data present in the clinical trail data drive and it would display the names of the clinical trial sites as it processes the data for each of them.</p>
+<p>After the filesystem scrubbing process is complete, a <code class="docutils literal notranslate"><span class="pre">scrubbed_patient_data.json</span></code> file should be generated in the <code class="docutils literal notranslate"><span class="pre">&lt;REPO_DATA&gt;/db_updater</span></code> folder. This is the intermediate file that is used by the second step of the data import.</p>
+</section>
+<section id="producing-the-final-data-import-sql">
+<h3>Producing the Final Data Import SQL<a class="headerlink" href="#producing-the-final-data-import-sql" title="Permalink to this heading">¶</a></h3>
+<p>The second stage of the import uses the <code class="docutils literal notranslate"><span class="pre">scrubbed_patient_data.json</span></code> file generated by the filesystem scrubber.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate db_updater_env
+
+<span class="nb">cd</span> &lt;REPT_ROOT&gt;/db_updater
+
+python PatientDataReader.py
+</pre></div>
+</div>
+<p><strong>NOTE:</strong> As a part of the final data compilation, the DVH files are read to extract the dose information. For some trials (such as SPARK/PWC), this might generate errors such as <code class="docutils literal notranslate"><span class="pre">ERROR:</span> <span class="pre">Unsupported</span> <span class="pre">format</span></code>. This is normal and can be ignored as long as the process completes without showing any Python errors and exceptions.</p>
+<p>After the successful execution of this process, the compiled output is generated in the folder <code class="docutils literal notranslate"><span class="pre">&lt;REPO_DATA&gt;/db_updater</span></code> as <code class="docutils literal notranslate"><span class="pre">dbInserts.sql</span></code>. This SQL file can then be used to populate the database as follows.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>psql -U &lt;database user name&gt; -d testdb -f dbInserts.sql
+</pre></div>
+</div>
+<p><strong>WARNING:</strong> Running the <code class="docutils literal notranslate"><span class="pre">dbInserts.sql</span></code> script would overwrite all the previous data in the database and populate it with the newly compiled data. Hence, in a production environment, use with caution!</p>
+<hr class="docutils" />
+<p>Please feel free to contact Indrajit in case of any doubts or questions: <em>indrajit.ghosh&#64;sydney.edu.au</em></p>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Packaging Demo</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">LEARN DB Deployment Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pre-install-requirements">Pre Install Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-and-deployment">Setup and Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#importing-clinical-trial-data">Importing Clinical Trial Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="HOWTO_VPN_from_AWS_EC2_instance_to_the_University.html">Setting up VPN access to the University Network from an EC2 instance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="HOWTO_VPN_from_AWS_EC2_instance_to_the_University.html#references">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="HOW_TO_Add_new_patient_information.html">HOW TO Add New Trial/Test Centre/Patient Information</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Landing page</a></li>
+      <li>Next: <a href="HOWTO_VPN_from_AWS_EC2_instance_to_the_University.html" title="next chapter">Setting up VPN access to the University Network from an EC2 instance</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Brendan Whelan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/Local_Deployment_Guide.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
