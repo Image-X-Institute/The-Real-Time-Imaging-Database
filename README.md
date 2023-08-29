@@ -59,7 +59,7 @@ The file structure of the project is as follows:
     └── service/
         ├── data_service.sh (The script to start the database server on Linux system)
         ├── install_service.bat
-        └── learndb.service (The service file of the database server for linux system)
+        └── learndb.service (The service file of the database server for Linux system)
 ```
 
 
