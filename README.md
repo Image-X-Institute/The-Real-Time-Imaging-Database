@@ -43,6 +43,8 @@ The project contains three main components:
 * The database server ([data_service](src/data_service))
 * The web application ([admin_console](src/admin_console))
 * The content uploader application ([content_uploader](src/content_uploader))
+* The user guide for general users can be found in the [docs](docs/User_Guide_Data_import.pdf) folder.
+* The documentation for the project can be found in the [docsrc](docsrc) folder.
 
 The file structure of the project is as follows:
 ```
@@ -70,10 +72,6 @@ After installing the prerequisites, the database server can be setup by followin
 
 The web application is a flask application with simple Jinja templates. The application can be setup by following the documentation in the [Admin Console Deployment Guide](admin_console/readme.md).
 
-## User Guide and Documentation
-The user guide for general users can be found in the [docs](docs/User_Guide_Data_import.pdf) folder.
-
-The documentation for the project can be found in the [docsrc](docsrc) folder.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
