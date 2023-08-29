@@ -39,9 +39,14 @@ This project aims to create a cloud-based secure and easy-to-use mechanism for m
 
 ## How To Use
 The project contains three main components:
-* The database server ([data_service](src/data_service))
-* The web application ([admin_console](src/admin_console))
-* The content uploader application ([content_uploader](src/content_uploader))
+* The database server ([data_service](src/data_service))   
+  - The main flask application that hosts the database server.
+* The web application ([admin_console](src/admin_console))   
+  - The web application for admin to manage the import data.
+* The content uploader application ([content_uploader](src/content_uploader))   
+  - The application for users to import data into the database.   
+  
+The documentation for the project can be found here:  
 * The user guide for general users can be found in the [docs](docs/User_Guide_Data_import.pdf) folder.
 * The documentation for the project can be found in the [docsrc](docsrc) folder.
 
