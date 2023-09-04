@@ -1,6 +1,5 @@
-PySide6
-pyinstaller
+PySide6==6.1.0
+pyinstaller==5.11.0
 ImagingDBClient
-python-magic-bin  # for non Windows platforms, use python-magic
-msal
-flask
+python-magic==0.4.27
+msal==1.22.0

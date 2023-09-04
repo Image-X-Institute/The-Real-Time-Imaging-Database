@@ -1,4 +1,4 @@
-Flask
-psycopg2-binary
-pyinstaller
-waitress
+Flask==2.3.2
+psycopg2-binary==2.9.6
+pyinstaller==5.11.0
+waitress==2.1.2
