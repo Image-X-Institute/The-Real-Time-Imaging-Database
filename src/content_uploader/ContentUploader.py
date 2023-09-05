@@ -33,7 +33,7 @@ class ClinicalTrialsMetaData:
                 "field_type":"folder",
                 "allowed":[
                     "text/plain", 
-                    "image/tiff", 
+                    "image/*", 
                     "application/dicom", 
                     "application/octet-stream",
                     "text/xml",
@@ -45,7 +45,7 @@ class ClinicalTrialsMetaData:
                 "field_type":"folder",
                 "allowed":[
                     "text/plain", 
-                    "image/tiff", 
+                    "image/*", 
                     "application/dicom", 
                     "application/octet-stream",
                     "text/xml",
@@ -78,12 +78,7 @@ class ClinicalTrialsMetaData:
                 "level": "fraction", 
                 "key":"trajectory_log_folder", 
                 "field_type": "file",
-                "allowed":["application/octet-stream", 
-                            "application/zip", 
-                            "application/x-7z-compressed", 
-                            "application/gzip", 
-                            "application/x-bzip2", 
-                            "application/x-bzip"
+                "allowed":["application/*"
                 ]
             }, 
              "KIM log files": {
