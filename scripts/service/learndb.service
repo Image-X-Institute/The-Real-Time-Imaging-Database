@@ -6,8 +6,8 @@ After=postgresql.service
 [Service]
 Type=forking
 User=learndb
-WorkingDirectory=/home/learndb/git_repos/learndb/data_service
-ExecStart=/home/learndb/git_repos/learndb/scripts/service/data_service.sh
+WorkingDirectory=/home/learndb/git_repos/The-Real-Time-Imaging-Database/src/data_service
+ExecStart=/home/learndb/git_repos/The-Real-Time-Imaging-Database/scripts/service/data_service.sh
 ExecStop=pkill -u learndb application.py
 Restart=always
 
