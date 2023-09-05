@@ -1,0 +1,15 @@
+[Unit]
+Description=Upload Tool Service
+Requires=network.target postgresql.service
+After=postgresql.service
+
+[Service]
+Type=forking
+User=learndb
+WorkingDirectory=/home/learndb/git_repos/The-Real-Time-Imaging-Database/src/admin_console
+ExecStart=/home/learndb/git_repos/The-Real-Time-Imaging-Database/scripts/service/admin_service.sh
+ExecStop=pkill -u learndb application.py
+Restart=always
+
+[Install]
+WantedBy=default.target
