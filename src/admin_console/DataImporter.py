@@ -284,7 +284,7 @@ class DataImporter:
                 fractionId = fractionDetailList[0][0]
                 KV_pattern = r"(?i)\bKV\b"
                 MV_pattern = r"(?i)\bMV\b"
-                for folderPth in self.fileInfo["iamge_path"][fraction][fraction]:
+                for folderPth in self.fileInfo["image_path"][fraction][fraction]:
                     if re.search(KV_pattern, folderPth):
                         kvQueryStr = f"UPDATE images SET kv_images_path = \'{folderPth}\' WHERE fraction_id = \'{fractionId}\'"
                         self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
@@ -303,7 +303,7 @@ class DataImporter:
                             self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
                             self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
                         except KeyError:
-                            return False, "Failed"
+                            pass
                         
         self.markPacketAsImported()
         return True, "Success"
