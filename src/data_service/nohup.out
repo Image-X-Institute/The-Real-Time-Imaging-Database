@@ -1,0 +1,114 @@
+ * Serving Flask app 'application' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+ * Running on http://10.65.67.77:8090 (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 150-170-700
+10.65.67.77 - - [05/Sep/2023 15:49:45] "GET /index.html HTTP/1.1" 200 -
+10.65.67.77 - - [05/Sep/2023 15:49:45] "GET /favicon.ico HTTP/1.1" 200 -
+ * Serving Flask app 'application' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+ * Running on http://10.65.67.77:8090 (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 131-960-061
+10.65.67.77 - - [05/Sep/2023 15:55:42] "[32mGET / HTTP/1.1[0m" 302 -
+10.65.67.77 - - [05/Sep/2023 15:55:42] "GET /index.html HTTP/1.1" 200 -
+10.65.67.77 - - [05/Sep/2023 15:55:42] "GET /favicon.ico HTTP/1.1" 200 -
+10.17.80.19 - - [05/Sep/2023 15:56:00] "GET /index.html HTTP/1.1" 200 -
+10.17.80.19 - - [05/Sep/2023 15:56:00] "GET /favicon.ico HTTP/1.1" 200 -
+10.17.80.19 - - [05/Sep/2023 15:56:04] "GET /favicon.ico HTTP/1.1" 200 -
+10.17.80.19 - - [05/Sep/2023 15:56:06] "GET /prescriptions?trial=SPARK&centre=Westmead&patient=1 HTTP/1.1" 200 -
+10.17.80.19 - - [05/Sep/2023 15:56:06] "GET /favicon.ico HTTP/1.1" 200 -
+10.17.80.19 - - [05/Sep/2023 15:56:12] "GET /prescriptions?trial=SPARK&centre=Westmead&patient=1 HTTP/1.1" 200 -
+10.17.80.19 - - [05/Sep/2023 15:56:12] "GET /fractions?trial=SPARK&centre=Westmead&patient=1 HTTP/1.1" 200 -
+10.65.67.77 - - [05/Sep/2023 15:59:55] "[32mGET / HTTP/1.1[0m" 302 -
+10.65.67.77 - - [05/Sep/2023 15:59:55] "GET /index.html HTTP/1.1" 200 -
+10.65.67.77 - - [05/Sep/2023 15:59:55] "GET /favicon.ico HTTP/1.1" 200 -
+10.65.67.77 - - [05/Sep/2023 15:59:57] "GET /index.html HTTP/1.1" 200 -
+10.65.67.77 - - [05/Sep/2023 15:59:57] "GET /favicon.ico HTTP/1.1" 200 -
+10.65.67.77 - - [05/Sep/2023 16:00:05] "[32mGET / HTTP/1.1[0m" 302 -
+10.65.67.77 - - [05/Sep/2023 16:00:05] "GET /index.html HTTP/1.1" 200 -
+10.65.67.77 - - [05/Sep/2023 16:00:05] "GET /favicon.ico HTTP/1.1" 200 -
+Got a request for / :  /
+WARNING: Access control disabled for /favicon.ico. Please ensure that it is enabled on the production deployment configuration.
+Got a request for: /favicon.ico
+Connected to PostgreSQL version: ('PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit',)
+Request Args: ImmutableMultiDict([])
+args: ImmutableMultiDict([])
+WARNING: Access control disabled for /favicon.ico. Please ensure that it is enabled on the production deployment configuration.
+Got a request for: /favicon.ico
+Connected to PostgreSQL version: ('PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit',)
+Request Args: ImmutableMultiDict([])
+args: ImmutableMultiDict([])
+WARNING: Access control disabled for /favicon.ico. Please ensure that it is enabled on the production deployment configuration.
+Got a request for: /favicon.ico
+Connected to PostgreSQL version: ('PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit',)
+Request Args: ImmutableMultiDict([])
+args: ImmutableMultiDict([])
+WARNING: Access control disabled for /prescriptions. Please ensure that it is enabled on the production deployment configuration.
+Got a request for: /prescriptions
+Connected to PostgreSQL version: ('PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit',)
+Request Args: ImmutableMultiDict([('trial', 'SPARK'), ('centre', 'Westmead'), ('patient', '1')])
+Executing Query: SELECT patient.patient_trial_id as patient_trial_id, patient.test_centre as test_centre, patient.centre_patient_no as patient_no, prescription.linac_type as linac_type, prescription.rt_plan_path as rt_plan_path, prescription.rt_ct_path as rt_ct_path, prescription.rt_structure_path as rt_structure_path, prescription.rt_dose_path as rt_dose_path, prescription.rt_mri_path as rt_mri_path, prescription.rt_dvh_original_path as planned_dvh_path, prescription.centroid_path as centroid_path FROM patient, prescription WHERE prescription.patient_id = patient.id AND patient.test_centre = 'Westmead' AND patient.centre_patient_no = '1' AND patient.clinical_trial = 'SPARK';
+
+number of rows returned: 1
+args: ImmutableMultiDict([('trial', 'SPARK'), ('centre', 'Westmead'), ('patient', '1')])
+WARNING: Access control disabled for /favicon.ico. Please ensure that it is enabled on the production deployment configuration.
+Got a request for: /favicon.ico
+Connected to PostgreSQL version: ('PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit',)
+Request Args: ImmutableMultiDict([])
+args: ImmutableMultiDict([])
+WARNING: Access control disabled for /prescriptions. Please ensure that it is enabled on the production deployment configuration.
+Got a request for: /prescriptions
+Connected to PostgreSQL version: ('PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit',)
+Request Args: ImmutableMultiDict([('trial', 'SPARK'), ('centre', 'Westmead'), ('patient', '1')])
+Executing Query: SELECT patient.patient_trial_id as patient_trial_id, patient.test_centre as test_centre, patient.centre_patient_no as patient_no, prescription.linac_type as linac_type, prescription.rt_plan_path as rt_plan_path, prescription.rt_ct_path as rt_ct_path, prescription.rt_structure_path as rt_structure_path, prescription.rt_dose_path as rt_dose_path, prescription.rt_mri_path as rt_mri_path, prescription.rt_dvh_original_path as planned_dvh_path, prescription.centroid_path as centroid_path FROM patient, prescription WHERE prescription.patient_id = patient.id AND patient.test_centre = 'Westmead' AND patient.centre_patient_no = '1' AND patient.clinical_trial = 'SPARK';
+
+number of rows returned: 1
+args: ImmutableMultiDict([('trial', 'SPARK'), ('centre', 'Westmead'), ('patient', '1')])
+WARNING: Access control disabled for /fractions. Please ensure that it is enabled on the production deployment configuration.
+Got a request for: /fractions
+Connected to PostgreSQL version: ('PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit',)
+Request Args: ImmutableMultiDict([('trial', 'SPARK'), ('centre', 'Westmead'), ('patient', '1')])
+Executing Query: SELECT patient.patient_trial_id as patient_trial_id, patient.test_centre as test_centre, patient.centre_patient_no as patient_no, fraction.fraction_number as fraction_no, fraction.fraction_name as fraction_name, fraction.fraction_date as date, fraction.num_gating_events as gating_events, fraction.kvsdd as kvsdd, fraction.mvsdd as mvsdd, images.kim_logs_path as kim_logs, images.KV_images_path as kv_images, images.MV_images_path as mv_images, images.metrics_path as metrics, images.triangulation_path as triangulation, images.trajectory_logs_path as trajectory_logs, images.DVH_track_path as DVH_track_path, images.DVH_no_track_path as DVH_no_track_path, images.DICOM_track_plan_path as DICOM_track_plan_path, images.DICOM_no_track_plan_path as DICOM_no_track_plan_path, images.respiratory_files_path as respiratory_files_path FROM patient, prescription, fraction, images WHERE prescription.patient_id = patient.id AND fraction.prescription_id = prescription.prescription_id AND images.fraction_id = fraction.fraction_id AND patient.test_centre = 'Westmead' AND patient.centre_patient_no = '1' AND patient.clinical_trial = 'SPARK';
+
+number of rows returned: 5
+args: ImmutableMultiDict([('trial', 'SPARK'), ('centre', 'Westmead'), ('patient', '1')])
+Got a request for / :  /
+WARNING: Access control disabled for /favicon.ico. Please ensure that it is enabled on the production deployment configuration.
+Got a request for: /favicon.ico
+Connected to PostgreSQL version: ('PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit',)
+Request Args: ImmutableMultiDict([])
+args: ImmutableMultiDict([])
+WARNING: Access control disabled for /favicon.ico. Please ensure that it is enabled on the production deployment configuration.
+Got a request for: /favicon.ico
+Connected to PostgreSQL version: ('PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit',)
+Request Args: ImmutableMultiDict([])
+args: ImmutableMultiDict([])
+Got a request for / :  /
+WARNING: Access control disabled for /favicon.ico. Please ensure that it is enabled on the production deployment configuration.
+Got a request for: /favicon.ico
+Connected to PostgreSQL version: ('PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit',)
+Request Args: ImmutableMultiDict([])
+args: ImmutableMultiDict([])
+WARNING: Access control disabled for /prescriptions. Please ensure that it is enabled on the production deployment configuration.
+Got a request for: /prescriptions
+Connected to PostgreSQL version: ('PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit',)
+Request Args: ImmutableMultiDict([('trial', 'SPARK'), ('centre', 'Westmead'), ('patient', '1')])
+Executing Query: SELECT patient.patient_trial_id as patient_trial_id, patient.test_centre as test_centre, patient.centre_patient_no as patient_no, prescription.linac_type as linac_type, prescription.rt_plan_path as rt_plan_path, prescription.rt_ct_path as rt_ct_path, prescription.rt_structure_path as rt_structure_path, prescription.rt_dose_path as rt_dose_path, prescription.rt_mri_path as rt_mri_path, prescription.rt_dvh_original_path as planned_dvh_path, prescription.centroid_path as centroid_path FROM patient, prescription WHERE prescription.patient_id = patient.id AND patient.test_centre = 'Westmead' AND patient.centre_patient_no = '1' AND patient.clinical_trial = 'SPARK';
+
+number of rows returned: 1
+args: 10.17.80.19 - - [05/Sep/2023 16:00:07] "GET /prescriptions?trial=SPARK&centre=Westmead&patient=1 HTTP/1.1" 200 -
+10.17.80.19 - - [05/Sep/2023 16:00:07] "GET /fractions?trial=SPARK&centre=Westmead&patient=1 HTTP/1.1" 200 -
+10.65.67.77 - - [05/Sep/2023 16:02:14] "[32mGET / HTTP/1.1[0m" 302 -
+10.65.67.77 - - [05/Sep/2023 16:02:14] "GET /index.html HTTP/1.1" 200 -
+10.65.67.77 - - [05/Sep/2023 16:02:15] "GET /favicon.ico HTTP/1.1" 200 -
+10.17.80.19 - - [05/Sep/2023 16:03:10] "GET /prescriptions?trial=SPARK&centre=Westmead&patient=1 HTTP/1.1" 200 -
+10.17.80.19 - - [05/Sep/2023 16:03:10] "GET /fractions?trial=SPARK&centre=Westmead&patient=1 HTTP/1.1" 200 -

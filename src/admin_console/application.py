@@ -99,8 +99,12 @@ def importUploadPacket(upload_id):
                         print("Inserted fraction data into database", result[1])
                         print("Inserted image path into database", result2[1])
                 elif fileInfo['file_type'] == "image_folder":
+                    print("image_folder")
                     result = di.checkAndInsertFractionDataIntoDatabase()
+                    print("fraction checked")
+                    print("result1:",result)
                     result2 = di.insertPatientLevelImagePathIntoDatabase()
+                    print("result2",result2)
                 elif fileInfo['file_type'] == "trajectory_log_folder":
                     result = di.insertTrajectoryLogIntoDatabase()
                 elif fileInfo['file_type'] == "DVH_folder" or fileInfo['file_type'] == "DICOM_folder":
