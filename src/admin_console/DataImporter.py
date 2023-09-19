@@ -284,12 +284,12 @@ class DataImporter:
                 fractionId = fractionDetailList[0][0]
                 KV_pattern = r"(?i)\bKV\b"
                 MV_pattern = r"(?i)\bMV\b"
-                for folderPth in self.fileInfo["image_path"][fraction][fraction]:
-                    if re.search(KV_pattern, folderPth):
-                        kvQueryStr = f"UPDATE images SET kv_images_path = \'{folderPth}\' WHERE fraction_id = \'{fractionId}\'"
+                for folderPath in self.fileInfo["image_path"][fraction][fraction]:
+                    if re.search(KV_pattern, folderPath):
+                        kvQueryStr = f"UPDATE images SET kv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
                         self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
-                    elif re.search(MV_pattern, folderPth):
-                        mvQueryStr = f"UPDATE images SET mv_images_path = \'{folderPth}\' WHERE fraction_id = \'{fractionId}\'"
+                    elif re.search(MV_pattern, folderPath):
+                        mvQueryStr = f"UPDATE images SET mv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
                         self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
             if len(fractionDetailList) > 1:
                 for fractionDetail in fractionDetailList:
