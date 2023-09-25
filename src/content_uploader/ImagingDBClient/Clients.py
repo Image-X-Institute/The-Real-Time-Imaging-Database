@@ -219,3 +219,32 @@ class ImagingDBClient:
         if req.status_code == 200 or req.status_code == 201:
             return Result(success=True, message="Added fraction successfully")
         return Result(success=False, message=f"data service retured {req.status_code}")
+    
+    def getTrials(self) -> Dict:
+        try:
+            req = requests.get(self.baseUrl + "/trials",
+                            headers={"Token": self._sessionToken})
+        except (Exception, InvalidSchema) as ex:
+            return {"status": self.RESPONSE_TYPE_ERR, "message":str(ex)}
+        return req.json()
+
+    def getSites(self) -> Dict:
+        try:
+            req = requests.get(self.baseUrl + "/sites",
+                            headers={"Token": self._sessionToken})
+        except (Exception, InvalidSchema) as ex:
+            return {"status": self.RESPONSE_TYPE_ERR, "message":str(ex)}
+        return req.json()
+    
+    def addSiteAndTrial(self, newDetails:Dict) -> Result:
+        try:
+            req = requests.post(self.baseUrl + "/add-site-trial",
+                            json=newDetails,
+                            headers={"Token": self._sessionToken,
+                            "Content-Type": "application/json"})
+        except (Exception, InvalidSchema) as ex:
+            return Result(success=False, message=str(ex))
+
+        if req.status_code == 200 or req.status_code == 201:
+            return Result(success=True, message="Added site and trial successfully")
+        return Result(success=False, message=f"data service retured {req.status_code}")
