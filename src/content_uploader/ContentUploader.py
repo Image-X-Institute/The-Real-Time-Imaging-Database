@@ -1,24 +1,18 @@
-from sqlite3 import connect
-from turtle import clearscreen, isvisible, width
 from typing import Dict, List, Optional, Tuple, overload
-import PySide6
 from PySide6.QtWidgets import QApplication, QCheckBox, QLineEdit, QMessageBox, \
     QProgressBar, QPushButton, QSpinBox, QWidget, QGridLayout, \
     QFrame, QLabel, QVBoxLayout, QSizePolicy, QHBoxLayout, QFormLayout, \
     QComboBox, QSizePolicy, QFileDialog, QTableWidget, QTableWidgetItem, \
     QAbstractItemView, QHeaderView, QDateEdit, QCalendarWidget, QGroupBox, \
     QRadioButton, QTextEdit
-from PySide6.QtGui import QDrag, QDragEnterEvent, QDropEvent, QDragMoveEvent, \
-    QDragLeaveEvent, QPalette, QPaintEvent, QPainter, QShowEvent, QColor, \
+from PySide6.QtGui import QDrag, QDragEnterEvent, QDropEvent,\
+    QPaintEvent, QPainter, QShowEvent, \
     QDoubleValidator
-from PySide6.QtCore import QUrl, SignalInstance, Slot, QMimeData, Signal, Qt, \
-    QRect, QPoint, QSize, QDate
+from PySide6.QtCore import QUrl, SignalInstance, Slot, QMimeData, Signal, Qt
 
 import sys
 from ImagingDBClient import Clients
-from urllib.parse import urlparse, unquote 
 import os
-import platform
 import magic   # provides functionality similar to Unix's file command
 from ProfileManager import ProfileManager
 import json
@@ -51,13 +45,13 @@ class ClinicalTrialsMetaData:
                     "text/xml",
                 ]
             },
-             "DICOM Folder": {
+             "Dose Reconstruction (DICOM)": {
                 "level": "fraction", 
                 "key":"DICOM_folder", 
                 "field_type": "folder",
                 "allowed":["application/dicom"]
             },
-            "DVH Folder": {
+            "Dose Reconstruction (DVH)": {
                 "level": "fraction", 
                 "key":"DVH_folder",
                 "field_type": "folder",
@@ -87,24 +81,24 @@ class ClinicalTrialsMetaData:
                 "field_type": "file",
                 "allowed":["text/plain", "text/csv"]
             }, 
-            # "RT Plan DICOM": {
-            #     "level": "prescription", 
-            #     "key":"rt_plan_path",
-            #     "field_type": "file",
-            #     "allowed":["application/dicom"]
-            # }, 
-            # "Pre-treatment CT series": {
-            #     "level": "prescription", 
-            #     "key":"rt_ct_path",
-            #     "field_type": "folder",
-            #     "allowed":["application/dicom"]
-            # },
-            # "RT Structure set DICOM": {
-            #     "level": "prescription", 
-            #     "key":"rt_structure_path", 
-            #     "field_type": "file",
-            #     "allowed":["application/dicom"]
-            # },
+            "Patient plans (RT plan DICOM)": {
+                "level": "prescription", 
+                "key":"rt_plan_path",
+                "field_type": "file",
+                "allowed":["application/dicom"]
+            }, 
+            "Patient Planning CT (RT_CT_PATH)": {
+                "level": "prescription", 
+                "key":"rt_ct_path",
+                "field_type": "folder",
+                "allowed":["application/dicom"]
+            },
+            "Patient Structure set (DICOM)": {
+                "level": "prescription", 
+                "key":"rt_structure_path", 
+                "field_type": "file",
+                "allowed":["application/dicom"]
+            },
             # "RT Dose DICOM": {
             #     "level": "prescription", 
             #     "key":"rt_dose_path",
@@ -477,7 +471,104 @@ class AddFractionScreen(QWidget):
     @Slot(int)
     def fractionNumberChanged(self, value:int):
         self.fractionNameInput.setText(f"Fx{value}")
+class AddTrialScreen(QWidget):
+    addTrial:SignalInstance = Signal(dict)
 
+    def __init__(self, parent: Optional[QWidget]=None) -> None:
+        super().__init__(parent)
+        self.initGUI()
+
+    def initGUI(self):
+        self.setWindowFlags(self.windowFlags() & Qt.CustomizeWindowHint)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowMinMaxButtonsHint)
+        self.setWindowTitle("Add New Trial")
+
+        self.trialInput = QLineEdit()
+        self.trialInput.setPlaceholderText("Trial Name")
+        
+        self.trialFullNameInput = QLineEdit()
+        self.trialFullNameInput.setPlaceholderText("Full Trial Name")
+
+        trialDetailsLayout = QFormLayout()
+        trialDetailsLayout.addRow("Trial:", self.trialInput)
+        trialDetailsLayout.addRow("Name:", self.trialFullNameInput)
+
+        self.pushBtnAdd = QPushButton("Add Trial")
+        self.pushBtnAdd.clicked.connect(self.addFractionSlot)
+        pushBtnCancel = QPushButton("Cancel")
+        pushBtnCancel.clicked.connect(self.close)
+        buttonsLayout = QHBoxLayout()
+        buttonsLayout.addStretch()
+        buttonsLayout.addWidget(self.pushBtnAdd)
+        buttonsLayout.addWidget(pushBtnCancel)
+
+        mainLayout = QVBoxLayout()
+        mainLayout.addLayout(trialDetailsLayout)
+        mainLayout.addLayout(buttonsLayout)
+        self.setLayout(mainLayout)
+
+    @Slot()
+    def addFractionSlot(self):
+        if self.trialInput.text().strip() == '':
+            QMessageBox.warning(self, "Add Trial", 
+                    "The Trial Name should not be empty")
+            return
+        trialDetails = { "name": self.trialInput.text(), 
+                "fullName": self.trialFullNameInput.text(), 
+                }
+        self.addTrial.emit(trialDetails)
+
+class AddTestCentreScreen(QWidget):
+    addTestCentre:SignalInstance = Signal(dict)
+
+    def __init__(self, parent: Optional[QWidget]=None) -> None:
+        super().__init__(parent)
+        self.initGUI()
+
+    def initGUI(self):
+        self.setWindowFlags(self.windowFlags() & Qt.CustomizeWindowHint)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowMinMaxButtonsHint)
+        self.setWindowTitle("Add New Test Centre")
+
+        self.testCentreInput = QLineEdit()
+        self.testCentreInput.setPlaceholderText("Test Centre Name")
+        
+        self.testCentreFullNameInput = QLineEdit()
+        self.testCentreFullNameInput.setPlaceholderText("Full Test Centre Name")
+
+        self.testCentreLocationInput = QLineEdit()
+        self.testCentreLocationInput.setPlaceholderText("Location")
+
+        testCentreDetailsLayout = QFormLayout()
+        testCentreDetailsLayout.addRow("Test Centre:", self.testCentreInput)
+        testCentreDetailsLayout.addRow("Full Name:", self.testCentreFullNameInput)
+        testCentreDetailsLayout.addRow("Location:", self.testCentreLocationInput)
+
+        self.pushBtnAdd = QPushButton("Add Test Centre")
+        self.pushBtnAdd.clicked.connect(self.addTestCentreSlot)
+        pushBtnCancel = QPushButton("Cancel")
+        pushBtnCancel.clicked.connect(self.close)
+        buttonsLayout = QHBoxLayout()
+        buttonsLayout.addStretch()
+        buttonsLayout.addWidget(self.pushBtnAdd)
+        buttonsLayout.addWidget(pushBtnCancel)
+
+        mainLayout = QVBoxLayout()
+        mainLayout.addLayout(testCentreDetailsLayout)
+        mainLayout.addLayout(buttonsLayout)
+        self.setLayout(mainLayout)
+
+    @Slot()
+    def addTestCentreSlot(self):
+        if self.testCentreInput.text().strip() == '':
+            QMessageBox.warning(self, "Add Test Centre", 
+                    "The Test Centre Name should not be empty")
+            return
+        testCentreDetails = { "name": self.testCentreInput.text(), 
+                "fullName": self.testCentreFullNameInput.text(),
+                "location": self.testCentreLocationInput.text()
+                }
+        self.addTestCentre.emit(testCentreDetails)
 class AddPatientScreen(QWidget):
     addPatient:SignalInstance = Signal(dict)
 
@@ -742,6 +833,13 @@ class UploadDataScreen(QWidget):
         self.addSubFractionScreen.setVisible(False)
         self.addSubFractionScreen.addSubFraction.connect(self.addNewSubFraction)
         
+        self.addTrialScreen = AddTrialScreen()
+        self.addTrialScreen.setVisible(False)
+        self.addTrialScreen.addTrial.connect(self.addNewTrial)
+
+        self.addTestCentreScreen = AddTestCentreScreen()
+        self.addTestCentreScreen.setVisible(False)
+        self.addTestCentreScreen.addTestCentre.connect(self.addNewTestCentre)
 
         self.addPatientScreen = AddPatientScreen()
         self.addPatientScreen.setVisible(False)
@@ -763,7 +861,12 @@ class UploadDataScreen(QWidget):
         horizontalLine.setFrameShape(QFrame.HLine)
 
         self.testCentreSelector = QComboBox()
-        self.testCentreSelector.addItems(self.trialsMetaData.getListOfTestCentres())
+        self.testCentreSelector.addItems(self.getSites())
+
+
+        addTestCentreBtn = QPushButton("+")
+        addTestCentreBtn.setMaximumSize(30, addTestCentreBtn.height())
+        addTestCentreBtn.clicked.connect(self.showNewTestCentreScreen)
 
         self.fileTypeSelector = QComboBox()
         self.fileTypeSelector.addItems(self.trialsMetaData.getFileTypesSupported())
@@ -771,7 +874,11 @@ class UploadDataScreen(QWidget):
         self.fileTypeSelector.currentTextChanged.connect(self.fileTypeSelected)
 
         self.trialSelector = QComboBox()
-        self.trialSelector.addItems(self.trialsMetaData.getListofTrials())
+        self.trialSelector.addItems(self.getTrials())
+
+        addTrialPushBtn = QPushButton("+")
+        addTrialPushBtn.setMaximumSize(30, addTrialPushBtn.height())
+        addTrialPushBtn.clicked.connect(self.showNewTrialScreen)
 
         self.fractionSelector = QComboBox()
         self.fractionSelector.addItems(self.trialsMetaData.getFractionNames())
@@ -784,9 +891,12 @@ class UploadDataScreen(QWidget):
 
         self.subFractionSelector = QComboBox()
         self.subFractionSelector.addItems(self.trialsMetaData.getSubFractionNames())
+
         addSubFractionPushBtn = QPushButton("+")
         addSubFractionPushBtn.setMaximumSize(30, addSubFractionPushBtn.height())
         addSubFractionPushBtn.clicked.connect(self.showNewSubFractionScreen)
+
+
 
         self.patientTrialIdLineEdit = QLineEdit()
         self.patientIdVerifiedIndicator = QLabel()
@@ -815,16 +925,18 @@ class UploadDataScreen(QWidget):
         testCentreLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
         testCentreLayout.addWidget(testCentreLabel)
         testCentreLayout.addWidget(self.testCentreSelector)
+        testCentreLayout.addWidget(addTestCentreBtn)
         testCentreLayout.addSpacing(20)
         trialNameLabel = QLabel("Trial Name:")
         trialNameLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
         testCentreLayout.addWidget(trialNameLabel)
         testCentreLayout.addWidget(self.trialSelector)
+        testCentreLayout.addWidget(addTrialPushBtn)
 
         inputLayout = QGridLayout()
         fileTypeLayout = QHBoxLayout()
         typeofFileLabel = QLabel("Type of file:")
-        typeofFileLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        typeofFileLabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         fileTypeLayout.addWidget(typeofFileLabel)
         fileTypeLayout.addWidget(self.fileTypeSelector)
 
@@ -843,7 +955,7 @@ class UploadDataScreen(QWidget):
         subFractionLayout.addWidget(addSubFractionPushBtn)
 
         inputLayout.addLayout(fileTypeLayout, 0, 0)
-        inputLayout.addLayout(mainFractionLayout, 0, 1)
+        inputLayout.addLayout(mainFractionLayout, 1, 0)
         inputLayout.addLayout(subFractionLayout, 1, 1)
         inputLayout.setVerticalSpacing(0)
 
@@ -1149,6 +1261,21 @@ class UploadDataScreen(QWidget):
         windowGeometry = self.addSubFractionScreen.geometry()
         windowGeometry.moveCenter(self.geometry().center())
         self.addSubFractionScreen.setGeometry(windowGeometry)
+
+    @Slot()
+    def showNewTrialScreen(self):
+        self.addTrialScreen.setVisible(True)
+        windowGeometry = self.addTrialScreen.geometry()
+        windowGeometry.moveCenter(self.geometry().center())
+        self.addTrialScreen.setGeometry(windowGeometry)
+
+    @Slot()
+    def showNewTestCentreScreen(self):
+        self.addTestCentreScreen.setVisible(True)
+        windowGeometry = self.addTestCentreScreen.geometry()
+        windowGeometry.moveCenter(self.geometry().center())
+        self.addTestCentreScreen.setGeometry(windowGeometry)
+
     
     def _getNewSubFractionName(self, fractionDetails:Dict):
         subFractionList = sorted(fractionDetails["subFractionsAvailable"])
@@ -1196,6 +1323,40 @@ class UploadDataScreen(QWidget):
         else:
             self.addFractionScreen.setVisible(False)
             self.updateFractionsListForCurrentPatient()
+
+    @Slot()
+    def addNewTrial(self, trialDetails:Dict):
+        print("Got trial details:", trialDetails)
+        trialDetails['type'] = 'trial'
+        result:Clients.Result = self.dbClient.addSiteAndTrial(trialDetails)
+        if not result.success:
+            QMessageBox.warning(self.addTrialScreen, "Adding Trial", 
+                                "The new trial could not be added: " \
+                                    + result.message )
+            self.statusLabel.setText("Trial could not added")
+        else:
+            self.addTrialScreen.setVisible(False)
+            self.trialSelector.addItem(trialDetails["name"])
+            self.trialSelector.setCurrentText(trialDetails["name"])
+            self.statusLabel.setText(
+                f"Newly added Trial {trialDetails['name']} selected")
+
+    @Slot()
+    def addNewTestCentre(self, siteDetails:Dict):
+        print("Got site details:", siteDetails)
+        siteDetails['type'] = 'site'
+        result:Clients.Result = self.dbClient.addSiteAndTrial(siteDetails)
+        if not result.success:
+            QMessageBox.warning(self.addTrialScreen, "Adding Site", 
+                                "The new site could not be added: " \
+                                    + result.message )
+            self.statusLabel.setText("Site could not added")
+        else:
+            self.addTrialScreen.setVisible(False)
+            self.testCentreSelector.addItem(siteDetails['name'])
+            self.testCentreSelector.setCurrentText(siteDetails['name'])
+            self.statusLabel.setText(
+                f"Newly added Site {siteDetails['name']} selected")
 
     @Slot()
     def filesDropped(self):
@@ -1426,6 +1587,22 @@ class UploadDataScreen(QWidget):
             self.cancelRequest = True
         else:
             self.close()
+
+    @Slot()
+    def getTrials(self):
+        trialsList = self.dbClient.getTrials()
+        try:
+            return trialsList["trials"]
+        except KeyError:
+            return self.trialsMetaData.trials
+    
+    @Slot()
+    def getSites(self):
+        sitesList = self.dbClient.getSites()
+        try:
+            return sitesList["sites"]
+        except KeyError:
+            return self.trialsMetaData.centres
 
 
 class DropArea(QFrame):

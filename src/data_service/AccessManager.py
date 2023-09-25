@@ -460,6 +460,33 @@ def getTrials() -> List[TrialDetails]:
         trials.append(SiteDetails(name=trialRow[0], fullName=trialRow[1]))
     return trials
 
+def addSiteTrial(newDetails: Dict[str, str]) -> Tuple[bool, str]:
+    query = ""
+    if newDetails['type'] == 'site':
+        query = "INSERT INTO treatment_sites (site_name, site_full_name, site_location) " \
+                + f"VALUES (\'{newDetails['name']}\', \'{newDetails['fullName']}\', \'{newDetails['location']}\');"
+    elif newDetails['type'] == 'trial':
+        query = "INSERT INTO trials (trial_name, trial_full_name) " \
+                + f"VALUES (\'{newDetails['name']}\', \'{newDetails['fullName']}\');"
+    else:
+        return False, "Invalid type specified"
+    connector = DBConnector(config.AUTH_DB_NAME,
+                            config.AUTH_DB_USER,
+                            config.AUTH_DB_PASSWORD,
+                            config.AUTH_DB_HOST)
+    connector.connect()
+    conn = connector.getConnection()
+    try:
+        cur = conn.cursor()
+        cur.execute(query)
+        conn.commit()
+        cur.close()
+    except (Exception, pg.DatabaseError) as err:
+        print(err, file=sys.stderr)
+        return False, str(err)
+    return True, "Successfully added new site/trial"
+    
+
 def getSitesForTrial(trial:str) ->List[SiteDetails]:
     rows = _executeQuery("SELECT site_name, site_full_name " \
                         + "FROM treatment_sites, trials, site_trial_mapping " \
