@@ -81,24 +81,61 @@ class ClinicalTrialsMetaData:
                 "field_type": "file",
                 "allowed":["text/plain", "text/csv"]
             }, 
-            "Patient plans (RT plan DICOM)": {
-                "level": "prescription", 
-                "key":"rt_plan_path",
-                "field_type": "file",
-                "allowed":["application/dicom"]
-            }, 
-            "Patient Planning CT (RT_CT_PATH)": {
-                "level": "prescription", 
-                "key":"rt_ct_path",
+            "Patient dose files": {
+                "level": "prescription",
+                "key":"patient_dose_files",
                 "field_type": "folder",
-                "allowed":["application/dicom"]
+                "allowed":["text/plain", "text/csv", "application/dicom"]
+            }, 
+            "Patient planning CTs": {
+                "level": "prescription",
+                "key":"patient_planning_cts",
+                "field_type": "folder",
+                "allowed":["text/plain", "text/csv", "application/dicom"]
+            }, 
+            "Patient structure sets": {
+                "level": "prescription",
+                "key":"patient_structure_sets",
+                "field_type": "folder",
+                "allowed":["text/plain", "text/csv", "application/dicom"]
             },
-            "Patient Structure set (DICOM)": {
-                "level": "prescription", 
-                "key":"rt_structure_path", 
-                "field_type": "file",
-                "allowed":["application/dicom"]
+            "Patient plans": {
+                "level": "prescription",
+                "key":"patient_plans",
+                "field_type": "folder",
+                "allowed":["text/plain", "text/csv", "application/dicom"]
             },
+            "Patient CBCT images": {
+                "level": "fraction",
+                "key":"patient_cbct_images",
+                "field_type": "folder",
+                "allowed":["text/plain", "text/csv", "application/dicom"]
+            },
+            "Couch Registration files": {
+                "level": "fraction",
+                "key":"couch_registration_files",
+                "field_type": "folder",
+                "allowed":["text/plain", "text/csv", "application/dicom"]
+            },
+            
+            # "Patient plans (RT plan DICOM)": {
+            #     "level": "prescription", 
+            #     "key":"rt_plan_path",
+            #     "field_type": "file",
+            #     "allowed":["application/dicom"]
+            # }, 
+            # "Patient Planning CT (RT_CT_PATH)": {
+            #     "level": "prescription", 
+            #     "key":"rt_ct_path",
+            #     "field_type": "folder",
+            #     "allowed":["application/dicom"]
+            # },
+            # "Patient Structure set (DICOM)": {
+            #     "level": "prescription", 
+            #     "key":"rt_structure_path", 
+            #     "field_type": "file",
+            #     "allowed":["application/dicom"]
+            # },
             # "RT Dose DICOM": {
             #     "level": "prescription", 
             #     "key":"rt_dose_path",
