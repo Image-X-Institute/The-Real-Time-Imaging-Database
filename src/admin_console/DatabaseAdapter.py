@@ -241,6 +241,22 @@ class DatabaseAdapter:
                 + "WHERE fraction_id = '" + fractionId + "';"
         return self.executeUpdateOnImageDB(stmt=stmt)
     
+    def getPatientId(self, patientTrialId:str) -> str:
+        strQuery = "SELECT id FROM patient WHERE patient_trial_id = '" + patientTrialId + "';"
+        if config.APP_DEBUG_MODE:
+            print("Executing Query:", strQuery)
+
+        try:
+            conn = self.getImageDBConnection()
+            cur = conn.cursor()
+            cur.execute(strQuery)
+            patientId = cur.fetchone()[0]
+            cur.close()
+        except (Exception, pg.DatabaseError) as error:
+            print(error, file=sys.stderr)
+            return None
+        return patientId
+    
     def insertFractionIntoDB(self, fractionDetails:Dict)  -> bool:
         insertStmt = "INSERT INTO fraction (prescription_id, " \
                                 + "fraction_date, fraction_number, " \

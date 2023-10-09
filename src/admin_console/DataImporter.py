@@ -47,6 +47,7 @@ class DataImporter:
         self._initialiseFileInfo()
 
     def getUploadFileInfo(self) -> Dict:
+        self.fileInfo['clinical_trial'] = self.metadata['clinical_trial']
         return self.fileInfo
     
     def verifyUploadPacket(self) -> Tuple[bool, str]:
@@ -368,6 +369,27 @@ class DataImporter:
                             self.dbAdapter.executeUpdateOnImageDB(doseQueryStr)
         self.markPacketAsImported()
         return True, "Success"
+    
+    def insertCHIRPDataIntoDatabase(self) -> Tuple[bool, str]:
+        fileType = self.fileInfo["file_type"]
+        dbTableMapping = {
+            "patient_dose_files":"rt_dose_path",
+            "patient_planning_cts":"rt_ct_path",
+            "patient_structure_sets":"rt_structure_path",
+            "patient_plans":"rt_plan_path"
+        }
+        if self.fileInfo['level'] == "prescription":
+            folderPath = self.fileInfo["folder_path"][0]
+            patientId = self.dbAdapter.getPatientId(self.metadata["patient_trial_id"])
+            if patientId:
+                queryStr = f"UPDATE prescription SET {dbTableMapping[fileType]} = \'{folderPath}\' WHERE patient_id = \'{patientId}\'"
+                self.dbAdapter.executeUpdateOnImageDB(queryStr)
+                print(queryStr)
+                self.markPacketAsImported()
+                return True, "Success"
+        elif self.fileInfo['level'] == "fraction":
+            pass
+
 
 def prepareArgumentParser():
     argParser = argparse.ArgumentParser(description="data Importer Tool")

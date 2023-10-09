@@ -91,8 +91,10 @@ def importUploadPacket(upload_id):
                 if config.APP_DEBUG_MODE:
                     print("Copied files into storage", result[1])
                 fileInfo = di.getUploadFileInfo()
-
-                if fileInfo['file_type'] == "fraction_folder":
+                if fileInfo['clinical_trial'] == "CHIRP":
+                    # Only design for CHIRP data import
+                    result = di.insertCHIRPDataIntoDatabase()
+                elif fileInfo['file_type'] == "fraction_folder":
                     result = di.insertFractionDataIntoDatabase()
                     result2 = di.insertImagePathIntoDatabase()
                     if config.APP_DEBUG_MODE:
