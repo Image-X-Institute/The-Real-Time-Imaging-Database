@@ -22,5 +22,11 @@
 	"DVH_folder":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
 	"triangulation_folder":"/{clinical_trial}/{test_centre}/Triangulation/Patient {centre_patient_no}/",
 	"image_folder": "/{clinical_trial}/{test_centre}/Patient Images/Projection images/Patient {centre_patient_no}/",
-	"trajectory_log_folder": "/{clinical_trial}/{test_centre}/Trajectory Logs/Patient {centre_patient_no}/"
+	"trajectory_log_folder": "/{clinical_trial}/{test_centre}/Trajectory Logs/Patient {centre_patient_no}/",
+	"patient_dose_files":"/{clinical_trial}/{test_centre}/Patient Dose Files/Patient {centre_patient_no}/",
+	"patient_planning_cts":"/{clinical_trial}/{test_centre}/Patient Planning CTs/Patient {centre_patient_no}",
+	"patient_structure_sets":"/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}",
+	"patient_plans":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}",
+	"patient_cbct_images":"/{clinical_trial}/{test_centre}/Patient CBCT Images/Patient {centre_patient_no}/",
+	"couch_registrations_files":"/{clinical_trial}/{test_centre}/Couch Registrations/Patient {centre_patient_no}/"
 }

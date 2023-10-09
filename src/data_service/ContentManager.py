@@ -540,6 +540,84 @@ class ContentManager:
                 )
             return saveFolderPath
         return ""
+    
+    def _processCHIRPPresLevel(self, metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath):
+        uploadId:str = metadata["upload_context"]
+        relativeFolderPath =  fileTypeToPathMapping[metadata["file_type"]].format(
+                        clinical_trial=metadata['clinical_trial'],
+                        test_centre=metadata["test_centre"],
+                        centre_patient_no=int(metadata["centre_patient_no"])
+                    )
+        relativePath = uploadId + relativeFolderPath + filename
+        saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId + relativeFolderPath
+        filesSaved.append(relativePath)
+
+        filePathAppended:bool = False
+        for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
+            if uploadedFileRecord["file_type"] == metadata["file_type"]:
+                uploadedFileRecord["Files"].append(relativePath)
+                filePathAppended = True
+                break
+
+        if not filePathAppended:
+            uploadMetaData["uploaded_files"].append(
+                {
+                    "file_type": metadata["file_type"],
+                    "level": metadata["level"],
+                    "Files": [relativePath],
+                    "folder_path": [relativeFolderPath]
+                }
+            )
+        return saveFolderPath
+    
+    def _processCHIRPFractionLevel(self, metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath):
+        uploadId:str = metadata["upload_context"]
+        fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
+        fractionName = re.search(r'/(?P<result>[^/]+)', formatedPath).group("result")
+        relativeFolderPath =  fileTypeToPathMapping[metadata["file_type"]].format(
+                        clinical_trial=metadata['clinical_trial'],
+                        test_centre=metadata["test_centre"],
+                        centre_patient_no=int(metadata["centre_patient_no"]),
+                    ) + fractionName + '/'
+        relativePath = uploadId + relativeFolderPath + filename
+        saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId + relativeFolderPath
+
+        filePathAppended:bool = False
+        for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
+            if uploadedFileRecord["file_type"] == metadata["file_type"]:
+                uploadedFileRecord["Files"].append(relativePath)
+                if fractionNumber not in uploadedFileRecord["fraction"]:
+                    uploadedFileRecord["fraction"].append(fractionNumber)
+                if fractionName not in uploadedFileRecord["fraction_name"]:
+                    uploadedFileRecord["fraction_name"].append(fractionName)
+                if fractionNumber not in uploadedFileRecord["db_file_name"].keys():
+                    uploadedFileRecord["db_file_name"][fractionNumber] = relativeFolderPath
+                if relativeFolderPath not in uploadedFileRecord["folder_path"]:
+                    uploadedFileRecord["folder_path"].append(relativeFolderPath)
+                filePathAppended = True
+        if not filePathAppended:
+            pack = {
+                fractionNumber: relativeFolderPath
+            }
+            uploadMetaData["uploaded_files"].append(
+                {
+                    "file_type": metadata["file_type"],
+                    "level": metadata["level"],
+                    "fraction": [fractionNumber],
+                    "fraction_name": [fractionName],
+                    "Files": [relativePath],
+                    "folder_path": [relativeFolderPath],
+                    "db_file_name": pack
+                }
+            )
+        return saveFolderPath
+    
+    def _processCHIRP(self, metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath):
+        if metadata["level"] == "prescription":
+            return self._processCHIRPPresLevel(metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath)
+        elif metadata["level"] == "fraction":
+            return self._processCHIRPFractionLevel(metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath)
+    
 
     def acceptAndSaveFile(self, req:request):
         # print("Files:", req.files)
@@ -624,7 +702,9 @@ class ContentManager:
                 uploadedFile = req.files[fileFieldName]
                 filename = secure_filename(uploadedFile.filename)
                 formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
-                if metadata["file_type"] == "fraction_folder":
+                if metadata["clinical_trial"] == "CHIRP":
+                    saveFolderPath = self._processCHIRP(metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath)
+                elif metadata["file_type"] == "fraction_folder":
                     saveFolderPath = self._processImageFractionFolder(metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath)
                 elif metadata["file_type"] == "DICOM_folder" or metadata["file_type"] == "DVH_folder":
                     saveFolderPath = self._processDoseReconstructionPlan(metadata, filename, uploadMetaData, fileTypeToPathMapping, filesSaved, formatedPath)
