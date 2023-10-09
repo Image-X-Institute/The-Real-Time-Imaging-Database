@@ -376,7 +376,9 @@ class DataImporter:
             "patient_dose_files":"rt_dose_path",
             "patient_planning_cts":"rt_ct_path",
             "patient_structure_sets":"rt_structure_path",
-            "patient_plans":"rt_plan_path"
+            "patient_plans":"rt_plan_path",
+            "patient_cbct_images":"dvh_track_path",
+            "couch_registration_files":"metrics_path"
         }
         if self.fileInfo['level'] == "prescription":
             folderPath = self.fileInfo["folder_path"][0]
@@ -388,8 +390,15 @@ class DataImporter:
                 self.markPacketAsImported()
                 return True, "Success"
         elif self.fileInfo['level'] == "fraction":
-            pass
-
+            for fraction in self.fileInfo["fraction"]:
+                fractionDetail = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
+                if fractionDetail:
+                    fractionId = fractionDetail[0][0]
+                    folderPath = self.fileInfo['db_file_name'][fraction]
+                    queryStr = f"UPDATE images SET {dbTableMapping[fileType]} = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
+                    self.dbAdapter.executeUpdateOnImageDB(queryStr)
+            self.markPacketAsImported()
+            return True, "Success"
 
 def prepareArgumentParser():
     argParser = argparse.ArgumentParser(description="data Importer Tool")
