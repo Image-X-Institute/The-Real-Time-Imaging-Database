@@ -22,7 +22,7 @@
     │               ├── planned_dicom_path
     │               ├── no_track_plan_path
     │               └── track_plan_path
-    ├── Patient Plans/ - Contains Patient CT, MRI images, patient plan, planned dose dicom and structure sets.  
+    ├── Patient Plans/ - Contains Patient CT, MRI images, patient plan, planned dose dicom.  
     │   └── Patient y/
     │       └── Fxi/
     │           └── files/
