@@ -55,7 +55,7 @@
     ├── Patient Images/ - Contains intrafraction kV and MV images and any notes. 
     │   └── Patient y/
     │       └── Fxi/
-    │           └── Fx1-i/
+    │           └── Fxi-j/
     │               ├── KIM-KV/
     │               │   └── kv_images
     │               └── KIM-MV/
@@ -68,6 +68,6 @@
 
     └── Patient Structure Sets/ - It's already up there. 
         └── Patient 15/
-            └── FX1/
+            └── FXi/
                 └── rt_structure_path
 ```
