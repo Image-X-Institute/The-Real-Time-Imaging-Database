@@ -26,11 +26,9 @@ class ClinicalTrialsMetaData:
                 "key":"image_folder",
                 "field_type":"folder",
                 "allowed":[
-                    "text/plain", 
-                    "image/*", 
-                    "application/dicom", 
-                    "application/octet-stream",
-                    "text/xml",
+                    "text", 
+                    "image", 
+                    "application"
                 ]
             },
              "Images Folder (Fraction level)": {
@@ -38,84 +36,80 @@ class ClinicalTrialsMetaData:
                 "key":"fraction_folder",
                 "field_type":"folder",
                 "allowed":[
-                    "text/plain", 
-                    "image/*", 
-                    "application/dicom", 
-                    "application/octet-stream",
-                    "text/xml",
+                    "text", 
+                    "image", 
+                    "application", 
+                    "application"
                 ]
             },
              "Dose Reconstruction (DICOM)": {
                 "level": "fraction", 
                 "key":"DICOM_folder", 
                 "field_type": "folder",
-                "allowed":["application/dicom"]
+                "allowed":["application"]
             },
             "Dose Reconstruction (DVH)": {
                 "level": "fraction", 
                 "key":"DVH_folder",
                 "field_type": "folder",
-                "allowed":["text/plain"]
+                "allowed":["text"]
             }, 
             "Triangulation Folder": {
                 "level": "fraction", 
                 "key":"triangulation_folder",
                 "field_type": "file",
-                "allowed": ["text/plain", 
-                    "application/vnd.ms-excel", 
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
-                    "application/vnd.oasis.opendocument.spreadsheet", 
-                    "text/csv"
+                "allowed": ["text", 
+                    "application"
                 ]		
             }, 
             "Trajectory log folder": {
                 "level": "fraction", 
                 "key":"trajectory_log_folder", 
                 "field_type": "file",
-                "allowed":["application/*"
+                "allowed":["application"
                 ]
             }, 
              "KIM log files": {
                 "level": "fraction", 
                 "key":"kim_logs",
                 "field_type": "file",
-                "allowed":["text/plain", "text/csv"]
+                "allowed":["text", "text"]
             }, 
             "Patient dose files": {
                 "level": "prescription",
                 "key":"patient_dose_files",
                 "field_type": "folder",
-                "allowed":["text/plain", "text/csv", "application/dicom"]
+                "allowed":["text", "text", "application"]
             }, 
             "Patient planning CTs": {
                 "level": "prescription",
                 "key":"patient_planning_cts",
                 "field_type": "folder",
-                "allowed":["text/plain", "text/csv", "application/dicom"]
+                "allowed":["text/plain", "text", "application"]
             }, 
             "Patient structure sets": {
                 "level": "prescription",
                 "key":"patient_structure_sets",
                 "field_type": "folder",
-                "allowed":["text/plain", "text/csv", "application/dicom"]
+                "allowed":["text/plain", "text", "application"]
             },
             "Patient plans": {
                 "level": "prescription",
                 "key":"patient_plans",
                 "field_type": "folder",
-                "allowed":["text/plain", "text/csv", "application/dicom"]
+                "allowed":["text/plain", "text", "application"]
             },
             "Patient CBCT images": {
                 "level": "fraction",
                 "key":"patient_cbct_images",
                 "field_type": "folder",
-                "allowed":["text/plain", "text/csv", "application/dicom"]
+                "allowed":["text/plain", "text", "application"]
             },
             "Couch Registration files": {
                 "level": "fraction",
                 "key":"couch_registration_files",
                 "field_type": "folder",
-                "allowed":["text/plain", "text/csv", "application/dicom"]
+                "allowed":["text/plain", "text", "application"]
             },
             
             # "Patient plans (RT plan DICOM)": {
@@ -1090,14 +1084,16 @@ class UploadDataScreen(QWidget):
         if os.path.isfile(path):
             mimeType:str = magic.from_file(filename=path, mime=True)
             # print(f"{path} has mime type: {mimeType}")
-            if mimeType in deniedFileTypes:
-                print(f"Found {path} with MIME:{mimeType} in the denied list, not queuing file.")
-                return False
-            elif mimeType in allowedFileTypes:
-                # print(f"Found {mimeType} in the allowed list.")
-                return True
-            elif not allowedFileTypes:
-                return True
+            mimeTypePrefix = mimeType.split("/")
+            if mimeTypePrefix:
+                if mimeType in deniedFileTypes:
+                    # print(f"Found {path} with MIME:{mimeType} in the denied list, not queuing file.")
+                    return False
+                elif mimeTypePrefix[0] in allowedFileTypes:
+                    # print(f"Found {mimeType} in the allowed list.")
+                    return True
+                elif not allowedFileTypes:
+                    return True
         return False
 
     def _getNumberofFilesPathsAndTotalSize(self, paths:List[str], 
@@ -1157,8 +1153,8 @@ class UploadDataScreen(QWidget):
             self.instanceNameLabel.setText(self.loginScreen.serverInstanceName)
             if self.currentProfile["connection_type"] == "DIRECT" \
                     or self.currentProfile["connection_type"] == "IMPORT_ONLY":
-                self.dbClient.baseUrl = self.currentProfile["url"]
-                # self.dbClient.baseUrl = "http://127.0.0.1:8090"
+                # self.dbClient.baseUrl = self.currentProfile["url"]
+                self.dbClient.baseUrl = "http://10.48.26.238:8090"
                 self.dbClient.authToken = self.currentProfile["token"]
                 if not self.dbClient.makeAuthRequest(
                         {"password": self.currentProfile["password"]}):
