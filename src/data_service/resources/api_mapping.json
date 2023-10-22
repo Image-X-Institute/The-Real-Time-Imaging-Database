@@ -472,6 +472,15 @@
                     "column": "respiratory_files_path"
                 },
                 "type": "str"
+            },
+            {
+                "property" : "extra_items",
+                "description" : "Semicolon separated Location (relative) of the RPM measurements file",
+                "field" : {
+                    "table": "images", 
+                    "column": "extra_items"
+                },
+                "type": "jsonb"
             }
         ],
         "db_relations": [

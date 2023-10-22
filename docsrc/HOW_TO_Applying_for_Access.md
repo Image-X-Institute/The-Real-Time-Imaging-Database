@@ -12,7 +12,7 @@ This document explains the process for applying access to the database. To get a
 
 # Process of Applying for Access
 
-To apply for access, visit the access application page on the database server instance of interest. This link is usually listed on the home page of the data service and is usually of the form `<data service URL>/apply-access`. For example, if the data service of interest is running on `10.65.67.77` at port `8091` then the apply access link would be `http://10.65.67.77:8091/apply-access`.
+To apply for access, visit the access application page on the database server instance of interest. This link is usually listed on the home page of the data service and is usually of the form `<data service URL>/apply-access`. For example, if the data service of interest is running on `10.65.67.77` at port `8091` then the apply access link would be `http://10.65.67.77:809/apply-access`.
 
 The following screen shot shows the application page filled with some sample values: 
 
