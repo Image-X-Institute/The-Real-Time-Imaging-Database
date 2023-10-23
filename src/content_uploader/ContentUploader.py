@@ -80,50 +80,57 @@ class ClinicalTrialsMetaData:
                 "level": "fraction", 
                 "key":"kim_logs",
                 "field_type": "file",
-                "allowed":["text", "text"]
+                "allowed":["text"]
             }, 
             "Patient dose files": {
                 "trial": ["CHIRP"],
                 "level": "prescription",
                 "key":"patient_dose_files",
                 "field_type": "folder",
-                "allowed":["text", "text", "application"]
+                "allowed":["text","application"]
             }, 
             "Patient planning CTs": {
                 "trial": ["CHIRP"],
                 "level": "prescription",
                 "key":"patient_planning_cts",
                 "field_type": "folder",
-                "allowed":["text/plain", "text", "application"]
+                "allowed":["text", "application"]
             }, 
             "Patient structure sets": {
                 "trial": ["CHIRP"],
                 "level": "prescription",
                 "key":"patient_structure_sets",
                 "field_type": "folder",
-                "allowed":["text/plain", "text", "application"]
+                "allowed":["text", "application"]
             },
             "Patient plans": {
                 "trial": ["CHIRP"],
                 "level": "prescription",
                 "key":"patient_plans",
                 "field_type": "folder",
-                "allowed":["text/plain", "text", "application"]
+                "allowed":["text", "application"]
             },
             "Patient CBCT images": {
                 "trial": ["CHIRP"],
                 "level": "fraction",
                 "key":"patient_cbct_images",
                 "field_type": "folder",
-                "allowed":["text/plain", "text", "application"]
+                "allowed":["text", "application"]
             },
             "Couch Registration files": {
                 "trial": ["CHIRP"],
                 "level": "fraction",
                 "key":"couch_registration_files",
                 "field_type": "folder",
-                "allowed":["text/plain", "text", "application"]
+                "allowed":["text", "application"]
             },
+            "RPM Folder": {
+                "trial": ["LARK", "SPARK"],
+                "level": "fraction",
+                "key":"rpm_files",
+                "field_type": "folder",
+                "allowed":["text", "application"]
+            }
             
             # "Patient plans (RT plan DICOM)": {
             #     "level": "prescription", 
