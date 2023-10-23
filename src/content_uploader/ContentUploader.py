@@ -22,6 +22,7 @@ class ClinicalTrialsMetaData:
     def __init__(self) -> None:
         self.fileTypes = {
             "Images Folder (Patient level)": {
+                "trial": ["SPARK", "LARK", "CHIRP"],
                 "level":"fraction",
                 "key":"image_folder",
                 "field_type":"folder",
@@ -32,6 +33,7 @@ class ClinicalTrialsMetaData:
                 ]
             },
              "Images Folder (Fraction level)": {
+                "trial": ["SPARK", "LARK", "CHIRP"],
                 "level":"fraction",
                 "key":"fraction_folder",
                 "field_type":"folder",
@@ -43,18 +45,21 @@ class ClinicalTrialsMetaData:
                 ]
             },
              "Dose Reconstruction (DICOM)": {
+                "trial": ["SPARK", "LARK"],
                 "level": "fraction", 
                 "key":"DICOM_folder", 
                 "field_type": "folder",
                 "allowed":["application"]
             },
             "Dose Reconstruction (DVH)": {
+                "trial": ["SPARK", "LARK"],
                 "level": "fraction", 
                 "key":"DVH_folder",
                 "field_type": "folder",
                 "allowed":["text"]
             }, 
             "Triangulation Folder": {
+                "trial": ["SPARK", "LARK"],
                 "level": "fraction", 
                 "key":"triangulation_folder",
                 "field_type": "file",
@@ -63,6 +68,7 @@ class ClinicalTrialsMetaData:
                 ]		
             }, 
             "Trajectory log folder": {
+                "trial": ["SPARK", "LARK"],
                 "level": "fraction", 
                 "key":"trajectory_log_folder", 
                 "field_type": "file",
@@ -70,42 +76,49 @@ class ClinicalTrialsMetaData:
                 ]
             }, 
              "KIM log files": {
+                 "trial": ["SPARK", "LARK"],
                 "level": "fraction", 
                 "key":"kim_logs",
                 "field_type": "file",
                 "allowed":["text", "text"]
             }, 
             "Patient dose files": {
+                "trial": ["CHIRP"],
                 "level": "prescription",
                 "key":"patient_dose_files",
                 "field_type": "folder",
                 "allowed":["text", "text", "application"]
             }, 
             "Patient planning CTs": {
+                "trial": ["CHIRP"],
                 "level": "prescription",
                 "key":"patient_planning_cts",
                 "field_type": "folder",
                 "allowed":["text/plain", "text", "application"]
             }, 
             "Patient structure sets": {
+                "trial": ["CHIRP"],
                 "level": "prescription",
                 "key":"patient_structure_sets",
                 "field_type": "folder",
                 "allowed":["text/plain", "text", "application"]
             },
             "Patient plans": {
+                "trial": ["CHIRP"],
                 "level": "prescription",
                 "key":"patient_plans",
                 "field_type": "folder",
                 "allowed":["text/plain", "text", "application"]
             },
             "Patient CBCT images": {
+                "trial": ["CHIRP"],
                 "level": "fraction",
                 "key":"patient_cbct_images",
                 "field_type": "folder",
                 "allowed":["text/plain", "text", "application"]
             },
             "Couch Registration files": {
+                "trial": ["CHIRP"],
                 "level": "fraction",
                 "key":"couch_registration_files",
                 "field_type": "folder",
@@ -259,8 +272,12 @@ class ClinicalTrialsMetaData:
     def fetchMetadata(self, patientTrialId:str) -> bool:
         return False
 
-    def getFileTypesSupported(self) -> List[str]:
-        return self.fileTypes.keys()
+    def getFileTypesSupported(self, currentTrial:str = None) -> List[str]:
+        if currentTrial is None:
+            return self.fileTypes.keys()
+        else:
+            return [fileType for fileType, fileTypeDetails in self.fileTypes.items() \
+                    if currentTrial in fileTypeDetails["trial"]]
 
     def getMatchingFileTypes(self, mimeType) -> List[str]:
         matchingFileTypes = []
@@ -893,19 +910,19 @@ class UploadDataScreen(QWidget):
 
         self.testCentreSelector = QComboBox()
         self.testCentreSelector.addItems(self.getSites())
-
+        
+        self.trialSelector = QComboBox()
+        self.trialSelector.addItems(self.getTrials())
+        self.trialSelector.currentTextChanged.connect(self.changeFileType)
 
         addTestCentreBtn = QPushButton("+")
         addTestCentreBtn.setMaximumSize(30, addTestCentreBtn.height())
         addTestCentreBtn.clicked.connect(self.showNewTestCentreScreen)
 
         self.fileTypeSelector = QComboBox()
-        self.fileTypeSelector.addItems(self.trialsMetaData.getFileTypesSupported())
+        self.fileTypeSelector.addItems(self.trialsMetaData.getFileTypesSupported(self.trialSelector.currentText()))
         self.fileTypeSelector.setMaximumWidth(200)
         self.fileTypeSelector.currentTextChanged.connect(self.fileTypeSelected)
-
-        self.trialSelector = QComboBox()
-        self.trialSelector.addItems(self.getTrials())
 
         addTrialPushBtn = QPushButton("+")
         addTrialPushBtn.setMaximumSize(30, addTrialPushBtn.height())
@@ -1494,6 +1511,11 @@ class UploadDataScreen(QWidget):
             self.fractionSelector.setEnabled(False)
             self.subFractionSelector.setEnabled(False)
 
+    @Slot(str)
+    def changeFileType(self):
+        self.fileTypeSelector.clear()
+        self.fileTypeSelector.addItems(self.trialsMetaData.getFileTypesSupported(self.trialSelector.currentText()))
+        
     @Slot(str)
     def fractionSelected(self, fraction:str):
         if fraction == "Fraction":
