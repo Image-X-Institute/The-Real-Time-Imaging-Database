@@ -30,7 +30,8 @@ CREATE TABLE trials
 (
     trial_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     trial_name VARCHAR NOT NULL UNIQUE,
-    trial_full_name VARCHAR
+    trial_full_name VARCHAR,
+    trial_structure JSONB,
 );
 
 CREATE TABLE treatment_sites

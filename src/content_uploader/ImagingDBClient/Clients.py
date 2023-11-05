@@ -248,3 +248,15 @@ class ImagingDBClient:
         if req.status_code == 200 or req.status_code == 201:
             return Result(success=True, message="Added site and trial successfully")
         return Result(success=False, message=f"data service retured {req.status_code}")
+    
+    def getFileTypesForTrial(self, trialName:str) -> Dict:
+        if not trialName:
+            return {}
+        try:
+            req = requests.get(self.baseUrl + "/trial-structure/contentUploader/" + trialName,
+                            headers={"Token": self._sessionToken})
+        except (Exception, InvalidSchema) as ex:
+            return {}
+        if req.status_code == 200:
+            return req.json()
+        return {}

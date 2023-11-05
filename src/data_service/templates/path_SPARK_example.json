@@ -1,0 +1,20 @@
+{
+	"centroid_path": "/SPARK/CMN/Patient Files/Patient {centre_patient_no}/",
+	"planned_dvh_path": "/SPARK/CMN/Dose Reconstruction/DVH/PAT{centre_patient_no:02d}/", 
+	"rt_ct_path": "/SPARK/CMN/Patient Plans/{patient_trial_id}/files/CT/", 
+	"rt_dose_path": "/SPARK/CMN/Patient Plans/{patient_trial_id}/files/Dose/", 
+	"rt_mri_path": "/SPARK/CMN/Patient Plans/{patient_trial_id}/files/MRI/", 
+	"rt_plan_path": "/SPARK/CMN/Patient Plans/{patient_trial_id}/files/Plan/", 
+	"rt_structure_path": "/SPARK/CMN/Patient Structure Sets/CMN {patient_trial_id}/",
+	"other": "/SPARK/CMN/Miscellanious/{patient_trial_id}/",
+	"DICOM_no_track_plan_path": "/SPARK/CMN/Dose Reconstruction/DICOM/PAT{centre_patient_no:02d}/{fraction_name}/", 
+	"DICOM_track_plan_path": "/SPARK/CMN/Dose Reconstruction/DICOM/PAT{centre_patient_no:02d}/{fraction_name}/", 
+	"DVH_no_track_path": "/SPARK/CMN/Dose Reconstruction/DVH/PAT{centre_patient_no:02d}/", 
+	"DVH_track_path": "/SPARK/CMN/Dose Reconstruction/DVH/PAT{centre_patient_no:02d}/", 
+	"kim_logs": "/SPARK/CMN/Patient Measured Motion/CMN_PAT{centre_patient_no:02d}/CMN_PAT{centre_patient_no:02d}_{fraction_name}/", 
+	"kv_images": "/SPARK/CMN/Patient Images/Patient {centre_patient_no}/{fraction_name}/KIM-KV/", 
+	"metrics": "/SPARK/CMN/Triangulation/Patient {centre_patient_no}/{fraction_name}/", 
+	"mv_images": "/SPARK/CMN/Patient Images/Patient {centre_patient_no}/{fraction_name}/KIM-MV/", 
+	"trajectory_logs": "/SPARK/CMN/Trajectory Logs/Pat{centre_patient_no:02d}-{patient_trial_id}/{fraction_name}/", 
+	"triangulation": "/SPARK/CMN/Triangulation/Patient {centre_patient_no}/{fraction_name}/"
+}
