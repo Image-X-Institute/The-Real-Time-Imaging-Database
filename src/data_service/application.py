@@ -6,17 +6,20 @@ from os import path
 from typing import List
 from AccessManager import valid_token_required, processTokenRequestApplication, \
         accessManagerInstance, getSitesAndTrials, SitesAndTrials, getSites, \
-        SiteDetails, getTrials, addSiteTrial
+        SiteDetails, getTrials, addSiteTrial, getTrialStructure, getContentUploaderTrial, addTrialStructure
 import sys
 from utils import make_csv
 from ContentManager import ContentManager
 from diagnostics import ServiceStatusAgent
+from flask_cors import CORS
+
 # from flask_mail import Mail
 
 
 app = Flask(__name__, 
             static_folder=config.UI_DIR, 
             template_folder=config.JINJA_TEMPLATES_FOLDER)
+CORS(app)
 application = app  # required for making it work on AWS
 
 # config.setMailConfig(app)
@@ -301,6 +304,27 @@ def showUploadDetails(urlPath:str):
     rsp = make_response({"files": contentMgr.uploadDetails(urlPath)})
     return rsp
 
+@app.route('/trial-structure/<path:trialName>')
+def queryTrialStructure(trialName:str):
+    trailStructure = getTrialStructure(trialName)
+    rsp = make_response(trailStructure)
+    return rsp
+
+@app.route('/trial-structure/contentUploader/<path:trialName>')
+def queryTrialStructureForContentUploader(trialName:str):
+    trailStructure = getContentUploaderTrial(trialName)
+    rsp = make_response(trailStructure)
+    return rsp
+
+@app.route('/trial-structure/addNewTrial', methods=["POST"])
+def queryAddNewTrial():
+    if config.APP_DEBUG_MODE:
+        print("Got an add new trial request", request.headers)
+    print(request.json)
+    result = addTrialStructure(request.json)
+    rsp = make_response({"status": result[0], "message": result[1]})
+    rsp.headers['Access-Control-Allow-Origin'] = '*'
+    return rsp
 
 if __name__ == '__main__':
     if config.APP_DEBUG_MODE:

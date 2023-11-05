@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <title>Realtime Imaging Database Admin Console</title>
+        <link rel="stylesheet" href="css/light_style.css" />
+
+    </head>
+    <body>
+      <div>
+        Create new trial
+      </div>
+      <div>
+        <div>
+          Trial Name: <input type="text" id="trialName" name="trialName" />
+        </div>
+        <div>
+          Trial Full Name: <input type="text" id="trialFullName" name="trialFullName" />
+        </div>
+        <div>
+          Trial Folder Structure File: <input type="file" id="trialFolderStructureFile" name="trialFolderStructureFile" accept="application/json" />
+        </div>
+      </div>
+      <div>
+        Download Trial Folder Structure File Template: <a href="download_template" download>Download</a>
+      </div>
+      <div>
+        <input type="button" class="button" value="Create" id="createNewTrial" disabled>
+        <input type="button" class="button" value="Clear" id="clearButton">
+      </div>
+      <div>
+        <input type="button" class="button" value="Back">
+      </div>
+      <script src="js/ui_utils.js"></script>
+    </body>
+</html>

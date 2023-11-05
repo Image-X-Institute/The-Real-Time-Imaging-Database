@@ -14,7 +14,7 @@ import psycopg2 as pg
 import sys
 import os
 from ProfileCreator import createProfile
-
+import json
 
 def valid_token_required(func):
     """ Decorator function, to be used on routes that need to be protected 
@@ -497,3 +497,66 @@ def getSitesForTrial(trial:str) ->List[SiteDetails]:
     for siteRow in rows:
         sites.append(SiteDetails(name=siteRow[0], fullName=siteRow[1]))
     return sites
+
+def getTrialStructure(trialName:str) ->Dict:
+    rows = _executeQuery("SELECT trial_structure FROM trials " \
+                        + f"WHERE trial_name = \'{trialName}\'")
+    if len(rows) == 0:
+        return {}
+    return rows[0][0]
+
+def getContentUploaderTrial(trialName:str) ->Dict:
+    rows = _executeQuery("SELECT trial_structure FROM trials " \
+                        + f"WHERE trial_name = \'{trialName}\'")
+    if len(rows) == 0:
+        return {}
+    strucutre = rows[0][0]
+    result = {}
+    for key in strucutre.keys():
+        if strucutre[key]:
+            displayName = strucutre[key]["display_name"]
+            contentInfo = {
+                "level": strucutre[key]["level"],
+                "key": key,
+                "field_type": strucutre[key]["field_type"],
+                "allowed": strucutre[key]["allowed"],
+            }
+            result[displayName] = contentInfo
+    return result
+
+def addTrialStructure(trialPack:Dict) -> Tuple[bool, str]:
+    trialDetail = trialPack["trialDetails"]
+    trialStructure = trialPack["fileStructure"]
+    checkQuery = f"SELECT trial_structure FROM trials WHERE trial_name = \'{trialDetail['trialName']}\'"
+    rows = _executeQuery(checkQuery)
+    print("rows:", rows)
+    connector = DBConnector(config.AUTH_DB_NAME,
+                            config.AUTH_DB_USER,
+                            config.AUTH_DB_PASSWORD,
+                            config.AUTH_DB_HOST)
+    connector.connect()
+    conn = connector.getConnection()
+    if len(rows) > 0:
+        updateQuery = f"UPDATE trials SET trial_structure = \'{trialStructure}\' " \
+                    + f"WHERE trial_name = \'{trialDetail['trialName']}\'"
+        try:
+            cur = conn.cursor()
+            cur.execute(updateQuery)
+            conn.commit()
+            cur.close()
+        except (Exception, pg.DatabaseError) as err:
+            print(err, file=sys.stderr)
+            return False, str(err)
+
+    else:
+        insertQuery = f"INSERT INTO trials (trial_name, trial_full_name, trial_structure) " \
+                    + f"VALUES (\'{trialDetail['trialName']}\', \'{trialDetail['trialFullName']}\', \'{json.dumps(trialStructure)}\');"
+        try:
+            cur = conn.cursor()
+            cur.execute(insertQuery)
+            conn.commit()
+            cur.close()
+        except (Exception, pg.DatabaseError) as err:
+            print(err, file=sys.stderr)
+            return False, str(err)
+    return True, "Successfully added trial structure"
