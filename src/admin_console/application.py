@@ -1,5 +1,5 @@
 from flask import Flask, make_response, send_from_directory, redirect, \
-        request, render_template
+        request, render_template, send_file
 from DataImporter import DataImporter
 import config
 from UploadManager import UploadManager
@@ -59,6 +59,13 @@ def authenticate():
                 return resp
     return render_template('login.html', error_msg=error_msg)
 
+@app.route('/create_new_trial', methods=['GET'])
+def createNewTrial():
+    return render_template('create_new_trial.html')
+
+@app.route('/download_template', methods=['GET'])
+def downloadTemplate():
+    return send_file("./gui/web_gui/assets/template.json", as_attachment=True)
 
 @app.route('/id/<upload_id>')
 @autheticated_access
