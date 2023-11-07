@@ -18,6 +18,41 @@
 	"triangulation": "",
 	"others":
 }
+{
+	"prescription":{
+		"rt_ct_pres": "", 
+		"rt_dose_pres": "", 
+		"rt_mri_pres": "", 
+		"rt_plan_pres": "", 
+		"rt_structure_pres": "",
+		"rt_dvh_original_pres": "",
+		"centroid_pres":""
+	},
+	"fraction":{
+		"rt_ct_fraction": "", 
+		"rt_dose_fraction": "", 
+		"rt_mri_fraction": "", 
+		"rt_plan_fraction": "", 
+		"rt_structure_fraction": "",
+		"centroid_fraction":"",
+		"kim_logs_path": "",
+		"kv_images_path": "",
+		"mv_images_path": "",
+		"metrics_path": "",
+		"triangulation_path":"",
+		"trajectory_logs_path":"",
+		"dvh_track_path":"",
+		"dvh_no_track_path":"",
+		"dicom_track_plan_path":"",
+		"dicom_no_track_plan_path":"",
+		"respiratory_files_path":"",
+		"scan_file":"",
+		"couch_shift_file":"",
+		"cbct_images_path":"",
+		"contour_files_path":"",
+		
+	},
+}
 
 "SPARK":{
 	"centroid_path": {
