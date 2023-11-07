@@ -5,3 +5,4 @@ local_settings.json
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 *.out
+.DS_Store
