@@ -41,7 +41,6 @@ class ClinicalTrialsMetaData:
             #         "text", 
             #         "image", 
             #         "application", 
-            #         "application"
             #     ]
             # },
             #  "Dose Reconstruction (DICOM)": {
@@ -310,6 +309,9 @@ class ClinicalTrialsMetaData:
     
     def getSubFractionNames(self) -> List[str]:
         return ["Sub-Fraction", "A", "B", "C"]
+        
+    def getFileTypes(self) -> Dict:
+        return self.fileTypes
     
     def updateFileTypes(self, trialFileType) -> None:
         self.fileTypes = trialFileType
@@ -994,7 +996,7 @@ class UploadDataScreen(QWidget):
         inputLayout = QGridLayout()
         fileTypeLayout = QHBoxLayout()
         typeofFileLabel = QLabel("Type of file:")
-        typeofFileLabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        typeofFileLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
         fileTypeLayout.addWidget(typeofFileLabel)
         fileTypeLayout.addWidget(self.fileTypeSelector)
 
@@ -1180,8 +1182,8 @@ class UploadDataScreen(QWidget):
             self.instanceNameLabel.setText(self.loginScreen.serverInstanceName)
             if self.currentProfile["connection_type"] == "DIRECT" \
                     or self.currentProfile["connection_type"] == "IMPORT_ONLY":
-                self.dbClient.baseUrl = self.currentProfile["url"]
-                # self.dbClient.baseUrl = "http://10.48.26.238:8090"
+                # self.dbClient.baseUrl = self.currentProfile["url"]
+                self.dbClient.baseUrl = "http://10.48.16.78:8090"
                 self.dbClient.authToken = self.currentProfile["token"]
                 if not self.dbClient.makeAuthRequest(
                         {"password": self.currentProfile["password"]}):
@@ -1447,13 +1449,14 @@ class UploadDataScreen(QWidget):
 
         self.statusLabel.setText("Queuing files for upload")
         proposedCategory = self.fileTypeSelector.currentText()
-        allowedFileTypes = self.trialsMetaData.fileTypes[proposedCategory]["allowed"] \
-                            if "allowed" in self.trialsMetaData.fileTypes[proposedCategory] \
+        fileTypes = self.trialsMetaData.getFileTypes()
+        allowedFileTypes = fileTypes[proposedCategory]["allowed"] \
+                            if "allowed" in fileTypes[proposedCategory] \
                             else []
-        deniedFileTypes = self.trialsMetaData.fileTypes[proposedCategory]["denied"] \
-                            if "denied" in self.trialsMetaData.fileTypes[proposedCategory] \
+        deniedFileTypes = fileTypes[proposedCategory]["denied"] \
+                            if "denied" in fileTypes[proposedCategory] \
                             else []
-
+        print(allowedFileTypes)
         numFiles, files, size = self._getNumberofFilesPathsAndTotalSize(
                                                 self.dropArea.droppedFiles, 
                                                 allowedFileTypes, 
