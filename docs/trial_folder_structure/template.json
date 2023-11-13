@@ -4,49 +4,49 @@
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "prescription",
+			"level": "",
 			"allowed":[]
 		}, 
 		"rt_dose_pres": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "prescription",
+			"level": "",
 			"allowed":[]
 		}, 
 		"rt_mri_pres": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "prescription",
+			"level": "",
 			"allowed":[]
 		}, 
 		"rt_plan_pres": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "prescription",
+			"level": "",
 			"allowed":[]
 		}, 
 		"rt_structure_pres": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "prescription",
+			"level": "",
 			"allowed":[]
 		}, 
 		"rt_dvh_original_pres": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "prescription",
+			"level": "",
 			"allowed":[]
 		}, 
 		"centroid_pres":{
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "prescription",
+			"level": "",
 			"allowed":[]
 		}
 	},
@@ -55,147 +55,147 @@
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"rt_dose_fraction": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"rt_mri_fraction": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"rt_plan_fraction": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		},
 		"rt_structure_fraction": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"centroid_fraction": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"kim_logs_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"kv_images_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"mv_images_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"metrics_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"triangulation_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"trajectory_logs_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"dvh_track_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"dvh_no_track_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"dicom_track_plan_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"dicom_no_track_plan_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"respiratory_files_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"scan_file": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"couch_shift_file": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"cbct_images_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}, 
 		"contour_files_path": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
-			"level": "fraction",
+			"level": "",
 			"allowed":[]
 		}
 	}
