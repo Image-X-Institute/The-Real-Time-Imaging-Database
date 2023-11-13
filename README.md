@@ -35,7 +35,7 @@ This project aims to create a cloud-based secure and easy-to-use mechanism for m
 * Python PySide6 application for importing data into the database.
 
 ## Design
-![Architecture](docsrc/images/architecture.png)
+![Architecture](docs/deployment_guide/images/architecture.png)
 
 ## How To Use
 The project contains three main components:
