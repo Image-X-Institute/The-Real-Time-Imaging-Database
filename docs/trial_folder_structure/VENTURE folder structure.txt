@@ -1,0 +1,35 @@
+VENTURE study database needs
+
+
+. 'y' - represents the patient no. and 'i' represents the fraction no.  
+└── center/
+
+    ├── Patient Images/ - Contains intrafraction kV and MV images and any notes. 
+    │   └── Patient y/
+    │       └── Fxi/
+    │           └── Fxi-j/ 
+    │               ├── KIM-KV/
+    │               │   └── kv_images
+    │               └── KIM-MV/
+    │                   └── mv_images
+    │           ├── CBCT/
+    │               └── cbct_path
+    │           └── Fluoro/
+    │               └── fluoro_path
+    │       └── Fraction /
+    │           └── CT/
+    │               │   └── ct_path
+    │           └── PET/ 
+    │               │   └── pet_image_path
+    │               │   └── 3Dattenuation_ct_path
+    │               │   └── pet_listmode_path
+    │               │   └── 4Dattenuation_ct_path 
+    │               │   └── PETCT_files 
+    │           └── SPECT/
+    │               │   └── spect_image_path
+    │               │   └── 3Dattenuation_ct_path
+
+    └── Patient Structure Sets/ - It's already up there. 
+        └── Patient y/
+            └── Fxi/
+                └── rt_structure_path 
