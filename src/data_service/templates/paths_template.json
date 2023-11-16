@@ -72,35 +72,35 @@
 	"rt_ct_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/files/CT/", 
 		"display_name":"RT CT Path",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "fraction",
 		"allowed":["application"]
 	},
 	"rt_dose_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/Dose/",
 		"display_name":"RT Dose Path",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "fraction",
 		"allowed":["application"]
 	},
 	"rt_mri_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/MRI/",
 		"display_name":"RT MRI Path",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "fraction",
 		"allowed":["application"]
 	},
 	"rt_plan_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/Plan/",
 		"display_name":"RT Plan Path",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "fraction",
 		"allowed":["application"]
 	},
 	"rt_structure_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/{fraction_name}/",
 		"display_name":"RT Structure Path",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "fraction",
 		"allowed":["application"]
 	},
@@ -182,14 +182,14 @@
 	"rt_ct_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/files/CT/", 
 		"display_name":"Patient Planning CTs",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "prescription",
 		"allowed":["text","application"]
 	}, 
 	"rt_dose_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/files/Dose/",
 		"display_name":"Patient Dose Files",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "prescription",
 		"allowed":["text","application"]
 	},
@@ -197,7 +197,7 @@
 	"rt_plan_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/files/Plan/",
 		"display_name":"Patient Plan Files",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "prescription",
 		"allowed":["text","application"]
 	
@@ -205,7 +205,7 @@
 	"rt_structure_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/",
 		"display_name":"Patient Structure Sets",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "prescription",
 		"allowed":["text","application"]
 	},

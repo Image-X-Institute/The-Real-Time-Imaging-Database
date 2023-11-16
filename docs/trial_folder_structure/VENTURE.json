@@ -1,0 +1,97 @@
+{
+	"prescription":{},
+	"fraction":{
+		"rt_ct_fraction": {
+      "path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/CT/{fraction_name}/", 
+      "display_name":"RT planning 4DCT",
+      "field_type":"foler",
+      "level": "fraction",
+      "allowed":["application"]
+    },
+		"rt_plan_fraction": {
+      "path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/CT/{fraction_name}/",
+      "display_name":"RT Plan Path",
+      "field_type":"foler",
+      "level": "fraction",
+      "allowed":["application"]
+    },
+
+		"rt_structure_fraction": {
+      "path":"/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/{fraction_name}/",
+      "display_name":"RT Structure Path",
+      "field_type":"foler",
+      "level": "fraction",
+      "allowed":["application"]
+    },
+		"fluoro_images_path":{
+			"path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/Fluoro/",
+			"display_name":"Fluoro Images",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["image"]
+		},
+    "cbct_images_path": {
+			"path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/CBCT/",
+			"display_name":"CBCT Images",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["image"]
+		}, 
+    "timepoint_ct_path":{
+			"path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/Timepoint/{fraction_name}/",
+			"display_name":"Timepoint CT Path",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["applicaction"]
+		},
+		"pet_image_path":{
+			"path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/PET/",
+			"display_name":"PET Images",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["image"]
+		}, 
+		"pet_3d_attenuation_ct_path":{
+			"path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/PET/",
+			"display_name":"PET 3d Attenuation CT",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["image"]
+		}, 
+		"pet_listmode_path":{
+			"path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/PET/",
+			"display_name":"PET Listmode",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["image"]
+		}, 
+		"pet_4d_attenuation_ct_path":{
+      "path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/PET/",
+      "display_name":"PET 4d Attenuation CT",
+      "field_type":"folder",
+      "level": "fraction",
+      "allowed":["image"]
+    }, 
+		"petct_files":{
+			"path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/PET/",
+			"display_name":"PET CT Files",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["text"]
+		}, 
+		"spect_image_path":{
+			"path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/SPECT/",
+			"display_name":"SPECT 3d Attenuation CT",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["image"]
+		}, 
+		"spect_3d_attenuation_ct_path":{
+			"path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/{fraction_name}/SPECT/",
+			"display_name":"SPECT 3d Attenuation CT",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["image"]
+		}
+	}
+}
