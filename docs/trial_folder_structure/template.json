@@ -197,6 +197,69 @@
 			"field_type":"",
 			"level": "",
 			"allowed":[]
+		},
+		"fluoro_images_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"pet_image_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"pet_3d_attenuation_ct_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"pet_listmode_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"pet_4d_attenuation_ct_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"petct_files":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"spect_image_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"spect_3d_attenuation_ct_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"timepoint_ct_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
 		}
 	}
 }
