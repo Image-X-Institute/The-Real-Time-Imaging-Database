@@ -1,0 +1,121 @@
+{
+	"centroid_path": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Files/Patient {centre_patient_no}/",
+		"display_name":"Centroid Path",
+		"field_type":"file",
+		"level": "fraction",
+		"allowed":["text"]
+	},
+	"planned_dvh_path": {
+		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
+		"display_name":"Planned DVH Path",
+		"field_type":"file",
+		"level": "fraction",
+		"allowed":["text"]
+	},
+	"rt_ct_path": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/files/CT/", 
+		"display_name":"RT CT Path",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["application"]
+	},
+	"rt_dose_path": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/Dose/",
+		"display_name":"RT Dose Path",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["application"]
+	},
+	"rt_mri_path": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/MRI/",
+		"display_name":"RT MRI Path",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["application"]
+	},
+	"rt_plan_path": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/Plan/",
+		"display_name":"RT Plan Path",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["application"]
+	},
+	"rt_structure_path": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/{fraction_name}/",
+		"display_name":"RT Structure Path",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["application"]
+	},
+	"DICOM_no_track_plan_path": {
+		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/Patient {centre_patient_no}/",
+		"display_name":"DICOM No Track Plan Path",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["application"]
+	},
+	"DICOM_track_plan_path": {
+		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/Patient {centre_patient_no}/",
+		"display_name":"DICOM Track Plan Path",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["application"]
+	},
+	"DVH_no_track_path": {
+		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
+		"display_name":"DVH No Track Path",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["text"]
+	},
+	"DVH_track_path": {
+		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
+		"display_name":"DVH Track Path",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["text"]
+	},
+	"kim_logs": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
+		"display_name":"KIM Logs",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["text"]
+	},
+	"kv_images": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
+		"display_name":"KV Images",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["application", "image", "text"]
+	},
+	"mv_images": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
+		"display_name":"MV Images",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["application", "image", "text"]
+	},
+	"metrics": {
+		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/Metrics/Patient {centre_patient_no}/",
+		"display_name":"Metrics",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["text"]
+	},
+	"trajectory_logs": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
+		"display_name":"Trajectory Logs Files",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["text"]
+	},
+	"triangulation": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
+		"display_name":"Triangulation Files",
+		"field_type":"folder",
+		"level": "fraction",
+		"allowed":["text"]
+	}
+}
