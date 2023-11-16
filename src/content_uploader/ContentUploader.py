@@ -994,7 +994,7 @@ class UploadDataScreen(QWidget):
         inputLayout = QGridLayout()
         fileTypeLayout = QHBoxLayout()
         typeofFileLabel = QLabel("Type of file:")
-        typeofFileLabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        typeofFileLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
         fileTypeLayout.addWidget(typeofFileLabel)
         fileTypeLayout.addWidget(self.fileTypeSelector)
 
@@ -1180,8 +1180,8 @@ class UploadDataScreen(QWidget):
             self.instanceNameLabel.setText(self.loginScreen.serverInstanceName)
             if self.currentProfile["connection_type"] == "DIRECT" \
                     or self.currentProfile["connection_type"] == "IMPORT_ONLY":
-                self.dbClient.baseUrl = self.currentProfile["url"]
-                # self.dbClient.baseUrl = "http://10.48.26.238:8090"
+                # self.dbClient.baseUrl = self.currentProfile["url"]
+                self.dbClient.baseUrl = "http://10.48.31.16:8090"
                 self.dbClient.authToken = self.currentProfile["token"]
                 if not self.dbClient.makeAuthRequest(
                         {"password": self.currentProfile["password"]}):
