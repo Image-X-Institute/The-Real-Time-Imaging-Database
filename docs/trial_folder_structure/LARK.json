@@ -1,37 +1,69 @@
 {
 	"centroid_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Files/Patient {centre_patient_no}/",
-		"display_name":"Centroid Path",
+		"display_name":"Centroid Path (fraction level)",
 		"field_type":"file",
 		"level": "fraction",
+		"allowed":["text"],
+		"file_name":["Centroid"]
+	},
+	"centroid_path": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Files/Patient {centre_patient_no}/",
+		"display_name":"Centroid Path (prescription level)",
+		"field_type":"file",
+		"level": "prescription",
 		"allowed":["text"]
 	},
 	"planned_dvh_path": {
 		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
-		"display_name":"Planned DVH Path",
+		"display_name":"Planned DVH Path (fraction level)",
 		"field_type":"file",
 		"level": "fraction",
 		"allowed":["text"]
+		"file_name":["Planned_DVH"]
+	},
+	"planned_dvh_path": {
+		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
+		"display_name":"Planned DVH Path (prescription level)",
+		"field_type":"file",
+		"level": "prescription",
+		"allowed":["text"]
+		"file_name":["Planned_DVH"]
 	},
 	"rt_ct_path": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/files/CT/", 
-		"display_name":"RT CT Path",
+		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/CT/", 
+		"display_name":"RT CT Path (fraction level)",
 		"field_type":"folder",
 		"level": "fraction",
 		"allowed":["application"]
 	},
-	"rt_dose_path": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/Dose/",
-		"display_name":"RT Dose Path",
+	"rt_ct_path": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/CT/", 
+		"display_name":"RT CT Path (prescription level)",
 		"field_type":"folder",
+		"level": "prescription",
+		"allowed":["application"]
+	},
+	"rt_dose_path": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/Dose/",
+		"display_name":"RT Dose Path (fraction level)",
+		"field_type":"file",
 		"level": "fraction",
+		"allowed":[".dcm"]
+		"file_name":[""]
+	},
+	"rt_dose_path": {
+		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/Dose/",
+		"display_name":"RT Dose Path (prescription level)",
+		"field_type":"file",
+		"level": "prescription",
 		"allowed":["application"]
 	},
 	"rt_mri_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/MRI/",
 		"display_name":"RT MRI Path",
 		"field_type":"folder",
-		"level": "fraction",
+		"level": "prescription",
 		"allowed":["application"]
 	},
 	"rt_plan_path": {
