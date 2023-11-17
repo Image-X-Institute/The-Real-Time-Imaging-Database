@@ -69,10 +69,7 @@
       "display_name": "Planned DICOM Path",
       "field_type": "file",
       "level": "prescription",
-      "allowed": [
-        "text/plain",
-        "text/csv"
-      ]
+      "allowed": ["application/dicom"]
     },
     "centroid_pres": {
       "path": "/{clinical_trial}/{test_centre}/Patient Files/Patient {centre_patient_no}/",
@@ -249,10 +246,7 @@
       "display_name": "Planned DICOM Path(fraction level)",
       "field_type": "file",
       "level": "fraction",
-      "allowed": [
-        "text/plain",
-        "text/csv"
-      ]
+      "allowed": ["application/dicom"]
     },
     "dicom_track_plan_path": {
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/Patient {centre_patient_no}/",
