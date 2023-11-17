@@ -18,6 +18,41 @@
 	"triangulation": "",
 	"others":
 }
+{
+	"prescription":{
+		"rt_ct_pres": "", 
+		"rt_dose_pres": "", 
+		"rt_mri_pres": "", 
+		"rt_plan_pres": "", 
+		"rt_structure_pres": "",
+		"rt_dvh_original_pres": "",
+		"centroid_pres":""
+	},
+	"fraction":{
+		"rt_ct_fraction": "", 
+		"rt_dose_fraction": "", 
+		"rt_mri_fraction": "", 
+		"rt_plan_fraction": "", 
+		"rt_structure_fraction": "",
+		"centroid_fraction":"",
+		"kim_logs_path": "",
+		"kv_images_path": "",
+		"mv_images_path": "",
+		"metrics_path": "",
+		"triangulation_path":"",
+		"trajectory_logs_path":"",
+		"dvh_track_path":"",
+		"dvh_no_track_path":"",
+		"dicom_track_plan_path":"",
+		"dicom_no_track_plan_path":"",
+		"respiratory_files_path":"",
+		"scan_file":"",
+		"couch_shift_file":"",
+		"cbct_images_path":"",
+		"contour_files_path":"",
+		
+	},
+}
 
 "SPARK":{
 	"centroid_path": {
@@ -37,35 +72,35 @@
 	"rt_ct_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/files/CT/", 
 		"display_name":"RT CT Path",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "fraction",
 		"allowed":["application"]
 	},
 	"rt_dose_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/Dose/",
 		"display_name":"RT Dose Path",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "fraction",
 		"allowed":["application"]
 	},
 	"rt_mri_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/MRI/",
 		"display_name":"RT MRI Path",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "fraction",
 		"allowed":["application"]
 	},
 	"rt_plan_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/Plan/",
 		"display_name":"RT Plan Path",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "fraction",
 		"allowed":["application"]
 	},
 	"rt_structure_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/{fraction_name}/",
 		"display_name":"RT Structure Path",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "fraction",
 		"allowed":["application"]
 	},
@@ -109,14 +144,14 @@
 		"display_name":"KV Images",
 		"field_type":"folder",
 		"level": "fraction",
-		"allowed":["application"]
+		"allowed":["application", "image", "text"]
 	},
 	"mv_images": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
 		"display_name":"MV Images",
 		"field_type":"folder",
 		"level": "fraction",
-		"allowed":["application"]
+		"allowed":["application", "image", "text"]
 	},
 	"metrics": {
 		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/Metrics/Patient {centre_patient_no}/",
@@ -147,14 +182,14 @@
 	"rt_ct_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/files/CT/", 
 		"display_name":"Patient Planning CTs",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "prescription",
 		"allowed":["text","application"]
 	}, 
 	"rt_dose_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/files/Dose/",
 		"display_name":"Patient Dose Files",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "prescription",
 		"allowed":["text","application"]
 	},
@@ -162,7 +197,7 @@
 	"rt_plan_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/files/Plan/",
 		"display_name":"Patient Plan Files",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "prescription",
 		"allowed":["text","application"]
 	
@@ -170,7 +205,7 @@
 	"rt_structure_path": {
 		"path":"/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/",
 		"display_name":"Patient Structure Sets",
-		"field_type":"foler",
+		"field_type":"folder",
 		"level": "prescription",
 		"allowed":["text","application"]
 	},
