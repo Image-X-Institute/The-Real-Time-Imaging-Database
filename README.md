@@ -35,7 +35,7 @@ This project aims to create a cloud-based secure and easy-to-use mechanism for m
 * Python PySide6 application for importing data into the database.
 
 ## Design
-![Architecture](docsrc/images/architecture.png)
+![Architecture](docs/deployment_guide/images/architecture.png)
 
 ## How To Use
 The project contains three main components:
@@ -48,7 +48,7 @@ The project contains three main components:
   
 The documentation for the project can be found here:  
 * The user guide for general users can be found in the [docs](docs/User_Guide_Data_import.pdf) folder.
-* The documentation for the project can be found in the [docsrc](docsrc) folder.
+* The documentation for the project can be found in the [docsrc](docs/deployment_guide) folder.
 
 The file structure of the project is as follows:
 ```

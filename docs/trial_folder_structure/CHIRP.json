@@ -1,0 +1,62 @@
+{
+	"prescription":{
+		"rt_ct_pres": {
+      "path":"/{clinical_trial}/{test_centre}/Patient Planning CTs/Patient {centre_patient_no}/",
+      "display_name":"Planning CT Files",
+      "field_type":"folder",
+      "level": "prescription",
+      "allowed":["application"]
+    },
+		"rt_dose_pres": {
+      "path":"/{clinical_trial}/{test_centre}/Patient Dose Files/Patient {centre_patient_no}/",
+      "display_name":"RT Dose Path",
+      "field_type":"folder",
+      "level": "prescription",
+      "allowed":["application"]
+    },
+		"rt_plan_pres": {
+      "path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/",
+      "display_name":"Dicom Plan Files",
+      "field_type":"folder",
+      "level": "prescription",
+      "allowed":["application"]
+    },
+		"rt_structure_pres": {
+      "path":"/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/",
+      "display_name":"Dicom Structure Files",
+      "field_type":"folder",
+      "level": "prescription",
+      "allowed":["application"]
+    }
+	},
+	"fraction":{
+  	"kv_images_path": {
+			"path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/",
+			"display_name":"kV Images",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["text", "application"]
+		}, 
+		"scan_file": {
+			"path":"/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/",
+			"display_name":"Scan Files",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["text", "application"]
+		}, 
+		"couch_Register_file": {
+			"path":"/{clinical_trial}/{test_centre}/Couch Registration Files/Patient {centre_patient_no}/",
+			"display_name":"Dicom Registration Files",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["text", "application"]
+		}, 
+		"cbct_images_path": {
+			"path":"/{clinical_trial}/{test_centre}/Patient CBCT Images/Patient {centre_patient_no}/",
+			"display_name":"Dicom CBCT Images",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["application"]
+		}
+	}
+}

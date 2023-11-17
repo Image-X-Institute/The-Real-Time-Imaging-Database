@@ -507,3 +507,4 @@ FodyWeavers.xsd
 .vscode/
 # machine specific logfiles
 accesslog.txt
+.DS_Store
