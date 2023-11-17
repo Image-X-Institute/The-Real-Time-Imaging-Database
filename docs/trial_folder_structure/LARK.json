@@ -54,6 +54,26 @@
       "level": "",
       "allowed": []
     },
+    "planned_dvh_pres": {
+      "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
+      "display_name": "Planned DVH Path",
+      "field_type": "file",
+      "level": "prescription",
+      "allowed": [
+        "text/plain",
+        "text/csv"
+      ]
+    },
+    "planned_dicom_pres": {
+      "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/Patient {centre_patient_no}/",
+      "display_name": "Planned DICOM Path",
+      "field_type": "file",
+      "level": "prescription",
+      "allowed": [
+        "text/plain",
+        "text/csv"
+      ]
+    },
     "centroid_pres": {
       "path": "/{clinical_trial}/{test_centre}/Patient Files/Patient {centre_patient_no}/",
       "display_name": "Centroid Path (prescription level)",
@@ -208,6 +228,26 @@
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
       "display_name": "DVH No Track Path",
       "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "text/plain",
+        "text/csv"
+      ]
+    },
+    "planned_dvh_fraction": {
+      "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
+      "display_name": "Planned DVH Path(faction level)",
+      "field_type": "file",
+      "level": "prescription",
+      "allowed": [
+        "text/plain",
+        "text/csv"
+      ]
+    },
+    "planned_dicom_fraction": {
+      "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/Patient {centre_patient_no}/",
+      "display_name": "Planned DICOM Path(fraction level)",
+      "field_type": "file",
       "level": "fraction",
       "allowed": [
         "text/plain",
