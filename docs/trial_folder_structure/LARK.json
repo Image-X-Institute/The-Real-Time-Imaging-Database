@@ -155,7 +155,7 @@
       ]
     },
     "metrics_path": {
-      "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/Metrics/Patient {centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Triangulation/Patient {centre_patient_no}/",
       "display_name": "Metrics",
       "field_type": "folder",
       "level": "fraction",
@@ -168,7 +168,7 @@
       ]
     },
     "triangulation_path": {
-      "path": "/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Triangulation/Patient {centre_patient_no}/",
       "display_name": "Triangulation Files",
       "field_type": "folder",
       "level": "fraction",
@@ -181,7 +181,7 @@
       ]
     },
     "trajectory_logs_path": {
-      "path": "/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Trajectory Logs/Patient {centre_patient_no}/",
       "display_name": "Trajectory Logs Files",
       "field_type": "folder",
       "level": "fraction",
