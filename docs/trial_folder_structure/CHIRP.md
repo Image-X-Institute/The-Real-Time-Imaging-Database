@@ -1,3 +1,4 @@
+```
 . 'y' - represents the patient no. and 'i' represents the fraction no. 
 └── center/
     ├── Patient Dose Files/ - Contains the Dicom dose files for each patient
@@ -32,3 +33,4 @@
             └── Fxi+1/
                 ├── kV images
                 └── Scan file
+```

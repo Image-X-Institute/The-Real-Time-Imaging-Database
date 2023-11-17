@@ -1,0 +1,43 @@
+'Y' - represents the patient no. (2 numbers: ##)
+'I' - represents the fraction no. (2 numbers: ##)
+└── center/
+    ├── Centroid files/ - Contains offset from DICOM origin to Isocentre and GTV centroid (txt)
+    │   └── PatientY/
+    │       └── Centroid
+    │       
+    ├── MAGIKmodel/ - Contains MAGIK model of GTV and diaphragm
+    │   └── PatientY/
+    │       └── MAGIKModel_##/
+    │           └── MAGIK_ModelFiles/
+    │              └── Model files
+    │           └── Model visualisation
+    │
+    ├── Marker offsets/ - Contains DICOM co-ordinates of markers in the patient (xls)
+    │   └── PatientY/
+    │       └── Marker Offsets
+    │       
+    ├── Markerless output/ - Contains MAGIK measured patient motion. 
+    │   └── PatientY/
+    │       └── FxI/
+    │           └── MAGIK_logs
+    │
+    ├── Planning Files/ - Contains Patient CT, MRI images, patient plan, planned dose dicom.  
+    │   └── PatientY/
+    │       └── rt_plan
+    │       └── rt_4dct
+    │
+    └── Treatment Files/ - Contains intrafraction kV and MV images and any notes. 
+        └── PatientY/
+            └── FxI/
+                ├── DepthTrace/
+                │   └── surface monitoring trace
+                └── kV/
+                    ├── kv_images
+                    ├── Figures/
+                    │   └── analysis figures
+                    ├── MarkerData/
+                    │   ├── Marker tracks
+                    │   └── LearningArc/
+                    │       └── Marker tracks
+                    └── PatientData/
+                        └── Summary data

@@ -1,0 +1,202 @@
+{
+	"prescription":{
+		"rt_ct_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "prescription",
+			"allowed":[]
+		}, 
+		"rt_dose_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "prescription",
+			"allowed":[]
+		}, 
+		"rt_mri_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "prescription",
+			"allowed":[]
+		}, 
+		"rt_plan_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "prescription",
+			"allowed":[]
+		}, 
+		"rt_structure_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "prescription",
+			"allowed":[]
+		}, 
+		"rt_dvh_original_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "prescription",
+			"allowed":[]
+		}, 
+		"centroid_pres":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "prescription",
+			"allowed":[]
+		}
+	},
+	"fraction":{
+		"rt_ct_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"rt_dose_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"rt_mri_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"rt_plan_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		},
+		"rt_structure_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"centroid_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"kim_logs_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"kv_images_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"mv_images_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"metrics_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"triangulation_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"trajectory_logs_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"dvh_track_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"dvh_no_track_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"dicom_track_plan_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"dicom_no_track_plan_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"respiratory_files_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"scan_file": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"couch_shift_file": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"cbct_images_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}, 
+		"contour_files_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "fraction",
+			"allowed":[]
+		}
+	}
+}
