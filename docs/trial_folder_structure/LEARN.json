@@ -284,8 +284,8 @@
       ]
     },
      "RPM_path": {
-      "path": "/{clinical_trial}/{test_centre}/RPM/PAT{centre_patient_no}/",
-      "display_name": "RPM",
+      "path": "/{clinical_trial}/{test_centre}/Surface Signal/PAT{centre_patient_no}/",
+      "display_name": "Surface Signal",
       "field_type": "folder",
       "level": "fraction",
       "allowed": [

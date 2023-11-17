@@ -177,9 +177,10 @@ class ClinicalTrials:
                 data = {}
                 for columnCounter in range(len(objectFields)):
                     fieldValue = rows[rowCounter][columnCounter]
-                    if objectFields[columnCounter]["type"] == "date":
+                    if objectFields[columnCounter]["type"] == "date" and fieldValue:
                         fieldValue = fieldValue.isoformat()
-                    data[objectFields[columnCounter]["property"]] = fieldValue
+                    if fieldValue:
+                        data[objectFields[columnCounter]["property"]] = fieldValue
 
                 queriedData[endpoint].append(data)
 

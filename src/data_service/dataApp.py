@@ -85,28 +85,6 @@ def getCatalogOfSites():
     rsp.headers['Access-Control-Allow-Origin'] = '*'
     return rsp
 
-@app.route('/add-site-trial', methods=['GET', 'POST'])
-@valid_token_required
-def addSiteTrialEntry():
-    if config.APP_DEBUG_MODE:
-        print("Got a request to add a new site trial")
-        print(request.headers)
-
-    contentType = request.headers.get("Content-Type")
-    if contentType == "application/json":
-        result = addSiteTrial(request.json)
-        rsp = make_response({"success":result[0], "message":result[1]})
-        if result[0]:
-            rsp.status_code = 201
-        rsp.headers['Access-Control-Allow-Origin'] = '*'
-        return rsp
-    
-    rsp = make_response({"success":False, 
-                        "message":"Content-Type:application/json expected"})
-    rsp.headers['Access-Control-Allow-Origin'] = '*'
-    return rsp
-
-
 @app.route('/add-patient', methods=['GET', 'POST'])
 @valid_token_required
 def addPatient():
@@ -323,6 +301,16 @@ def queryAddNewTrial():
     print(request.json)
     result = addTrialStructure(request.json)
     rsp = make_response({"status": result[0], "message": result[1]})
+    rsp.headers['Access-Control-Allow-Origin'] = '*'
+    return rsp
+
+@app.route('/add-site-trial', methods=['POST'])
+def addSiteTrialEntry():
+    if config.APP_DEBUG_MODE:
+        print("Got a request to add a new site trial")
+        print(request.headers)
+    result = addSiteTrial(request.json)
+    rsp = make_response({"success":result[0], "message":result[1]})
     rsp.headers['Access-Control-Allow-Origin'] = '*'
     return rsp
 

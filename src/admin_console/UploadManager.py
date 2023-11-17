@@ -32,7 +32,6 @@ class UploadManager:
                                     "/" + config.UPLOAD_METADATA_FILENAME
                 if not os.path.isfile(uploadInfoFilePath):
                     continue
-
                 with open(uploadInfoFilePath, "r") as uploadInfoFile:
                     uploadInfo = json.load(uploadInfoFile)
 
