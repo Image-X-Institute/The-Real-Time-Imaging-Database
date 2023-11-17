@@ -179,65 +179,74 @@
                 "type": "str"
             },
             {
-                "property" : "rt_plan_path", 
+                "property" : "rt_plan_pres", 
                 "description" : "Location (relative) of the RT Plan file",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_plan_path"
+                    "column": "rt_plan_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "rt_ct_path", 
+                "property" : "rt_ct_pres", 
                 "description" : "Location (relative) of the Pre treatment CT series (folder level)",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_ct_path"
+                    "column": "rt_ct_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "rt_structure_path", 
+                "property" : "rt_structure_pres", 
                 "description" : "Location (relative) of the RT structure sets",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_structure_path"
+                    "column": "rt_structure_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "rt_dose_path",
+                "property" : "rt_dose_pres",
                 "description" : "Location (relative) of the RT dose",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_dose_path"
+                    "column": "rt_dose_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "rt_mri_path",
+                "property" : "rt_mri_pres",
                 "description" : "Location (relative) of the pre treatment MRI series (folder level). Note: not all patients have an MRI series available",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_mri_path"
+                    "column": "rt_mri_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "planned_dvh_path",
+                "property" : "planned_dvh_pres",
                 "description" : "Location of the Original Dose Value Histogram file",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_dvh_original_path"
+                    "column": "planned_dvh_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "centroid_path",
+                "property" : "planned_dicom_pres",
+                "description" : "Location of the Original Dose Value Histogram file",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "planned_dicom_pres"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "centroid_pres",
                 "description" : "Location of the Patient Marker location and centroids file",
                 "field" : {
                     "table": "prescription", 
-                    "column": "centroid_path"
+                    "column": "centroid_pres"
                 },
                 "type": "str"
             }
@@ -470,6 +479,78 @@
                 "field" : {
                     "table": "images", 
                     "column": "respiratory_files_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_ct_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rt_ct_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_dose_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rt_dose_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_mri_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rt_mri_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_plan_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rt_plan_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_structure_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rt_dose_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "centroid_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "centroid_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "scan_file",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "scan_file"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rpm_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rpm_path"
                 },
                 "type": "str"
             },

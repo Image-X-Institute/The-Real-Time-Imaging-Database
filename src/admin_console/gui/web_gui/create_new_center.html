@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title>Realtime Imaging Database Admin Console</title>
+        <link rel="stylesheet" href="css/light_style.css" />
+
+    </head>
+    <body>
+      <div>
+        Create new center
+      </div>
+      <div>
+        <div>
+          Center Name: <input type="text" id="centerName" name="centerName" />
+        </div>
+        <div>
+          Center Full Name: <input type="text" id="centerFullName" name="centerFullName" />
+        </div>
+        <div>
+          Center Location: <input type="text" id="centerLocation" name="centerLocation" />
+        </div>
+      </div>
+      <div>
+        <input type="button" class="button" value="Create" id="createNewCenter" disabled>
+        <input type="button" class="button" value="Clear" id="clearCenterButton">
+      </div>
+      <div>
+        <input type="button" class="button" value="Back" onclick="window.location.href='/uploads'">
+      </div>
+      <script src="js/ui_center_utils.js"></script>
+    </body>
+</html>

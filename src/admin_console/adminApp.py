@@ -63,6 +63,10 @@ def authenticate():
 def createNewTrial():
     return render_template('create_new_trial.html')
 
+@app.route('/create_new_center', methods=['GET'])
+def createNewCenter():
+    return render_template('create_new_center.html')
+
 @app.route('/download_template', methods=['GET'])
 def downloadTemplate():
     return send_file("./gui/web_gui/assets/template.json", as_attachment=True)
@@ -97,37 +101,35 @@ def importUploadPacket(upload_id):
             if result[0]:
                 if config.APP_DEBUG_MODE:
                     print("Copied files into storage", result[1])
-                fileInfo = di.getUploadFileInfo()
-                if fileInfo['clinical_trial'] == "CHIRP":
-                    # Only design for CHIRP data import
-                    result = di.insertCHIRPDataIntoDatabase()
-                elif fileInfo['file_type'] == "fraction_folder":
-                    result = di.insertFractionDataIntoDatabase()
-                    result2 = di.insertImagePathIntoDatabase()
-                    if config.APP_DEBUG_MODE:
-                        print("Inserted fraction data into database", result[1])
-                        print("Inserted image path into database", result2[1])
-                elif fileInfo['file_type'] == "image_folder":
-                    result = di.checkAndInsertFractionDataIntoDatabase()
-                    result2 = di.insertPatientLevelImagePathIntoDatabase()
-                elif fileInfo['file_type'] == "trajectory_log_folder":
-                    result = di.insertTrajectoryLogIntoDatabase()
-                elif fileInfo['file_type'] == "DVH_folder" or fileInfo['file_type'] == "DICOM_folder":
-                    result = di.insertDoseReconstrcutionFileIntoDatabase()
-                elif fileInfo['file_type'] == "triangulation_folder" or fileInfo['file_type'] == "kim_logs":
-                    result = di.checkAndInsertFractionDataIntoDatabase()
-                    result2 = di.insertFractionFilePathIntoDatabase()
-                    if config.APP_DEBUG_MODE:
-                        print("Inserted fraction data into database", result[1])
-                        print("Inserted image path into database", result2[1])
-                else:
-                    result = di.insertMetadataIntoDatabase()
-                    if config.APP_DEBUG_MODE:
-                        print("Inserted metadata into database", result[1])
+                # if fileInfo['clinical_trial'] == "CHIRP":
+                #     # Only design for CHIRP data import
+                #     result = di.insertCHIRPDataIntoDatabase()
+                # elif fileInfo['file_type'] == "fraction_folder":
+                #     result = di.insertFractionDataIntoDatabase()
+                #     result2 = di.insertImagePathIntoDatabase()
+                #     if config.APP_DEBUG_MODE:
+                #         print("Inserted fraction data into database", result[1])
+                #         print("Inserted image path into database", result2[1])
+                # elif fileInfo['file_type'] == "image_folder":
+                #     result = di.checkAndInsertFractionDataIntoDatabase()
+                #     result2 = di.insertPatientLevelImagePathIntoDatabase()
+                # elif fileInfo['file_type'] == "trajectory_log_folder":
+                #     result = di.insertTrajectoryLogIntoDatabase()
+                # elif fileInfo['file_type'] == "DVH_folder" or fileInfo['file_type'] == "DICOM_folder":
+                    # result = di.insertDoseReconstrcutionFileIntoDatabase()
+                # elif fileInfo['file_type'] == "triangulation_folder" or fileInfo['file_type'] == "kim_logs":
+                #     result = di.checkAndInsertFractionDataIntoDatabase()
+                #     result2 = di.insertFractionFilePathIntoDatabase()
+                #     if config.APP_DEBUG_MODE:
+                #         print("Inserted fraction data into database", result[1])
+                #         print("Inserted image path into database", result2[1])
+                result = di.insertMetadataIntoDatabase()
+                if config.APP_DEBUG_MODE:
+                    print("Inserted metadata into database", result[1])
 
     if not result[0]:
         print("Error importing data:", result[1])
-        make_response({"status": "error", "message": result[1]})
+        return make_response({"status": "error", "message": result[1]})
     return redirect("/")
 
 @app.route('/download/<path:filename>')

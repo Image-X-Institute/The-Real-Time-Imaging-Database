@@ -6,10 +6,12 @@ After=postgresql.service
 [Service]
 Type=forking
 User=learndb
+Group=learndb
 WorkingDirectory=/home/learndb/git_repos/The-Real-Time-Imaging-Database/src/data_service
 ExecStart=/home/learndb/git_repos/The-Real-Time-Imaging-Database/scripts/service/data_service.sh
-ExecStop=pkill -u learndb application.py
+ExecStop=pkill -u learndb dataApp.py
 Restart=always
+RestartSec=10
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target
