@@ -20,3 +20,8 @@ class DBUpdateResult(NamedTuple):
     success: bool
     rowsUpdated: int
     message: str
+
+class DBFindResult(NamedTuple):
+    success: bool
+    result : list
+    message: str

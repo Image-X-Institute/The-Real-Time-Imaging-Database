@@ -118,58 +118,94 @@ class DataImporter:
         if not self.contentCopied and self.metadata["upload_type"] == "files":
             return False, "Please ensure that the uploaded files are copied first before inserting in DB"
 
-        try:
-            with open("filetype_db_mapping.json", 'r') as filetypeMappingFile:
-                filetypeMapping = json.load(filetypeMappingFile)
-        except FileNotFoundError as err:
-            return False, "The filetype mapping JSON cannot be loaded"
+        # try:
+        #     with open("filetype_db_mapping.json", 'r') as filetypeMappingFile:
+        #         filetypeMapping = json.load(filetypeMappingFile)
+        # except FileNotFoundError as err:
+        #     return False, "The filetype mapping JSON cannot be loaded"
         
         for UploadDetails in self.metadata["uploaded_files"]:
-            if UploadDetails["file_type"] in filetypeMapping["mapping"].keys():
-                paths = []
-                multiValues = filetypeMapping["mapping"][UploadDetails["file_type"]]["multivalues"]
-                granularity = filetypeMapping["mapping"][UploadDetails["file_type"]]["granularity"]
-                if multiValues:
-                    seperator = filetypeMapping["mapping"][UploadDetails["file_type"]]["delimiter"]
-                for filePath in UploadDetails["Files"]:
-                    parentPath, sep, fileName = filePath.rpartition('/')
-                    if granularity == "folder":
-                        if parentPath not in paths:
-                            paths.append(parentPath)
-                    else:
-                        paths.append(filePath)
-                    if not multiValues:
-                        break
-                fieldContent = ""
-                if multiValues and len(paths) > 1:
-                    for path in paths:
-                        if fieldContent != "":
-                            fieldContent += seperator
-                        fieldContent += path[len(self.currentContextId):]
-                else:
-                    fieldContent += paths[0][len(self.currentContextId):]
-                tableName = filetypeMapping["mapping"][UploadDetails["file_type"]]["table"]
-                fieldName = filetypeMapping["mapping"][UploadDetails["file_type"]]["field"]
-                insertStmt = f"UPDATE {tableName} SET {fieldName} = \'{fieldContent}\' "
-                if tableName == "prescription":
-                    insertStmt += "FROM patient " \
+            findTableNameSql = f"SELECT table_name from information_schema.columns where column_name=\'{UploadDetails['file_type']}\'"
+            result = self.dbAdapter.executeFindOnImageDB(findTableNameSql)
+            if not result.success:
+                return result.success, result.message
+            tableName = result.result[0][0]
+            insertStmt = ""
+            if tableName == "prescription":
+                insertStmt = f"UPDATE {tableName} SET {UploadDetails['file_type']} = \'{UploadDetails['folder_path']['']}\' "
+                insertStmt += "FROM patient " \
                                 "WHERE patient.id=prescription.patient_id " \
-                                + f"AND patient.patient_trial_id=\'{self.metadata['patient_trial_id']}\' " \
-                                + f"AND patient.clinical_trial=\'{self.metadata['clinical_trial']}\' " \
-                                + f"AND patient.test_centre=\'{self.metadata['test_centre']}\'"
-                elif tableName == "images":
-                    insertStmt += "FROM patient, prescription, fraction " \
-                                + "WHERE patient.id=prescription.patient_id " \
-                                + "AND prescription.prescription_id=fraction.prescription_id " \
-                                + "AND images.fraction_id=fraction.fraction_id " \
                                 + f"AND patient.patient_trial_id=\'{self.metadata['patient_trial_id']}\' " \
                                 + f"AND patient.clinical_trial=\'{self.metadata['clinical_trial']}\' " \
                                 + f"AND patient.test_centre=\'{self.metadata['test_centre']}\'"
                 result = self.dbAdapter.executeUpdateOnImageDB(insertStmt)
                 if not result.success:
                     return result.success, result.message
-                elif dbProgressCallback:
-                    dbProgressCallback(f"updated {tableName}.{fieldName} = {fieldContent}")
+            else:
+                result = self.checkAndInsertFractionDataIntoDatabase()
+                if not result[0]:
+                    return result[0], result[1]
+                for fraction in UploadDetails["fraction"]:
+                    fractionDetail = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
+                    if fractionDetail:
+                        for fractionItem in fractionDetail:
+                            fractionId = fractionItem[0]
+                            fractionName = fractionItem[1]
+                            try:
+                                insertStmt = f"UPDATE {tableName} SET {UploadDetails['file_type']} = \'{UploadDetails['folder_path'][fractionName]}\' WHERE fraction_id = \'{fractionId}\'"
+                            except KeyError:
+                                try:
+                                    insertStmt = f"UPDATE {tableName} SET {UploadDetails['file_type']} = \'{UploadDetails['folder_path'][fraction]}\' WHERE fraction_id = \'{fractionId}\'"
+                                except KeyError:
+                                    return False, "The fraction details of uploaded files could not match the database"
+                            result = self.dbAdapter.executeUpdateOnImageDB(insertStmt)
+                            if not result.success:
+                                return result.success, result.message
+            # if UploadDetails["file_type"] in filetypeMapping["mapping"].keys():
+            #     paths = []
+            #     multiValues = filetypeMapping["mapping"][UploadDetails["file_type"]]["multivalues"]
+            #     granularity = filetypeMapping["mapping"][UploadDetails["file_type"]]["granularity"]
+            #     if multiValues:
+            #         seperator = filetypeMapping["mapping"][UploadDetails["file_type"]]["delimiter"]
+            #     for filePath in UploadDetails["Files"]:
+            #         parentPath, sep, fileName = filePath.rpartition('/')
+            #         if granularity == "folder":
+            #             if parentPath not in paths:
+            #                 paths.append(parentPath)
+            #         else:
+            #             paths.append(filePath)
+            #         if not multiValues:
+            #             break
+            #     fieldContent = ""
+            #     if multiValues and len(paths) > 1:
+            #         for path in paths:
+            #             if fieldContent != "":
+            #                 fieldContent += seperator
+            #             fieldContent += path[len(self.currentContextId):]
+            #     else:
+            #         fieldContent += paths[0][len(self.currentContextId):]
+            #     tableName = filetypeMapping["mapping"][UploadDetails["file_type"]]["table"]
+            #     fieldName = filetypeMapping["mapping"][UploadDetails["file_type"]]["field"]
+            #     insertStmt = f"UPDATE {tableName} SET {fieldName} = \'{fieldContent}\' "
+            #     if tableName == "prescription":
+            #         insertStmt += "FROM patient " \
+            #                     "WHERE patient.id=prescription.patient_id " \
+            #                     + f"AND patient.patient_trial_id=\'{self.metadata['patient_trial_id']}\' " \
+            #                     + f"AND patient.clinical_trial=\'{self.metadata['clinical_trial']}\' " \
+            #                     + f"AND patient.test_centre=\'{self.metadata['test_centre']}\'"
+            #     elif tableName == "images":
+            #         insertStmt += "FROM patient, prescription, fraction " \
+            #                     + "WHERE patient.id=prescription.patient_id " \
+            #                     + "AND prescription.prescription_id=fraction.prescription_id " \
+            #                     + "AND images.fraction_id=fraction.fraction_id " \
+            #                     + f"AND patient.patient_trial_id=\'{self.metadata['patient_trial_id']}\' " \
+            #                     + f"AND patient.clinical_trial=\'{self.metadata['clinical_trial']}\' " \
+            #                     + f"AND patient.test_centre=\'{self.metadata['test_centre']}\'"
+            #     result = self.dbAdapter.executeUpdateOnImageDB(insertStmt)
+            #     if not result.success:
+            #         return result.success, result.message
+            #     elif dbProgressCallback:
+            #         dbProgressCallback(f"updated {tableName}.{fieldName} = {fieldContent}")
         self.markPacketAsImported()
         return True, "Success"    
 
@@ -194,32 +230,32 @@ class DataImporter:
         self._persistMetadata()
         # self.clearUploadPacket()
 
-    def insertFractionDataIntoDatabase(self) -> Tuple[bool, str]:
-        if not self.fileInfo or not self.dataIsValid:
-            return False, "Please set an upload context and validate it before importing"
-        fractionIdAndName = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], self.fileInfo["fraction"])
-        fractionNameList = [name[1] for name in fractionIdAndName]
-        subFractionList = self.fileInfo['sub_fraction'][:]
-        if self.fileInfo["sub_fraction"] != [""] and set(fractionNameList) != set(subFractionList):
-            initFractionDetail = self.dbAdapter.getFractionIdAndDate(self.metadata["patient_trial_id"], self.fileInfo["fraction"])
-            subFractionList = [x for x in self.fileInfo['sub_fraction'] if x !=""]
-            firstSubFraction = subFractionList.pop(0)
-            self.dbAdapter.updateFractionName(initFractionDetail[0], firstSubFraction)
-            allUpdate = True
-            for subFraction in subFractionList:
-                fractionPack = {
-                    "patient_trial_id": self.metadata["patient_trial_id"],
-                    "number": self.fileInfo["fraction"],
-                    "name": subFraction,
-                    "date": str(initFractionDetail[1]),
-                }
-                result = self.dbAdapter.insertFractionIntoDB(fractionPack)
-                if not result:
-                    allUpdate = False
-                    return allUpdate, "Failed"
-            return allUpdate, "Success"
-        else:
-            return True, "Success"
+    # def insertFractionDataIntoDatabase(self) -> Tuple[bool, str]:
+    #     if not self.fileInfo or not self.dataIsValid:
+    #         return False, "Please set an upload context and validate it before importing"
+    #     fractionIdAndName = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], self.fileInfo["fraction"])
+    #     fractionNameList = [name[1] for name in fractionIdAndName]
+    #     subFractionList = self.fileInfo['sub_fraction'][:]
+    #     if self.fileInfo["sub_fraction"] != [""] and set(fractionNameList) != set(subFractionList):
+    #         initFractionDetail = self.dbAdapter.getFractionIdAndDate(self.metadata["patient_trial_id"], self.fileInfo["fraction"])
+    #         subFractionList = [x for x in self.fileInfo['sub_fraction'] if x !=""]
+    #         firstSubFraction = subFractionList.pop(0)
+    #         self.dbAdapter.updateFractionName(initFractionDetail[0], firstSubFraction)
+    #         allUpdate = True
+    #         for subFraction in subFractionList:
+    #             fractionPack = {
+    #                 "patient_trial_id": self.metadata["patient_trial_id"],
+    #                 "number": self.fileInfo["fraction"],
+    #                 "name": subFraction,
+    #                 "date": str(initFractionDetail[1]),
+    #             }
+    #             result = self.dbAdapter.insertFractionIntoDB(fractionPack)
+    #             if not result:
+    #                 allUpdate = False
+    #                 return allUpdate, "Failed"
+    #         return allUpdate, "Success"
+    #     else:
+    #         return True, "Success"
         
     def checkAndInsertFractionDataIntoDatabase(self) -> Tuple[bool, str]:  
         for fraction in self.fileInfo["fraction"]:
@@ -227,9 +263,8 @@ class DataImporter:
             fractionNameList = [name[1] for name in fractionDetailList]
             subFractionList = self.fileInfo['sub_fraction'][fraction][:]
             if len(fractionDetailList) == 0:
-                return False, "Failed"
+                return False, "Cannot find fraction detail in database for this upload packet"
             else:
-                result = True
                 if subFractionList and set(fractionNameList) != set(subFractionList):
                     initFractionDetail = self.dbAdapter.getFractionIdAndDate(self.metadata["patient_trial_id"], fraction)
                     firstSubFraction = subFractionList.pop(0)
@@ -243,162 +278,161 @@ class DataImporter:
                                 "date": str(initFractionDetail[1]),
                             }
                             self.dbAdapter.insertFractionIntoDB(fractionPack)
-                if not result:
-                    return result, "Failed"
-        return True, "Success"
+                    return True, "Success"
+        return False, "Cannot find fraction detail in database for this upload packet, please check the fraction number"
     
-    def insertFractionFilePathIntoDatabase(self) -> Tuple[bool, str]:
-        if not self.fileInfo or not self.dataIsValid:
-            return False, "Please set an upload context and validate it before importing"
-        for fraction in self.fileInfo["fraction"]:
-            fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
-            if len(fractionDetailList) == 1:
-                fractionId = fractionDetailList[0][0]
-                if self.fileInfo["db_file_name"][fraction]:
-                    for dbFilePath in self.fileInfo["db_file_name"][fraction].keys():
-                        if self.fileInfo["db_file_name"][fraction][dbFilePath] != "":
-                            dbQueryStr = f"UPDATE images SET {dbFilePath} = \'{self.fileInfo['db_file_name'][fraction][dbFilePath]}\' WHERE fraction_id = \'{fractionId}\'"
-                            self.dbAdapter.executeUpdateOnImageDB(dbQueryStr)
-            if len(fractionDetailList) > 1:
-                for fractionDetail in fractionDetailList:
-                    if fractionDetail[1]:
-                        fractionId = fractionDetail[0]
-                        fractionName = fractionDetail[1]
-                        try:
-                            dbFilePaths = self.fileInfo["db_file_name"][fractionName].keys()
-                            for dbFilePath in dbFilePaths:
-                                if self.fileInfo["db_file_name"][fractionName][dbFilePath] != "":
-                                    dbQueryStr = f"UPDATE images SET {dbFilePath} = \'{self.fileInfo['db_file_name'][fractionName][dbFilePath]}\' WHERE fraction_id = \'{fractionId}\'"
-                                    self.dbAdapter.executeUpdateOnImageDB(dbQueryStr)
-                        except KeyError:
-                            return False, "Failed"
-        self.markPacketAsImported()
-        return True, "Success"
+    # def insertFractionFilePathIntoDatabase(self) -> Tuple[bool, str]:
+    #     if not self.fileInfo or not self.dataIsValid:
+    #         return False, "Please set an upload context and validate it before importing"
+    #     for fraction in self.fileInfo["fraction"]:
+    #         fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
+    #         if len(fractionDetailList) == 1:
+    #             fractionId = fractionDetailList[0][0]
+    #             if self.fileInfo["db_file_name"][fraction]:
+    #                 for dbFilePath in self.fileInfo["db_file_name"][fraction].keys():
+    #                     if self.fileInfo["db_file_name"][fraction][dbFilePath] != "":
+    #                         dbQueryStr = f"UPDATE images SET {dbFilePath} = \'{self.fileInfo['db_file_name'][fraction][dbFilePath]}\' WHERE fraction_id = \'{fractionId}\'"
+    #                         self.dbAdapter.executeUpdateOnImageDB(dbQueryStr)
+    #         if len(fractionDetailList) > 1:
+    #             for fractionDetail in fractionDetailList:
+    #                 if fractionDetail[1]:
+    #                     fractionId = fractionDetail[0]
+    #                     fractionName = fractionDetail[1]
+    #                     try:
+    #                         dbFilePaths = self.fileInfo["db_file_name"][fractionName].keys()
+    #                         for dbFilePath in dbFilePaths:
+    #                             if self.fileInfo["db_file_name"][fractionName][dbFilePath] != "":
+    #                                 dbQueryStr = f"UPDATE images SET {dbFilePath} = \'{self.fileInfo['db_file_name'][fractionName][dbFilePath]}\' WHERE fraction_id = \'{fractionId}\'"
+    #                                 self.dbAdapter.executeUpdateOnImageDB(dbQueryStr)
+    #                     except KeyError:
+    #                         return False, "Failed"
+    #     self.markPacketAsImported()
+    #     return True, "Success"
             
-    def insertPatientLevelImagePathIntoDatabase(self) -> Tuple[bool, str]:
-        if not self.fileInfo or not self.dataIsValid:
-            return False, "Please set an upload context and validate it before importing"
+    # def insertPatientLevelImagePathIntoDatabase(self) -> Tuple[bool, str]:
+    #     if not self.fileInfo or not self.dataIsValid:
+    #         return False, "Please set an upload context and validate it before importing"
         
-        for fraction in self.fileInfo["fraction"]:
-            fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
-            if len(fractionDetailList) == 1:
-                fractionId = fractionDetailList[0][0]
-                KV_pattern = r"(?i)\bKV\b"
-                MV_pattern = r"(?i)\bMV\b"
-                for folderPath in self.fileInfo["image_path"][fraction][fraction]:
-                    if re.search(KV_pattern, folderPath):
-                        kvQueryStr = f"UPDATE images SET kv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
-                        self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
-                    elif re.search(MV_pattern, folderPath):
-                        mvQueryStr = f"UPDATE images SET mv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
-                        self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
-            if len(fractionDetailList) > 1:
-                for fractionDetail in fractionDetailList:
-                    if fractionDetail[1]:
-                        fractionId = fractionDetail[0]
-                        fractionName = fractionDetail[1]
-                        try:
-                            imagePathPack = self.fileInfo["image_path"][fraction][fractionName]
-                            kvQueryStr = f"UPDATE images SET kv_images_path = \'{imagePathPack['KV']}\' WHERE fraction_id = \'{fractionId}\'"
-                            mvQueryStr = f"UPDATE images SET mv_images_path = \'{imagePathPack['MV']}\' WHERE fraction_id = \'{fractionId}\'"
-                            self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
-                            self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
-                        except KeyError:
-                            pass
+    #     for fraction in self.fileInfo["fraction"]:
+    #         fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
+    #         if len(fractionDetailList) == 1:
+    #             fractionId = fractionDetailList[0][0]
+    #             KV_pattern = r"(?i)\bKV\b"
+    #             MV_pattern = r"(?i)\bMV\b"
+    #             for folderPath in self.fileInfo["image_path"][fraction][fraction]:
+    #                 if re.search(KV_pattern, folderPath):
+    #                     kvQueryStr = f"UPDATE images SET kv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
+    #                     self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
+    #                 elif re.search(MV_pattern, folderPath):
+    #                     mvQueryStr = f"UPDATE images SET mv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
+    #                     self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
+    #         if len(fractionDetailList) > 1:
+    #             for fractionDetail in fractionDetailList:
+    #                 if fractionDetail[1]:
+    #                     fractionId = fractionDetail[0]
+    #                     fractionName = fractionDetail[1]
+    #                     try:
+    #                         imagePathPack = self.fileInfo["image_path"][fraction][fractionName]
+    #                         kvQueryStr = f"UPDATE images SET kv_images_path = \'{imagePathPack['KV']}\' WHERE fraction_id = \'{fractionId}\'"
+    #                         mvQueryStr = f"UPDATE images SET mv_images_path = \'{imagePathPack['MV']}\' WHERE fraction_id = \'{fractionId}\'"
+    #                         self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
+    #                         self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
+    #                     except KeyError:
+    #                         pass
                         
-        self.markPacketAsImported()
-        return True, "Success"
+    #     self.markPacketAsImported()
+    #     return True, "Success"
     
-    def insertTrajectoryLogIntoDatabase(self) -> Tuple[bool, str]:
-        for fractionNumber in self.fileInfo["fraction"]:
-            fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fractionNumber)
-            for fraction in fractionDetailList:
-                if fraction[1]:
-                    fractionId = fraction[0]
-                    trajectoryLogPath = self.fileInfo["trajectory_logs_path"][fractionNumber]
-                    if trajectoryLogPath:
-                        trajectoryLogQueryStr = f"UPDATE images SET trajectory_logs_path = \'{trajectoryLogPath}\' WHERE fraction_id = \'{fractionId}\'"
-                        self.dbAdapter.executeUpdateOnImageDB(trajectoryLogQueryStr)
-        self.markPacketAsImported()
-        return True, "Success"
+    # def insertTrajectoryLogIntoDatabase(self) -> Tuple[bool, str]:
+    #     for fractionNumber in self.fileInfo["fraction"]:
+    #         fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fractionNumber)
+    #         for fraction in fractionDetailList:
+    #             if fraction[1]:
+    #                 fractionId = fraction[0]
+    #                 trajectoryLogPath = self.fileInfo["trajectory_logs_path"][fractionNumber]
+    #                 if trajectoryLogPath:
+    #                     trajectoryLogQueryStr = f"UPDATE images SET trajectory_logs_path = \'{trajectoryLogPath}\' WHERE fraction_id = \'{fractionId}\'"
+    #                     self.dbAdapter.executeUpdateOnImageDB(trajectoryLogQueryStr)
+    #     self.markPacketAsImported()
+    #     return True, "Success"
     
-    def insertImagePathIntoDatabase(self) -> Tuple[bool, str]:
-        if not self.fileInfo or not self.dataIsValid:
-            return False, "Please set an upload context and validate it before importing"
+    # def insertImagePathIntoDatabase(self) -> Tuple[bool, str]:
+    #     if not self.fileInfo or not self.dataIsValid:
+    #         return False, "Please set an upload context and validate it before importing"
         
-        fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], self.fileInfo["fraction"])
-        if len(fractionDetailList) == 1:
-            fractionId = fractionDetailList[0][0]
-            KV_pattern = r"(?i)\bKV\b"
-            MV_pattern = r"(?i)\bMV\b"
-            for folderPath in self.fileInfo["folder_path"]:
-                if re.search(KV_pattern, folderPath):
-                    kvQueryStr = f"UPDATE images SET kv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
-                    self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
-                elif re.search(MV_pattern, folderPath):
-                    mvQueryStr = f"UPDATE images SET mv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
-                    self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
-        if len(fractionDetailList) > 1:
-            for fractionDetail in fractionDetailList:
-                if fractionDetail[1]:
-                    fractionId = fractionDetail[0]
-                    fractionName = fractionDetail[1]
-                    try:
-                        imagePathPack = self.fileInfo["image_path"][fractionName]
-                        kvQueryStr = f"UPDATE images SET kv_images_path = \'{imagePathPack['KV']}\' WHERE fraction_id = \'{fractionId}\'"
-                        mvQueryStr = f"UPDATE images SET mv_images_path = \'{imagePathPack['MV']}\' WHERE fraction_id = \'{fractionId}\'"
-                        self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
-                        self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
-                    except KeyError:
-                        return False, "Failed"
-        self.markPacketAsImported()
-        return True, "Success"
+    #     fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], self.fileInfo["fraction"])
+    #     if len(fractionDetailList) == 1:
+    #         fractionId = fractionDetailList[0][0]
+    #         KV_pattern = r"(?i)\bKV\b"
+    #         MV_pattern = r"(?i)\bMV\b"
+    #         for folderPath in self.fileInfo["folder_path"]:
+    #             if re.search(KV_pattern, folderPath):
+    #                 kvQueryStr = f"UPDATE images SET kv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
+    #                 self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
+    #             elif re.search(MV_pattern, folderPath):
+    #                 mvQueryStr = f"UPDATE images SET mv_images_path = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
+    #                 self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
+    #     if len(fractionDetailList) > 1:
+    #         for fractionDetail in fractionDetailList:
+    #             if fractionDetail[1]:
+    #                 fractionId = fractionDetail[0]
+    #                 fractionName = fractionDetail[1]
+    #                 try:
+    #                     imagePathPack = self.fileInfo["image_path"][fractionName]
+    #                     kvQueryStr = f"UPDATE images SET kv_images_path = \'{imagePathPack['KV']}\' WHERE fraction_id = \'{fractionId}\'"
+    #                     mvQueryStr = f"UPDATE images SET mv_images_path = \'{imagePathPack['MV']}\' WHERE fraction_id = \'{fractionId}\'"
+    #                     self.dbAdapter.executeUpdateOnImageDB(kvQueryStr)
+    #                     self.dbAdapter.executeUpdateOnImageDB(mvQueryStr)
+    #                 except KeyError:
+    #                     return False, "Failed"
+    #     self.markPacketAsImported()
+    #     return True, "Success"
     
-    def insertDoseReconstrcutionFileIntoDatabase(self) -> Tuple[bool, str]:
-        fileType = self.fileInfo["file_type"]
-        for factionNumber in self.fileInfo["fraction"]:
-            fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], factionNumber)
-            for fraction in fractionDetailList:
-                if fraction[1]:
-                    fractionId = fraction[0]
-                    dosePathPack:dict = self.fileInfo[fileType][factionNumber]
-                    for key in dosePathPack.keys():
-                        dosePath = dosePathPack[key]
-                        if dosePath:
-                            doseQueryStr = f"UPDATE images SET {key} = \'{dosePath}\' WHERE fraction_id = \'{fractionId}\'"
-                            self.dbAdapter.executeUpdateOnImageDB(doseQueryStr)
-        self.markPacketAsImported()
-        return True, "Success"
+    # def insertDoseReconstrcutionFileIntoDatabase(self) -> Tuple[bool, str]:
+    #     fileType = self.fileInfo["file_type"]
+    #     for factionNumber in self.fileInfo["fraction"]:
+    #         fractionDetailList = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], factionNumber)
+    #         for fraction in fractionDetailList:
+    #             if fraction[1]:
+    #                 fractionId = fraction[0]
+    #                 dosePathPack:dict = self.fileInfo[fileType][factionNumber]
+    #                 for key in dosePathPack.keys():
+    #                     dosePath = dosePathPack[key]
+    #                     if dosePath:
+    #                         doseQueryStr = f"UPDATE images SET {key} = \'{dosePath}\' WHERE fraction_id = \'{fractionId}\'"
+    #                         self.dbAdapter.executeUpdateOnImageDB(doseQueryStr)
+    #     self.markPacketAsImported()
+    #     return True, "Success"
     
-    def insertCHIRPDataIntoDatabase(self) -> Tuple[bool, str]:
-        fileType = self.fileInfo["file_type"]
-        dbTableMapping = {
-            "patient_dose_files":"rt_dose_path",
-            "patient_planning_cts":"rt_ct_path",
-            "patient_structure_sets":"rt_structure_path",
-            "patient_plans":"rt_plan_path",
-            "patient_cbct_images":"dvh_track_path",
-            "couch_registration_files":"metrics_path"
-        }
-        if self.fileInfo['level'] == "prescription":
-            folderPath = self.fileInfo["folder_path"][0]
-            patientId = self.dbAdapter.getPatientId(self.metadata["patient_trial_id"])
-            if patientId:
-                queryStr = f"UPDATE prescription SET {dbTableMapping[fileType]} = \'{folderPath}\' WHERE patient_id = \'{patientId}\'"
-                self.dbAdapter.executeUpdateOnImageDB(queryStr)
-                print(queryStr)
-                self.markPacketAsImported()
-                return True, "Success"
-        elif self.fileInfo['level'] == "fraction":
-            for fraction in self.fileInfo["fraction"]:
-                fractionDetail = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
-                if fractionDetail:
-                    fractionId = fractionDetail[0][0]
-                    folderPath = self.fileInfo['db_file_name'][fraction]
-                    queryStr = f"UPDATE images SET {dbTableMapping[fileType]} = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
-                    self.dbAdapter.executeUpdateOnImageDB(queryStr)
-            self.markPacketAsImported()
-            return True, "Success"
+    # def insertCHIRPDataIntoDatabase(self) -> Tuple[bool, str]:
+    #     fileType = self.fileInfo["file_type"]
+    #     dbTableMapping = {
+    #         "patient_dose_files":"rt_dose_path",
+    #         "patient_planning_cts":"rt_ct_path",
+    #         "patient_structure_sets":"rt_structure_path",
+    #         "patient_plans":"rt_plan_path",
+    #         "patient_cbct_images":"dvh_track_path",
+    #         "couch_registration_files":"metrics_path"
+    #     }
+    #     if self.fileInfo['level'] == "prescription":
+    #         folderPath = self.fileInfo["folder_path"][0]
+    #         patientId = self.dbAdapter.getPatientId(self.metadata["patient_trial_id"])
+    #         if patientId:
+    #             queryStr = f"UPDATE prescription SET {dbTableMapping[fileType]} = \'{folderPath}\' WHERE patient_id = \'{patientId}\'"
+    #             self.dbAdapter.executeUpdateOnImageDB(queryStr)
+    #             print(queryStr)
+    #             self.markPacketAsImported()
+    #             return True, "Success"
+    #     elif self.fileInfo['level'] == "fraction":
+    #         for fraction in self.fileInfo["fraction"]:
+    #             fractionDetail = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
+    #             if fractionDetail:
+    #                 fractionId = fractionDetail[0][0]
+    #                 folderPath = self.fileInfo['db_file_name'][fraction]
+    #                 queryStr = f"UPDATE images SET {dbTableMapping[fileType]} = \'{folderPath}\' WHERE fraction_id = \'{fractionId}\'"
+    #                 self.dbAdapter.executeUpdateOnImageDB(queryStr)
+    #         self.markPacketAsImported()
+    #         return True, "Success"
 
 def prepareArgumentParser():
     argParser = argparse.ArgumentParser(description="data Importer Tool")

@@ -1,0 +1,36 @@
+{
+  "clinical_trial": "LARK",
+  "centres": [
+    {
+      "centre": "",
+      "patients": [
+        {
+          "patient_trial_id": "",
+          "centre_patient_no": 0,
+          "age": 0,
+          "gender": "",
+          "tumour_site": "",
+          "number_of_markers": 3,
+          "LINAC_type": "",
+          "fractions":[
+            {
+              "fraction_number": 1,
+              "fraction_name": ["Fx1","Fx1a"],
+              "fraction_date": ""
+            },
+            {
+              "fraction_number": 2,
+              "fraction_name": ["Fx2"],
+              "fraction_date": ""
+            },
+            {
+              "fraction_number": 3,
+              "fraction_name": ["Fx3"],
+              "fraction_date": ""
+            }
+          ]  
+        }     
+      ]
+    }
+  ]  
+}

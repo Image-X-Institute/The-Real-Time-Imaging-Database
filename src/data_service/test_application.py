@@ -1,6 +1,6 @@
 import unittest
 import unittest.mock as mock
-from application import app
+from data_service.dataApp import app
 
 
 class AppTestCase(unittest.TestCase):

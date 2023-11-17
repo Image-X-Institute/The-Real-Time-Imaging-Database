@@ -249,7 +249,7 @@ class ImagingDBClient:
             return Result(success=True, message="Added site and trial successfully")
         return Result(success=False, message=f"data service retured {req.status_code}")
     
-    def getFileTypesForTrial(self, trialName:str) -> Dict:
+    def getFileTypesForTrial(self, trialName:str, levelName:str) -> Dict:
         if not trialName:
             return {}
         try:
@@ -258,5 +258,7 @@ class ImagingDBClient:
         except (Exception, InvalidSchema) as ex:
             return {}
         if req.status_code == 200:
-            return req.json()
+            level = levelName.lower()
+            if level in req.json():
+                return req.json()[level]
         return {}

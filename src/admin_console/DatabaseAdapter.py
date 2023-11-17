@@ -2,7 +2,7 @@ from cgitb import reset
 import psycopg2 as pg
 import config
 from typing import Dict, List, Tuple
-from CustomTypes import SiteDetails, TrialDetails, DBUpdateResult
+from CustomTypes import SiteDetails, TrialDetails, DBUpdateResult, DBFindResult
 import sys
 
 
@@ -196,6 +196,20 @@ class DatabaseAdapter:
             return DBUpdateResult(success=False, rowsUpdated=0, message=str(error)) 
         return DBUpdateResult(success=True, rowsUpdated=rowsUpdated, message="Success")
     
+    def executeFindOnImageDB(self, stmt:str) -> List[Dict]:
+        print("Executing SELECT Statement:", stmt)
+        result = []
+        try:
+            conn = self.getImageDBConnection()
+            cur = conn.cursor()
+            cur.execute(stmt)
+            result = cur.fetchall()
+            cur.close()
+        except (Exception, pg.DatabaseError) as error:
+            print(error, file=sys.stderr)
+            return DBFindResult(success=False, result=[], message=str(error))
+        return DBFindResult(success=True, result=result, message="Success")
+    
     def getFractionIdAndDate(self, patientTrialId:str, fractionNumber:int) -> tuple:
         strQuery = "SELECT fraction_id, fraction_date FROM fraction, patient, prescription " \
                     + "WHERE patient.patient_trial_id = '" + patientTrialId + "' " \
@@ -224,7 +238,6 @@ class DatabaseAdapter:
                     + "AND fraction.fraction_number = " + str(fractionNumber) + ";"
         if config.APP_DEBUG_MODE:
             print("Executing Query:", strQuery)
-
         try:
             conn = self.getImageDBConnection()
             cur = conn.cursor()

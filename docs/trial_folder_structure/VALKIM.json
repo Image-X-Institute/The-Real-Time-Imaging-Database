@@ -1,0 +1,148 @@
+{
+	"prescription":{
+		"rt_ct_pres": {
+			"path":"/{clinical_trial}/{test_centre}/Patient Files/PAT{centre_patient_no}/",
+			"display_name":"Pre-treatment CT series",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["application/dicom"]
+		}, 
+		"rt_dose_pres": {
+			"path":"/{clinical_trial}/{test_centre}/Patient Files/PAT{centre_patient_no}/",
+			"display_name":"RT Dose DICOM",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["application/dicom"]
+		}, 
+		"rt_mri_pres": {
+			"path":"/{clinical_trial}/{test_centre}/Patient Files/PAT{centre_patient_no}/",
+			"display_name":"Pre-treatment MRI series",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["application/dicom"]
+		}, 
+		"rt_plan_pres": {
+			"path":"/{clinical_trial}/{test_centre}/Patient Files/PAT{centre_patient_no}/",
+			"display_name":"RT Plan DICOM",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["application/dicom"]
+		}, 
+		"rt_structure_pres": {
+      "path":"/{clinical_trial}/{test_centre}/Patient Files/PAT{centre_patient_no}/",
+			"display_name":"RT Structure set DICOM",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["application/dicom"]
+		}, 
+		"planned_dvh_pres": {
+      "path":"/{clinical_trial}/{test_centre}/Patient Files/PAT{centre_patient_no}/",
+			"display_name":"Cumulative DVH",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["text/plain"]
+		}, 
+		"centroid_pres":{
+			"path":"/{clinical_trial}/{test_centre}/Centroid Files/PAT{centre_patient_no}/",
+			"display_name":"GTV Isocentre offset",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["text/plain"]
+		},
+    "magik_visual":{
+			"path":"/{clinical_trial}/{test_centre}/MAGIKmodel/PAT{centre_patient_no}/",
+			"display_name":"MAGIK_visualisation",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["image/gif",
+        "video/avi",
+        "application/octet-stream"]
+		},
+		"magik_model":{
+			"path":"/{clinical_trial}/{test_centre}/MAGIKmodel/PAT{centre_patient_no}/MAGIK_ModelFiles/",
+			"display_name":"MAGIK_model",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["text/plain",
+        "text/csv",
+        "text/bin",
+        "application/octet-stream"]
+		},
+		"marker_offsets":{
+			"path":"/{clinical_trial}/{test_centre}/Marker Offsets/PAT{centre_patient_no}/",
+			"display_name":"Marker offsets",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["text/plain", 
+        "application/vnd.ms-excel", 
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+        "application/vnd.oasis.opendocument.spreadsheet", 
+        "text/csv"]
+		}
+	},
+	"fraction":{
+		"kv_images_path": {
+			"path":"/{clinical_trial}/{test_centre}/Treatment Files/PAT{centre_patient_no}/",
+			"display_name":"kV Images",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["image/tiff", 
+      "application/dicom", 
+      "application/octet-stream"]
+		}, 
+		"trajectory_logs_path": {
+			"path":"/{clinical_trial}/{test_centre}/Marker Trajectory/PAT{centre_patient_no}/",
+			"display_name":"Trajectory Log Files",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["application/octet-stream", 
+        "application/zip", 
+        "application/x-7z-compressed", 
+        "application/gzip", 
+        "application/x-bzip2", 
+        "application/x-bzip"]
+		}, 
+		"dvh_track_path": {
+			"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/PAT{centre_patient_no}/",
+			"display_name":"DVH plan (tracked)",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["text/plain"]
+		}, 
+		"dvh_no_track_path": {
+			"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/PAT{centre_patient_no}/",
+			"display_name":"DVH plan (not tracked)",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["text/plain"]
+		}, 
+		"dicom_track_plan_path": {
+			"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/PAT{centre_patient_no}/",
+			"display_name":"DICOM plan for dose per fraction (tracked)",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["application/dicom"]
+		}, 
+		"dicom_no_track_plan_path": {
+			"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/PAT{centre_patient_no}/",
+			"display_name":"DICOM plan for dose per fraction (not tracked)",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["application/dicom"]
+		}, 
+		"rpm_path": {
+			"path":"/{clinical_trial}/{test_centre}/Treatment files/PAT{centre_patient_no}/",
+			"display_name":"Surface monitoring trace",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["text/plain", "text/csv"]
+		}, 
+    "magik_logs":{
+			"path":"/{clinical_trial}/{test_centre}/Markerless output/PAT{centre_patient_no}/",
+			"display_name":"MAGIK log files",
+			"field_type":"folder",
+			"level": "fraction",
+			"allowed":["text/plain", "text/csv"]
+		}
+	}
+}

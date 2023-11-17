@@ -1,1 +1,3 @@
 local_settings.json
+*.*
+!new_patient_data_template.json
