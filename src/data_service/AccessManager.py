@@ -512,16 +512,19 @@ def getContentUploaderTrial(trialName:str) ->Dict:
         return {}
     strucutre = rows[0][0]
     result = {}
-    for key in strucutre.keys():
-        if strucutre[key]:
-            displayName = strucutre[key]["display_name"]
-            contentInfo = {
-                "level": strucutre[key]["level"],
-                "key": key,
-                "field_type": strucutre[key]["field_type"],
-                "allowed": strucutre[key]["allowed"],
-            }
-            result[displayName] = contentInfo
+    for level in strucutre.keys():
+        for key in strucutre[level].keys():
+            if strucutre[level][key]:
+                displayName = strucutre[level][key]["display_name"]
+                contentInfo = {
+                    "level": strucutre[level][key]["level"],
+                    "key": key,
+                    "field_type": strucutre[level][key]["field_type"],
+                    "allowed": strucutre[level][key]["allowed"],
+                }
+                if level not in result:
+                    result[level] = {}
+                result[level][displayName] = contentInfo
     return result
 
 def addTrialStructure(trialPack:Dict) -> Tuple[bool, str]:

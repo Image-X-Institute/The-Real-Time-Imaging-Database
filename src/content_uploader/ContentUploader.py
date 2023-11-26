@@ -316,6 +316,15 @@ class ClinicalTrialsMetaData:
     def updateFileTypes(self, trialFileType) -> None:
         self.fileTypes = trialFileType
 
+    def getUploadFormatForFileType(self, fileType:str) -> str:
+        if fileType not in self.fileTypes:
+            return None
+        if self.fileTypes[fileType]["field_type"] == "file":
+            return "File (Please only uplaod one file)"
+        elif self.fileTypes[fileType]["field_type"] == "folder":
+            return "Folder (Please drag the entire file folder)"
+        return self.fileTypes[fileType]["field_type"]
+
 class LoginScreen(QWidget):
     authorisationRequested:SignalInstance = Signal()
 
@@ -876,6 +885,7 @@ class UploadDataScreen(QWidget):
         self.cancelRequest = False
         self.isPatientIdValidated = False
         self.currentProfile = None
+        self.currentUploadFormatDisplay = None
         self._initGUI()
 
         self.loginScreen = LoginScreen()
@@ -929,8 +939,12 @@ class UploadDataScreen(QWidget):
         addTestCentreBtn.setMaximumSize(30, addTestCentreBtn.height())
         addTestCentreBtn.clicked.connect(self.showNewTestCentreScreen)
 
+        self.fileLevelSelector = QComboBox()
+        self.fileLevelSelector.addItems(["Prescription", "Fraction"])
+        self.fileLevelSelector.currentTextChanged.connect(self.changeFileType)
+
         self.fileTypeSelector = QComboBox()
-        fileTypesItems = self.dbClient.getFileTypesForTrial(self.trialSelector.currentText())
+        fileTypesItems = self.dbClient.getFileTypesForTrial(self.trialSelector.currentText(), self.fileLevelSelector.currentText())
         self.trialsMetaData.updateFileTypes(fileTypesItems)
         self.fileTypeSelector.addItems(self.trialsMetaData.getFileTypesSupported())
         self.fileTypeSelector.setMaximumWidth(200)
@@ -968,6 +982,9 @@ class UploadDataScreen(QWidget):
 
         self.patientSequenceInput = QSpinBox()
 
+        self.uploadForamtLabel = QLabel()
+        self.uploadForamtLabel.setText(f"Upload Format: {self.currentUploadFormatDisplay}")
+
         patientIdLayout = QHBoxLayout()
         patientIdLayout.addWidget(QLabel("Patient clinical trial ID:"))
         patientIdLayout.addWidget(self.patientIdVerifiedIndicator)
@@ -1000,6 +1017,12 @@ class UploadDataScreen(QWidget):
         fileTypeLayout.addWidget(typeofFileLabel)
         fileTypeLayout.addWidget(self.fileTypeSelector)
 
+        fileLevelLayout = QHBoxLayout()
+        fileLevelLabel = QLabel("Level:")
+        fileLevelLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        fileLevelLayout.addWidget(fileLevelLabel)
+        fileLevelLayout.addWidget(self.fileLevelSelector)
+
         mainFractionLayout = QHBoxLayout()
         fractionLabel = QLabel("Fraction:")
         fractionLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
@@ -1014,9 +1037,11 @@ class UploadDataScreen(QWidget):
         subFractionLayout.addWidget(self.subFractionSelector)
         subFractionLayout.addWidget(addSubFractionPushBtn)
 
-        inputLayout.addLayout(fileTypeLayout, 0, 0)
-        inputLayout.addLayout(mainFractionLayout, 1, 0)
-        inputLayout.addLayout(subFractionLayout, 1, 1)
+        inputLayout.addLayout(fileLevelLayout, 0, 0)
+        inputLayout.addLayout(fileTypeLayout, 0, 1)
+        inputLayout.addWidget(self.uploadForamtLabel, 1, 0, 1, 2)
+        inputLayout.addLayout(mainFractionLayout, 2, 0)
+        inputLayout.addLayout(subFractionLayout, 2, 1)
         inputLayout.setVerticalSpacing(0)
 
         self.dropArea = DropArea()
@@ -1516,6 +1541,8 @@ class UploadDataScreen(QWidget):
 
     @Slot(str)
     def fileTypeSelected(self, fileType:str):
+        self.currentUploadFormatDisplay = self.trialsMetaData.getUploadFormatForFileType(fileType)
+        self.uploadForamtLabel.setText(f"Upload Format: {self.currentUploadFormatDisplay}")
         if self.trialsMetaData.getLevelofFileType(fileType) == "fraction":
             self.fractionSelector.setEnabled(True)
         else:
@@ -1527,7 +1554,7 @@ class UploadDataScreen(QWidget):
     @Slot(str)
     def changeFileType(self):
         self.fileTypeSelector.clear()
-        fileTypes = self.dbClient.getFileTypesForTrial(self.trialSelector.currentText())
+        fileTypes = self.dbClient.getFileTypesForTrial(self.trialSelector.currentText(), self.fileLevelSelector.currentText())
         self.trialsMetaData.updateFileTypes(fileTypes)
         self.fileTypeSelector.addItems(self.trialsMetaData.getFileTypesSupported())
         

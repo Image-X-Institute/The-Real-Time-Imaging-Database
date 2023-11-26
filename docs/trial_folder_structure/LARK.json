@@ -12,7 +12,7 @@
     "rt_dose_pres": {
       "path": "/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/Dose/",
       "display_name": "RT Dose (prescription level)",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "prescription",
       "allowed": [
         "application/dicom"
@@ -31,7 +31,7 @@
     "rt_plan_pres": {
       "path": "/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/Plan/",
       "display_name": "RT Plan (prescription level)",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "prescription",
       "allowed": [
         "application/dicom"
@@ -39,7 +39,7 @@
       "file_name": []
     },
     "rt_structure_pres": {
-      "path": "/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/{fraction_name}/",
+      "path": "/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/",
       "display_name": "RT Structure (prescription level)",
       "field_type": "folder",
       "level": "fraction",
@@ -50,7 +50,7 @@
     "planned_dvh_pres": {
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
       "display_name": "Planned DVH (prescription level)",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "prescription",
       "allowed": [
         "text/plain",
@@ -60,14 +60,14 @@
     "planned_dicom_pres": {
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/Patient {centre_patient_no}/",
       "display_name": "Planned DICOM (prescription level)",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "prescription",
       "allowed": ["application/dicom"]
     },
     "centroid_pres": {
       "path": "/{clinical_trial}/{test_centre}/Patient Files/Patient {centre_patient_no}/",
       "display_name": "Centroid (prescription level)",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "prescription",
       "allowed": [
         "text/plain"
@@ -88,7 +88,7 @@
     "rt_dose_fraction": {
       "path": "/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/Dose/",
       "display_name": "RT Dose (fraction level)",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "fraction",
       "allowed": [
         "application/dicom"
@@ -96,28 +96,36 @@
       "file_name": []
     },
     "rt_plan_fraction": {
-      "path": "",
-      "display_name": "",
-      "field_type": "file",
-      "level": "",
-      "allowed": []
+      "path": "/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/Plan/",
+      "display_name": "RT Dose (fraction level)",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom"
+      ],
+      "file_name": []
     },
     "rt_structure_fraction": {
-      "path": "",
-      "display_name": "",
-      "field_type": "file",
-      "level": "",
-      "allowed": []
+      "path": "/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/",
+      "display_name": "RT Structure (fraction level)",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom"
+      ],
+      "file_name": []
     },
     "centroid_fraction": {
       "path": "/{clinical_trial}/{test_centre}/Patient Files/Patient {centre_patient_no}/",
       "display_name": "Centroid (fraction level)",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "fraction",
       "allowed": [
         "text/plain",
         "text/csv",
-        "text/xlsx"
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.oasis.opendocument.spreadsheet"
       ],
       "file_name": [
         "Centroid"
@@ -126,7 +134,7 @@
     "KIM threshold": {
       "path": "/{clinical_trial}/{test_centre}/Patient Files/Patient {centre_patient_no}/",
       "display_name": "KIM threshold (fraction level)",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "fraction",
       "allowed": ["text/plain"]
     },
@@ -152,12 +160,11 @@
         "image/his",
         "image/jpg",
         "image/png",
-        "image/dicom",
         "application/dicom",
         "application/octet-stream",
         "text/plain",
-        "text/xml"
-        "text/csv",
+        "text/xml",
+        "text/csv"
       ]
     },
     "mv_images_path": {
@@ -176,14 +183,14 @@
         "application/dicom",
         "application/octet-stream",
         "text/plain",
-        "text/xml"
-        "text/csv",
+        "text/xml",
+        "text/csv"
       ]
     },
     "metrics_path": {
       "path": "/{clinical_trial}/{test_centre}/Triangulation/Patient {centre_patient_no}/",
       "display_name": "Metrics",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "fraction",
       "allowed": [
         "text/plain",
@@ -196,7 +203,7 @@
     "triangulation_path": {
       "path": "/{clinical_trial}/{test_centre}/Triangulation/Patient {centre_patient_no}/",
       "display_name": "Triangulation Files",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "fraction",
       "allowed": [
         "text/plain",
@@ -223,7 +230,7 @@
     "dvh_track_path": {
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
       "display_name": "DVH Track",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "fraction",
       "allowed": [
         "text/plain",
@@ -233,7 +240,7 @@
     "dvh_no_track_path": {
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
       "display_name": "DVH No Track",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "fraction",
       "allowed": [
         "text/plain",
@@ -243,8 +250,8 @@
     "planned_dvh_fraction": {
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
       "display_name": "Planned DVH (fraction level)",
-      "field_type": "file",
-      "level": "prescription",
+      "field_type": "folder",
+      "level": "fraction",
       "allowed": [
         "text/plain",
         "text/csv"
@@ -253,14 +260,14 @@
     "planned_dicom_fraction": {
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/Patient {centre_patient_no}/",
       "display_name": "Planned DICOM (fraction level)",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "fraction",
       "allowed": ["application/dicom"]
     },
     "dicom_track_plan_path": {
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/Patient {centre_patient_no}/",
       "display_name": "DICOM Track Plan",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "fraction",
       "allowed": [
         "application/dicom"
@@ -272,13 +279,14 @@
       "field_type": "folder",
       "level": "fraction",
       "allowed": [
-        "application/plain text"
+        "application/dicom",
+        "plain/text"
       ]
     },
     "dicom_no_track_plan_path": {
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/Patient {centre_patient_no}/",
       "display_name": "DICOM No Track Plan",
-      "field_type": "file",
+      "field_type": "folder",
       "level": "fraction",
       "allowed": [
         "application/dicom"
