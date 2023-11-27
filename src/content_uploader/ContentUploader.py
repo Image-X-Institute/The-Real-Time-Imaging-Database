@@ -1138,16 +1138,14 @@ class UploadDataScreen(QWidget):
         if os.path.isfile(path):
             mimeType:str = magic.from_file(filename=path, mime=True)
             # print(f"{path} has mime type: {mimeType}")
-            mimeTypePrefix = mimeType.split("/")
-            if mimeTypePrefix:
-                if mimeType in deniedFileTypes:
-                    # print(f"Found {path} with MIME:{mimeType} in the denied list, not queuing file.")
-                    return False
-                elif mimeTypePrefix[0] in allowedFileTypes:
-                    # print(f"Found {mimeType} in the allowed list.")
-                    return True
-                elif not allowedFileTypes:
-                    return True
+            if mimeType in deniedFileTypes:
+                print(f"Found {path} with MIME:{mimeType} in the denied list, not queuing file.")
+                return False
+            elif mimeType in allowedFileTypes:
+                # print(f"Found {mimeType} in the allowed list.")
+                return True
+            elif not allowedFileTypes:
+                return True
         return False
 
     def _getNumberofFilesPathsAndTotalSize(self, paths:List[str], 
