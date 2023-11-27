@@ -698,7 +698,6 @@ class ContentManager:
             # with open(fileTypeToPathMappingPath, "r") as pathMappingFile:
             #     fileTypeToPathMapping = json.load(pathMappingFile)
             try:
-
                 trialDetails = getTrialStructure(metadata["clinical_trial"])
                 filePath = trialDetails[metadata["level"]][metadata["file_type"]]['path']
             except KeyError as e:
@@ -711,7 +710,21 @@ class ContentManager:
             filesSaved = []
             for fileFieldName in req.files.keys():
                 uploadedFile = req.files[fileFieldName]
+                formatedPath = ""
+                fractionName = ""
+                fractionNumber = ""
                 filename = secure_filename(uploadedFile.filename)
+                if metadata['level'] == "fraction":
+                    formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
+                    fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
+                    fractionName = ""
+                    if formatedPath.count("/") == 3:
+                        fractionName = re.search(r'\/([^\/]+)\/$', formatedPath).group(1)
+                    if fractionName=="":
+                        fractionName = fractionNumber
+                    else:
+                        formatedPath = re.sub(r'^([^\/]+)\/', "", formatedPath)
+     
                 # formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
                 # if metadata["clinical_trial"] == "CHIRP":
                 #     saveFolderPath = self._processCHIRP(metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath)
@@ -731,10 +744,8 @@ class ContentManager:
                                     clinical_trial=metadata['clinical_trial'],
                                     test_centre=metadata["test_centre"],
                                     patient_trial_id=metadata["patient_trial_id"],
-                                    fraction_name=metadata["fraction"],
-                                    sub_fraction_name=metadata["sub_fraction"],
                                     centre_patient_no=int(metadata["centre_patient_no"])
-                                )
+                                ) + formatedPath
                 relativePath = relativeFolderPath + filename
                 saveFolderPath = config.UPLOAD_FOLDER + '/' + relativeFolderPath
                 filesSaved.append(relativePath)
@@ -743,6 +754,13 @@ class ContentManager:
                 for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
                     if uploadedFileRecord["file_type"] == metadata["file_type"]:
                         uploadedFileRecord["Files"].append(relativePath)
+                        if fractionNumber and fractionNumber not in uploadedFileRecord["fraction"]:
+                            uploadedFileRecord["fraction"].append(fractionNumber)
+                            uploadedFileRecord["sub_fraction"].append(fractionName)
+                        if fractionName and fractionName not in uploadedFileRecord["sub_fraction"]:
+                            uploadedFileRecord["sub_fraction"].append(fractionName)
+                        if saveFolderPath not in uploadedFileRecord["folder_path"]:
+                            uploadedFileRecord["folder_path"].append(saveFolderPath)
                         filePathAppended = True
                         break
 
@@ -751,9 +769,10 @@ class ContentManager:
                         {
                             "file_type": metadata["file_type"],
                             "level": metadata["level"],
-                            "fraction": metadata["fraction"],
-                            "sub_fraction": metadata["sub_fraction"],
-                            "Files": [relativePath]
+                            "fraction": [fractionNumber] if fractionNumber else [],
+                            "sub_fraction": [fractionName] if fractionName else [],
+                            "Files": [relativePath],
+                            "folder_path": [saveFolderPath]
                         }
                     )
             print(f"saving {filename} in {saveFolderPath}")

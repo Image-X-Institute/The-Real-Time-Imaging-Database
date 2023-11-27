@@ -118,59 +118,84 @@ class DataImporter:
         if not self.contentCopied and self.metadata["upload_type"] == "files":
             return False, "Please ensure that the uploaded files are copied first before inserting in DB"
 
-        try:
-            with open("filetype_db_mapping.json", 'r') as filetypeMappingFile:
-                filetypeMapping = json.load(filetypeMappingFile)
-        except FileNotFoundError as err:
-            return False, "The filetype mapping JSON cannot be loaded"
+        # try:
+        #     with open("filetype_db_mapping.json", 'r') as filetypeMappingFile:
+        #         filetypeMapping = json.load(filetypeMappingFile)
+        # except FileNotFoundError as err:
+        #     return False, "The filetype mapping JSON cannot be loaded"
         
         for UploadDetails in self.metadata["uploaded_files"]:
-            if UploadDetails["file_type"] in filetypeMapping["mapping"].keys():
-                paths = []
-                multiValues = filetypeMapping["mapping"][UploadDetails["file_type"]]["multivalues"]
-                granularity = filetypeMapping["mapping"][UploadDetails["file_type"]]["granularity"]
-                if multiValues:
-                    seperator = filetypeMapping["mapping"][UploadDetails["file_type"]]["delimiter"]
-                for filePath in UploadDetails["Files"]:
-                    parentPath, sep, fileName = filePath.rpartition('/')
-                    if granularity == "folder":
-                        if parentPath not in paths:
-                            paths.append(parentPath)
-                    else:
-                        paths.append(filePath)
-                    if not multiValues:
-                        break
-                fieldContent = ""
-                if multiValues and len(paths) > 1:
-                    for path in paths:
-                        if fieldContent != "":
-                            fieldContent += seperator
-                        fieldContent += path[len(self.currentContextId):]
-                else:
-                    fieldContent += paths[0][len(self.currentContextId):]
-                tableName = filetypeMapping["mapping"][UploadDetails["file_type"]]["table"]
-                fieldName = filetypeMapping["mapping"][UploadDetails["file_type"]]["field"]
-                insertStmt = f"UPDATE {tableName} SET {fieldName} = \'{fieldContent}\' "
-                if tableName == "prescription":
-                    insertStmt += "FROM patient " \
+            findTableNameSql = f"SELECT table_name from information_schema.columns where column_name=\'{UploadDetails['file_type']}\'"
+            result = self.dbAdapter.executeFindOnImageDB(findTableNameSql)
+            if not result.success:
+                return result.success, result.message
+            tableName = result.result[0][0]
+            insertStmt = ""
+            if tableName == "prescription":
+                insertStmt = f"UPDATE {tableName} SET {UploadDetails['file_type']} = \'{UploadDetails['folder_path'][0]}\' "
+                insertStmt += "FROM patient " \
                                 "WHERE patient.id=prescription.patient_id " \
-                                + f"AND patient.patient_trial_id=\'{self.metadata['patient_trial_id']}\' " \
-                                + f"AND patient.clinical_trial=\'{self.metadata['clinical_trial']}\' " \
-                                + f"AND patient.test_centre=\'{self.metadata['test_centre']}\'"
-                elif tableName == "images":
-                    insertStmt += "FROM patient, prescription, fraction " \
-                                + "WHERE patient.id=prescription.patient_id " \
-                                + "AND prescription.prescription_id=fraction.prescription_id " \
-                                + "AND images.fraction_id=fraction.fraction_id " \
                                 + f"AND patient.patient_trial_id=\'{self.metadata['patient_trial_id']}\' " \
                                 + f"AND patient.clinical_trial=\'{self.metadata['clinical_trial']}\' " \
                                 + f"AND patient.test_centre=\'{self.metadata['test_centre']}\'"
                 result = self.dbAdapter.executeUpdateOnImageDB(insertStmt)
                 if not result.success:
                     return result.success, result.message
-                elif dbProgressCallback:
-                    dbProgressCallback(f"updated {tableName}.{fieldName} = {fieldContent}")
-        self.markPacketAsImported()
+            else:
+                for fraction in UploadDetails["fraction"]:
+                    fractionDetail = self.dbAdapter.getFractionIdAndName(self.metadata["patient_trial_id"], fraction)
+                    if fractionDetail:
+                        fractionId = fractionDetail[0][0]
+                        insertStmt = f"UPDATE {tableName} SET {UploadDetails['file_type']} = \'{UploadDetails['folder_path'][fraction]}\' WHERE fraction_id = \'{fractionId}\'"
+                    result = self.dbAdapter.executeUpdateOnImageDB(insertStmt)
+                    if not result.success:
+                        return result.success, result.message
+            # if UploadDetails["file_type"] in filetypeMapping["mapping"].keys():
+            #     paths = []
+            #     multiValues = filetypeMapping["mapping"][UploadDetails["file_type"]]["multivalues"]
+            #     granularity = filetypeMapping["mapping"][UploadDetails["file_type"]]["granularity"]
+            #     if multiValues:
+            #         seperator = filetypeMapping["mapping"][UploadDetails["file_type"]]["delimiter"]
+            #     for filePath in UploadDetails["Files"]:
+            #         parentPath, sep, fileName = filePath.rpartition('/')
+            #         if granularity == "folder":
+            #             if parentPath not in paths:
+            #                 paths.append(parentPath)
+            #         else:
+            #             paths.append(filePath)
+            #         if not multiValues:
+            #             break
+            #     fieldContent = ""
+            #     if multiValues and len(paths) > 1:
+            #         for path in paths:
+            #             if fieldContent != "":
+            #                 fieldContent += seperator
+            #             fieldContent += path[len(self.currentContextId):]
+            #     else:
+            #         fieldContent += paths[0][len(self.currentContextId):]
+            #     tableName = filetypeMapping["mapping"][UploadDetails["file_type"]]["table"]
+            #     fieldName = filetypeMapping["mapping"][UploadDetails["file_type"]]["field"]
+            #     insertStmt = f"UPDATE {tableName} SET {fieldName} = \'{fieldContent}\' "
+            #     if tableName == "prescription":
+            #         insertStmt += "FROM patient " \
+            #                     "WHERE patient.id=prescription.patient_id " \
+            #                     + f"AND patient.patient_trial_id=\'{self.metadata['patient_trial_id']}\' " \
+            #                     + f"AND patient.clinical_trial=\'{self.metadata['clinical_trial']}\' " \
+            #                     + f"AND patient.test_centre=\'{self.metadata['test_centre']}\'"
+            #     elif tableName == "images":
+            #         insertStmt += "FROM patient, prescription, fraction " \
+            #                     + "WHERE patient.id=prescription.patient_id " \
+            #                     + "AND prescription.prescription_id=fraction.prescription_id " \
+            #                     + "AND images.fraction_id=fraction.fraction_id " \
+            #                     + f"AND patient.patient_trial_id=\'{self.metadata['patient_trial_id']}\' " \
+            #                     + f"AND patient.clinical_trial=\'{self.metadata['clinical_trial']}\' " \
+            #                     + f"AND patient.test_centre=\'{self.metadata['test_centre']}\'"
+            #     result = self.dbAdapter.executeUpdateOnImageDB(insertStmt)
+            #     if not result.success:
+            #         return result.success, result.message
+            #     elif dbProgressCallback:
+            #         dbProgressCallback(f"updated {tableName}.{fieldName} = {fieldContent}")
+        # self.markPacketAsImported()
         return True, "Success"    
 
     def rejectUploadPacket(self):
