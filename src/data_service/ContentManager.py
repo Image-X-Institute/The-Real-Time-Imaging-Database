@@ -718,12 +718,10 @@ class ContentManager:
                     formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
                     fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
                     fractionName = ""
-                    if formatedPath.count("/") == 3:
+                    if formatedPath.count("/") == 2:
                         fractionName = re.search(r'\/([^\/]+)\/$', formatedPath).group(1)
                     if fractionName=="":
                         fractionName = fractionNumber
-                    else:
-                        formatedPath = re.sub(r'^([^\/]+)\/', "", formatedPath)
      
                 # formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
                 # if metadata["clinical_trial"] == "CHIRP":
@@ -739,28 +737,27 @@ class ContentManager:
                 # elif metadata["file_type"] == "trajectory_log_folder":
                 #     saveFolderPath =  self._processTrajectoryLog(metadata, filename, uploadMetaData, filesSaved, fileTypeToPathMapping, formatedPath)
                 # else:
-                relativeFolderPath =  uploadId + \
-                                filePath.format(
+                relativeFolderPath = filePath.format(
                                     clinical_trial=metadata['clinical_trial'],
                                     test_centre=metadata["test_centre"],
                                     patient_trial_id=metadata["patient_trial_id"],
                                     centre_patient_no=int(metadata["centre_patient_no"])
                                 ) + formatedPath
-                relativePath = relativeFolderPath + filename
-                saveFolderPath = config.UPLOAD_FOLDER + '/' + relativeFolderPath
+                relativePath = uploadId + relativeFolderPath + filename
+                saveFolderPath = config.UPLOAD_FOLDER + '/' + uploadId + relativeFolderPath
                 filesSaved.append(relativePath)
 
                 filePathAppended:bool = False
                 for uploadedFileRecord in  uploadMetaData["uploaded_files"]:
                     if uploadedFileRecord["file_type"] == metadata["file_type"]:
                         uploadedFileRecord["Files"].append(relativePath)
-                        if fractionNumber and fractionNumber not in uploadedFileRecord["fraction"]:
+                        if fractionNumber not in uploadedFileRecord["fraction"]:
                             uploadedFileRecord["fraction"].append(fractionNumber)
-                            uploadedFileRecord["sub_fraction"].append(fractionName)
-                        if fractionName and fractionName not in uploadedFileRecord["sub_fraction"]:
-                            uploadedFileRecord["sub_fraction"].append(fractionName)
-                        if saveFolderPath not in uploadedFileRecord["folder_path"]:
-                            uploadedFileRecord["folder_path"].append(saveFolderPath)
+                            uploadedFileRecord["sub_fraction"][fractionNumber] = [fractionName]
+                            uploadedFileRecord["folder_path"][fractionName] = relativeFolderPath
+                        if fractionName not in uploadedFileRecord["sub_fraction"][fractionNumber]:
+                            uploadedFileRecord["sub_fraction"][fractionNumber].append(fractionName)
+                            uploadedFileRecord["folder_path"][fractionName] = relativeFolderPath
                         filePathAppended = True
                         break
 
@@ -770,12 +767,15 @@ class ContentManager:
                             "file_type": metadata["file_type"],
                             "level": metadata["level"],
                             "fraction": [fractionNumber] if fractionNumber else [],
-                            "sub_fraction": [fractionName] if fractionName else [],
+                            "sub_fraction": {
+                                fractionNumber: [fractionName]
+                            } if fractionNumber else {},
                             "Files": [relativePath],
-                            "folder_path": [saveFolderPath]
+                            "folder_path": {
+                                fractionName: relativeFolderPath
+                            }
                         }
                     )
-            print(f"saving {filename} in {saveFolderPath}")
             if saveFolderPath is not None:
                 if not os.path.isdir(saveFolderPath):
                     Path(saveFolderPath).mkdir(parents=True, exist_ok=True)
