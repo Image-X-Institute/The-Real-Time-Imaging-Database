@@ -179,65 +179,65 @@
                 "type": "str"
             },
             {
-                "property" : "rt_plan_path", 
+                "property" : "rt_plan_pres", 
                 "description" : "Location (relative) of the RT Plan file",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_plan_path"
+                    "column": "rt_plan_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "rt_ct_path", 
+                "property" : "rt_ct_pres", 
                 "description" : "Location (relative) of the Pre treatment CT series (folder level)",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_ct_path"
+                    "column": "rt_ct_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "rt_structure_path", 
+                "property" : "rt_structure_pres", 
                 "description" : "Location (relative) of the RT structure sets",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_structure_path"
+                    "column": "rt_structure_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "rt_dose_path",
+                "property" : "rt_dose_pres",
                 "description" : "Location (relative) of the RT dose",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_dose_path"
+                    "column": "rt_dose_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "rt_mri_path",
+                "property" : "rt_mri_pres",
                 "description" : "Location (relative) of the pre treatment MRI series (folder level). Note: not all patients have an MRI series available",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_mri_path"
+                    "column": "rt_mri_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "planned_dvh_path",
+                "property" : "planned_dvh_pres",
                 "description" : "Location of the Original Dose Value Histogram file",
                 "field" : {
                     "table": "prescription", 
-                    "column": "rt_dvh_original_path"
+                    "column": "planned_dvh_pres"
                 },
                 "type": "str"
             },
             {
-                "property" : "centroid_path",
+                "property" : "centroid_pres",
                 "description" : "Location of the Patient Marker location and centroids file",
                 "field" : {
                     "table": "prescription", 
-                    "column": "centroid_path"
+                    "column": "centroid_pres"
                 },
                 "type": "str"
             }
