@@ -238,7 +238,6 @@ class DatabaseAdapter:
                     + "AND fraction.fraction_number = " + str(fractionNumber) + ";"
         if config.APP_DEBUG_MODE:
             print("Executing Query:", strQuery)
-
         try:
             conn = self.getImageDBConnection()
             cur = conn.cursor()

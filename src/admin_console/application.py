@@ -97,7 +97,6 @@ def importUploadPacket(upload_id):
             if result[0]:
                 if config.APP_DEBUG_MODE:
                     print("Copied files into storage", result[1])
-                fileInfo = di.getUploadFileInfo()
                 # if fileInfo['clinical_trial'] == "CHIRP":
                 #     # Only design for CHIRP data import
                 #     result = di.insertCHIRPDataIntoDatabase()
