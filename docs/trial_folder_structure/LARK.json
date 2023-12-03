@@ -280,7 +280,7 @@
       "level": "fraction",
       "allowed": [
         "application/dicom",
-        "plain/text"
+        "text/plain"
       ]
     },
     "dicom_no_track_plan_path": {
