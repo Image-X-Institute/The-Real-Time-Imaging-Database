@@ -1,0 +1,138 @@
+import json
+import os
+import re
+
+class FilesystemScrubber:
+	def __init__(self, patientDataPath, templateFilePath):
+		self.patientDataPath = patientDataPath
+		self.templateFilePath = templateFilePath
+		self.templateStructure = self.getTemplateStructure()
+		self.patientData = self.getPatientData()
+		self.rootPath = self._load_local_settings()
+		self.trial = self.patientData['clinical_trial']
+		self.currentCenterInfo = self.patientData['centres'][0]
+		self.currentPatientInfo = self.currentCenterInfo['patients'][0]
+		self.currentPatientId = self.currentPatientInfo['patient_trial_id']
+		self.currentPatientNo = self.currentPatientInfo['centre_patient_no']
+		self.result = {
+			"clinical_trial_data": {
+			"clinical_trial": self.trial,
+			"centres": []
+			}
+		}
+
+	def _load_local_settings(self):
+		settingsFilePath = "data/local_settings.json"
+		try:
+			with open(settingsFilePath) as localSettingsFile:
+				localsettings = json.load(localSettingsFile)
+				return localsettings["root_filesystem_path"]
+		except FileNotFoundError as fnfErr:
+			print(f"ERROR: Please create a {settingsFilePath} file")
+			raise fnfErr
+
+	def getPatientData(self):
+		with open(self.patientDataPath) as f:
+			data = json.load(f)
+			return data
+
+	def getPatientID(self):
+		return self.currentPatientId, self.currentPatientNo
+
+	def getTemplateStructure(self):
+		with open(self.templateFilePath) as f:
+			data = json.load(f)
+			return data
+
+	def getCurrentFractions(self):
+		return self.currentPatientInfo['fractions']
+	
+	def fractionPathLookUp(self, fractionNo):
+		pass
+
+	def startToScrub(self):
+		for centre in self.patientData['centres']:
+			centrePack = {
+				"centre": centre['centre'],
+				"patients": []
+			}
+		for patient in centre['patients']:
+			patientNo = str(patient['centre_patient_no']).zfill(2)
+			patientPack = {
+				"patient_trial_id": patient['patient_trial_id'],
+				"centre_patient_no": patient['centre_patient_no'],
+				"prescription": {},
+				"age": patient['age'],
+				"gender": patient['gender'],
+				"tumour_site": patient['tumour_site'],
+				"number_of_markers": patient['number_of_markers'],
+				"LINAC_type": patient['LINAC_type'],
+				"fractions": []
+			}
+
+			# start from prescription level
+			prescriptionPack = {}
+			for key in self.templateStructure['prescription']:
+				path = self.templateStructure['prescription'][key]['path']
+				relativePath = path.format(clinical_trial=self.trial, test_centre=centre['centre'], centre_patient_no=patientNo)
+				folderPath = self.rootPath + relativePath
+				if os.path.exists(folderPath):
+					prescriptionPack[key] = relativePath
+				else:
+					prescriptionPack[key] = None
+			patientPack['prescription'] = prescriptionPack
+
+			# Then for each fraction
+			for fraction in patient['fractions']:
+				if len(fraction['fraction_name']) == 1:
+					fractionPack = {
+						"fraction_number": fraction['fraction_number'],
+						"fraction_name": fraction['fraction_name'],
+						"date": fraction['fraction_date']
+					}
+					for key in self.templateStructure['fraction']:
+						path = self.templateStructure['fraction'][key]['path']
+						relativePath = path.format(clinical_trial=self.trial, test_centre=centre['centre'], centre_patient_no=patientNo) + fraction["fraction_name"][0]
+						if os.path.exists(self.rootPath + relativePath):
+							fractionPack[key] = relativePath
+						else:
+							fractionPack[key] = None
+					patientPack['fractions'].append(fractionPack)
+				else:
+					for fractionName in fraction['fraction_name']:
+						fractionPack = {
+							"fraction_number": fraction['fraction_number'],
+							"fraction_name": fractionName,
+							"date": fraction['fraction_date']
+						}
+						for key in self.templateStructure['fraction']:
+							path = self.templateStructure['fraction'][key]['path']
+							fractionNo = fraction['fraction_number']
+							fractionPath = f'Fx{fractionNo}/'
+							relativePath = path.format(clinical_trial=self.trial, test_centre=centre['centre'], centre_patient_no=patientNo)						
+							if os.path.exists(self.rootPath + relativePath + fractionPath + fractionName):
+								KV_pattern = r"kv"
+								MV_pattern = r"mv"
+								
+								if re.search(KV_pattern, key):
+									relativePath = relativePath + fractionPath + fractionName + '/KIM-KV/'
+								elif re.search(MV_pattern, key):
+									relativePath = relativePath + fractionPath + fractionName + '/KIM-MV/'
+								fractionPack[key] = relativePath
+							else:
+								if os.path.exists(self.rootPath + relativePath + fractionPath):
+									fractionPack[key] = relativePath + fractionName
+						patientPack['fractions'].append(fractionPack)
+			centrePack['patients'].append(patientPack)
+		self.result['clinical_trial_data']['centres'].append(centrePack)
+
+	def writeResultToFile(self):
+		with open('data/result.json', 'w') as outfile:
+			json.dump(self.result, outfile, indent=4)
+if __name__ == "__main__":
+	patientDataPath = "data/new_patient_data.json"
+	templateFilePath = "data/LARK.json"
+	fs = FilesystemScrubber(patientDataPath, templateFilePath)
+	fs.startToScrub()
+	fs.writeResultToFile()
+      
