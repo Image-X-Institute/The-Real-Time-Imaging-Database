@@ -131,7 +131,7 @@
         "Centroid"
       ]
     },
-    "KIM threshold": {
+    "kim_threshold": {
       "path": "/{clinical_trial}/{test_centre}/Patient Files/PAT{centre_patient_no}/",
       "display_name": "KIM threshold (fraction level)",
       "field_type": "folder",
@@ -164,7 +164,8 @@
         "application/octet-stream",
         "text/plain",
         "text/xml",
-        "text/csv"
+        "text/csv",
+        "application/xml"
       ]
     },
     "mv_images_path": {
@@ -174,17 +175,14 @@
       "level": "fraction",
       "allowed": [
         "image/tiff",
-        "image/hnd",
-        "image/hnc",
-        "image/his",
         "image/jpg",
         "image/png",
-        "image/dicom",
         "application/dicom",
         "application/octet-stream",
         "text/plain",
         "text/xml",
-        "text/csv"
+        "text/csv",
+        "application/xml"
       ]
     },
     "metrics_path": {
