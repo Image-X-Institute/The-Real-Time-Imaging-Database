@@ -715,13 +715,27 @@ class ContentManager:
                 fractionNumber = ""
                 filename = secure_filename(uploadedFile.filename)
                 if metadata['level'] == "fraction":
-                    formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
-                    fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
-                    fractionName = ""
-                    if formatedPath.count("/") == 2:
-                        fractionName = re.search(r'\/([^\/]+)\/$', formatedPath).group(1)
-                    if fractionName=="":
-                        fractionName = fractionNumber
+                    if metadata["file_type"] == "kv_images_path":
+                        formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
+                        fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
+                        if formatedPath.count("/") == 3:
+                            fractionName = re.search(r'\/([^\/]+)', formatedPath).group(1)
+                        if fractionName=="":
+                            fractionName = fractionNumber
+                    elif metadata["file_type"] == "mv_images_path":
+                        formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
+                        fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
+                        if formatedPath.count("/") == 3:
+                            fractionName = re.search(r'\/([^\/]+)', formatedPath).group(1)
+                        if fractionName=="":
+                            fractionName = fractionNumber
+                    else:
+                        formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
+                        fractionNumber = re.search(r'(?i)fx(\d+)', formatedPath).group(1)
+                        if formatedPath.count("/") == 2:
+                            fractionName = re.search(r'\/([^\/]+)\/$', formatedPath).group(1)
+                        if fractionName=="":
+                            fractionName = fractionNumber
      
                 # formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
                 # if metadata["clinical_trial"] == "CHIRP":

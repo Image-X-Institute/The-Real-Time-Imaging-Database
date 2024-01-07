@@ -54,6 +54,7 @@
       "level": "prescription",
       "allowed": [
         "text/plain",
+        "text/rtf",
         "text/csv"
       ]
     },
@@ -70,7 +71,8 @@
       "field_type": "folder",
       "level": "prescription",
       "allowed": [
-        "text/plain"
+        "text/plain",
+        "text/rtf"
       ],
       "file_name": []
     }
@@ -122,6 +124,7 @@
       "level": "fraction",
       "allowed": [
         "text/plain",
+        "text/rtf",
         "text/csv",
         "application/vnd.ms-excel",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -145,6 +148,7 @@
       "level": "fraction",
       "allowed": [
         "text/plain",
+        "text/rtf",
         "text/csv"
       ]
     },
@@ -163,6 +167,7 @@
         "application/dicom",
         "application/octet-stream",
         "text/plain",
+        "text/rtf",
         "text/xml",
         "text/csv",
         "application/xml"
@@ -180,6 +185,7 @@
         "application/dicom",
         "application/octet-stream",
         "text/plain",
+        "text/rtf",
         "text/xml",
         "text/csv",
         "application/xml"
@@ -192,6 +198,7 @@
       "level": "fraction",
       "allowed": [
         "text/plain",
+        "text/rtf",
         "application/vnd.ms-excel",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "application/vnd.oasis.opendocument.spreadsheet",
@@ -205,6 +212,7 @@
       "level": "fraction",
       "allowed": [
         "text/plain",
+        "text/rtf",
         "application/vnd.ms-excel",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "application/vnd.oasis.opendocument.spreadsheet",
@@ -232,6 +240,8 @@
       "level": "fraction",
       "allowed": [
         "text/plain",
+        "text/rtf",
+        "text/rtf",
         "text/csv"
       ]
     },
@@ -242,6 +252,7 @@
       "level": "fraction",
       "allowed": [
         "text/plain",
+        "text/rtf",
         "text/csv"
       ]
     },
@@ -252,6 +263,7 @@
       "level": "fraction",
       "allowed": [
         "text/plain",
+        "text/rtf",
         "text/csv"
       ]
     },

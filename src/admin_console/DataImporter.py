@@ -151,7 +151,13 @@ class DataImporter:
                         for fractionItem in fractionDetail:
                             fractionId = fractionItem[0]
                             fractionName = fractionItem[1]
-                            insertStmt = f"UPDATE {tableName} SET {UploadDetails['file_type']} = \'{UploadDetails['folder_path'][fractionName]}\' WHERE fraction_id = \'{fractionId}\'"
+                            try:
+                                insertStmt = f"UPDATE {tableName} SET {UploadDetails['file_type']} = \'{UploadDetails['folder_path'][fractionName]}\' WHERE fraction_id = \'{fractionId}\'"
+                            except KeyError:
+                                try:
+                                    insertStmt = f"UPDATE {tableName} SET {UploadDetails['file_type']} = \'{UploadDetails['folder_path'][fraction]}\' WHERE fraction_id = \'{fractionId}\'"
+                                except KeyError:
+                                    return False, "Failed"
                             result = self.dbAdapter.executeUpdateOnImageDB(insertStmt)
                             if not result.success:
                                 return result.success, result.message
