@@ -1,121 +1,265 @@
 {
-	"centroid_path": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Files/Patient {centre_patient_no}/",
-		"display_name":"Centroid Path",
-		"field_type":"file",
-		"level": "fraction",
-		"allowed":["text"]
+	"prescription":{
+		"rt_ct_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"rt_dose_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"rt_mri_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"rt_plan_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"rt_structure_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"rt_dvh_original_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"centroid_pres":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}
 	},
-	"planned_dvh_path": {
-		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
-		"display_name":"Planned DVH Path",
-		"field_type":"file",
-		"level": "fraction",
-		"allowed":["text"]
-	},
-	"rt_ct_path": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/files/CT/", 
-		"display_name":"RT CT Path",
-		"field_type":"foler",
-		"level": "fraction",
-		"allowed":["application"]
-	},
-	"rt_dose_path": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/Dose/",
-		"display_name":"RT Dose Path",
-		"field_type":"foler",
-		"level": "fraction",
-		"allowed":["application"]
-	},
-	"rt_mri_path": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/MRI/",
-		"display_name":"RT MRI Path",
-		"field_type":"foler",
-		"level": "fraction",
-		"allowed":["application"]
-	},
-	"rt_plan_path": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/{fraction_name}/files/Plan/",
-		"display_name":"RT Plan Path",
-		"field_type":"foler",
-		"level": "fraction",
-		"allowed":["application"]
-	},
-	"rt_structure_path": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/{fraction_name}/",
-		"display_name":"RT Structure Path",
-		"field_type":"foler",
-		"level": "fraction",
-		"allowed":["application"]
-	},
-	"DICOM_no_track_plan_path": {
-		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/Patient {centre_patient_no}/",
-		"display_name":"DICOM No Track Plan Path",
-		"field_type":"folder",
-		"level": "fraction",
-		"allowed":["application"]
-	},
-	"DICOM_track_plan_path": {
-		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/Patient {centre_patient_no}/",
-		"display_name":"DICOM Track Plan Path",
-		"field_type":"folder",
-		"level": "fraction",
-		"allowed":["application"]
-	},
-	"DVH_no_track_path": {
-		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
-		"display_name":"DVH No Track Path",
-		"field_type":"folder",
-		"level": "fraction",
-		"allowed":["text"]
-	},
-	"DVH_track_path": {
-		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/DVH/Patient {centre_patient_no}/",
-		"display_name":"DVH Track Path",
-		"field_type":"folder",
-		"level": "fraction",
-		"allowed":["text"]
-	},
-	"kim_logs": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
-		"display_name":"KIM Logs",
-		"field_type":"folder",
-		"level": "fraction",
-		"allowed":["text"]
-	},
-	"kv_images": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
-		"display_name":"KV Images",
-		"field_type":"folder",
-		"level": "fraction",
-		"allowed":["application"]
-	},
-	"mv_images": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
-		"display_name":"MV Images",
-		"field_type":"folder",
-		"level": "fraction",
-		"allowed":["application"]
-	},
-	"metrics": {
-		"path":"/{clinical_trial}/{test_centre}/Dose Reconstruction/Metrics/Patient {centre_patient_no}/",
-		"display_name":"Metrics",
-		"field_type":"folder",
-		"level": "fraction",
-		"allowed":["text"]
-	},
-	"trajectory_logs": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
-		"display_name":"Trajectory Logs Files",
-		"field_type":"folder",
-		"level": "fraction",
-		"allowed":["text"]
-	},
-	"triangulation": {
-		"path":"/{clinical_trial}/{test_centre}/Patient Measured Motion/Patient {centre_patient_no}/",
-		"display_name":"Triangulation Files",
-		"field_type":"folder",
-		"level": "fraction",
-		"allowed":["text"]
+	"fraction":{
+		"rt_ct_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"rt_dose_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"rt_mri_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"rt_plan_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"rt_structure_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"centroid_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"kim_logs_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"kv_images_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"mv_images_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"metrics_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"triangulation_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"trajectory_logs_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"dvh_track_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"dvh_no_track_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"dicom_track_plan_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"dicom_no_track_plan_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"respiratory_files_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"scan_file": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"couch_shift_file": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"cbct_images_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"contour_files_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"fluoro_images_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"pet_image_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"pet_3d_attenuation_ct_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"pet_listmode_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"pet_4d_attenuation_ct_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"petct_files":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"spect_image_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"spect_3d_attenuation_ct_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"timepoint_ct_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}
 	}
 }
