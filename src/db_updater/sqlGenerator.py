@@ -1,6 +1,4 @@
 import json
-
-
 class sqlGenerator:
   def __init__(self, patientDataPath, exportFilePath):
     self.patientDataPath = patientDataPath
