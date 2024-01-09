@@ -87,8 +87,8 @@ class FilesystemScrubber:
 					if len(fraction['fraction_name']) == 1:
 						fractionPack = {
 							"fraction_number": fraction['fraction_number'],
-							"fraction_name": fraction['fraction_name'],
-							"date": fraction['fraction_date']
+							"fraction_name": fraction['fraction_name'][0],
+							"fraction_date": fraction['fraction_date']
 						}
 						for key in self.templateStructure['fraction']:
 							path = self.templateStructure['fraction'][key]['path']
@@ -103,7 +103,7 @@ class FilesystemScrubber:
 							fractionPack = {
 								"fraction_number": fraction['fraction_number'],
 								"fraction_name": fractionName,
-								"date": fraction['fraction_date']
+								"fraction_date": fraction['fraction_date']
 							}
 							for key in self.templateStructure['fraction']:
 								path = self.templateStructure['fraction'][key]['path']
