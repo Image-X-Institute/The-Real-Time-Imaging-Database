@@ -13,10 +13,13 @@ class sqlGenerator:
   def generateSQL(self):
     centreInfo = self.patientData['clinical_trial_data']['centres']
     clinical_trial = self.patientData['clinical_trial_data']['clinical_trial']
+    print("Start to generate SQL")
     for centre in centreInfo:
+      print("-------- Centre: " + centre['centre'] + " --------")
       testCentre = centre['centre']
       for patient in centre['patients']:
         # Generate SQL for patient info
+        print("Start to process patient: " + patient['patient_trial_id'])
         gender = str(patient['gender']).lower()
         insertPatientSQL = "INSERT INTO patient (age, " + \
             "gender, tumour_site, patient_trial_id, " + \
@@ -84,9 +87,11 @@ class sqlGenerator:
     self.writeToFile()
 
   def writeToFile(self):
+    print("Start to write to file")
     with open(self.exportFilePath, 'w') as f:
       for line in self.result:
         f.write(line + "\n")
+    print("Done, please go to " + self.exportFilePath + " to check the result")
 if __name__ == "__main__":
   patientDataPath = "data/result.json"
   exportFilePath = "data/export.sql"

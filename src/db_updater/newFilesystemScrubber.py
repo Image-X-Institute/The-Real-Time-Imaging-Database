@@ -34,6 +34,7 @@ class FilesystemScrubber:
 	def getPatientData(self):
 		with open(self.patientDataPath) as f:
 			data = json.load(f)
+			print("Patient data loaded")
 			return data
 
 	def getPatientID(self):
@@ -51,12 +52,15 @@ class FilesystemScrubber:
 		pass
 
 	def startToScrub(self):
+		print("Start to scrub the filesystem")
 		for centre in self.patientData['centres']:
+			print(f"------- Scrubbing {centre['centre']} centre -------")
 			centrePack = {
 				"centre": centre['centre'],
 				"patients": []
 			}
 			for patient in centre['patients']:
+				print(f"	Scrubbing Patient {patient['patient_trial_id']}")
 				patientNo = str(patient['centre_patient_no']).zfill(2)
 				patientPack = {
 					"patient_trial_id": patient['patient_trial_id'],
@@ -81,9 +85,11 @@ class FilesystemScrubber:
 					else:
 						prescriptionPack[key] = None
 				patientPack['prescription'] = prescriptionPack
-
+				print(f"		Scrubbing Patient {patient['patient_trial_id']} prescription done")
 				# Then for each fraction
+				print(f"		Scrubbing Patient {patient['patient_trial_id']} fractions")
 				for fraction in patient['fractions']:
+					print(f"			Scrubbing Patient {patient['patient_trial_id']} fraction {fraction['fraction_number']}")
 					if len(fraction['fraction_name']) == 1:
 						fractionPack = {
 							"fraction_number": fraction['fraction_number'],
@@ -100,6 +106,7 @@ class FilesystemScrubber:
 						patientPack['fractions'].append(fractionPack)
 					else:
 						for fractionName in fraction['fraction_name']:
+							print(f"				Scrubbing Patient {patient['patient_trial_id']} fraction {fractionName}")
 							fractionPack = {
 								"fraction_number": fraction['fraction_number'],
 								"fraction_name": fractionName,
@@ -127,14 +134,17 @@ class FilesystemScrubber:
 			self.result['clinical_trial_data']['centres'].append(centrePack)
 
 	def writeResultToFile(self):
+		print("Writing result to file")
 		with open('data/result.json', 'w') as outfile:
 			json.dump(self.result, outfile, indent=4)
+		print("Writing done, please check " + 'data/result.json')
 
 
 			
 if __name__ == "__main__":
+	# Please change the path to the patient data and template file path
 	patientDataPath = "data/new_patient_data.json"
-	templateFilePath = "data/LARK.json"
+	templateFilePath = "../../docs/trial_folder_structure/LARK.json"
 	fs = FilesystemScrubber(patientDataPath, templateFilePath)
 	fs.startToScrub()
 	fs.writeResultToFile()
