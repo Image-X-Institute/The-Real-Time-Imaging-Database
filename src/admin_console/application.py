@@ -63,6 +63,10 @@ def authenticate():
 def createNewTrial():
     return render_template('create_new_trial.html')
 
+@app.route('/create_new_center', methods=['GET'])
+def createNewCenter():
+    return render_template('create_new_center.html')
+
 @app.route('/download_template', methods=['GET'])
 def downloadTemplate():
     return send_file("./gui/web_gui/assets/template.json", as_attachment=True)
