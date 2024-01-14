@@ -6,7 +6,7 @@ import servicemanager
 import win32api
 import socket
 import sys
-from application import app
+from data_service.dataApp import app
 import config
 import logging
 import tempfile
