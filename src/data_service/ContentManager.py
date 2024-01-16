@@ -713,7 +713,7 @@ class ContentManager:
                 formatedPath = ""
                 fractionName = ""
                 fractionNumber = ""
-                filename = secure_filename(uploadedFile.filename)
+                filename = uploadedFile.filename
                 if metadata['level'] == "fraction":
                     if metadata["file_type"] == "kv_images_path":
                         formatedPath = os.path.basename(req.form["file_path"]).replace("\\", "/").replace(filename, "")
