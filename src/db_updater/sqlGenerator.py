@@ -93,8 +93,8 @@ class sqlGenerator:
         f.write(line + "\n")
     print("Done, please go to " + self.exportFilePath + " to check the result")
 if __name__ == "__main__":
-  patientDataPath = "data/result.json"
-  exportFilePath = "data/export.sql"
+  patientDataPath = "data/scrubbed_patient_data.json"
+  exportFilePath = "data/sql_scripts.sql"
   sqlFile = sqlGenerator(patientDataPath, exportFilePath)
 
   sqlFile.generateSQL()

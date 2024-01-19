@@ -22,30 +22,38 @@ The python modules in this folder look at `data/local_settings.json` for local s
 This folder contains a set of Python modules for scrubbing the filesystem data and generating SQL scripts from them.
 
 ### Scrubbing Filesystem
-The module [FilesystemScrubber.py](FilesystemScrubber.py) is responsible for walking through the clinical data drive based on the data templates and generates a file named `scrubbed_patient_data.json` everytime the filesystem scrubber is run. This is an intermediate file, which contains all the parsed data is used as an input for generating the SQL scripts to insert data into the database.
+The module [newFilesystemScrubber.py](newFilesystemScrubber.py) is responsible for walking through the clinical data drive based on the data templates named `new_patient_data.json` and generates a file named `scrubbed_patient_data.json` everytime the filesystem scrubber is run. This is an intermediate file, which contains all the parsed data is used as an input for generating the SQL scripts to insert data into the database.
 
 To run this python module, run the following command:
 ```bash
-python FilesystemScrubber.py
+python newFilesystemScrubber.py
 ```
 
-### Generating SQL scripts
+<!-- ### Generating SQL scripts
 The module [PatientDataReader.py](PatientDataReader.py) uses the `scrubbed_patient_data.json` file to generate the SQL insersion scripts. It expects all the paths, patient and fraction details to be in this JSON file and uses the `DVHParser.py` to parse DVH files to get the dosage information.
 
 To run this python module, execute the following command:
 ```bash
 python PatientDataReader.py
+``` -->
+
+### Generating SQL scripts
+The module [sqlGenerator.py](sqlGenerator.py) uses the `scrubbed_patient_data.json` file to generate the SQL insersion scripts. It expects all the paths, patient and fraction details to be in this JSON file. The generated SQL scripts are stored in the data folder under the name `sql_scripts.sql`.
+
+To run this python module, execute the following command:
+```bash
+python sqlGenerator.py
 ```
 
-### Parsing Dose Value Histograms
+<!-- ### Parsing Dose Value Histograms
 While the `PatientDataReader.py` internally uses the [DVHParser.py](DVHParser.py) module to extract the dosage information, the module can be imported directly in Python code too. To use it, the `DVHParser` class can be used as follows:
 ```python
 from DVHParser import DVHParser
 
 parser = DVHParser(<path of the DVH file>)
-parser.parse()
+parser.parse() -->
 
-# print all the structures contained in the DVH file:
+<!-- # print all the structures contained in the DVH file:
 parser.getAllStructureNames()
 
-```
+``` -->

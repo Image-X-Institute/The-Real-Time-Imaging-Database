@@ -135,9 +135,9 @@ class FilesystemScrubber:
 
 	def writeResultToFile(self):
 		print("Writing result to file")
-		with open('data/result.json', 'w') as outfile:
+		with open('data/scrubbed_patient_data.json', 'w') as outfile:
 			json.dump(self.result, outfile, indent=4)
-		print("Writing done, please check " + 'data/result.json')
+		print("Writing done, please check " + 'data/scrubbed_patient_data.json')
 
 
 			
