@@ -129,7 +129,7 @@ def importUploadPacket(upload_id):
 
     if not result[0]:
         print("Error importing data:", result[1])
-        make_response({"status": "error", "message": result[1]})
+        return make_response({"status": "error", "message": result[1]})
     return redirect("/")
 
 @app.route('/download/<path:filename>')

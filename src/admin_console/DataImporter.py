@@ -157,7 +157,7 @@ class DataImporter:
                                 try:
                                     insertStmt = f"UPDATE {tableName} SET {UploadDetails['file_type']} = \'{UploadDetails['folder_path'][fraction]}\' WHERE fraction_id = \'{fractionId}\'"
                                 except KeyError:
-                                    return False, "Failed"
+                                    return False, "The fraction details of uploaded files could not match the database"
                             result = self.dbAdapter.executeUpdateOnImageDB(insertStmt)
                             if not result.success:
                                 return result.success, result.message
@@ -263,9 +263,8 @@ class DataImporter:
             fractionNameList = [name[1] for name in fractionDetailList]
             subFractionList = self.fileInfo['sub_fraction'][fraction][:]
             if len(fractionDetailList) == 0:
-                return False, "Failed"
+                return False, "Cannot find fraction detail in database for this upload packet"
             else:
-                result = True
                 if subFractionList and set(fractionNameList) != set(subFractionList):
                     initFractionDetail = self.dbAdapter.getFractionIdAndDate(self.metadata["patient_trial_id"], fraction)
                     firstSubFraction = subFractionList.pop(0)
@@ -279,9 +278,8 @@ class DataImporter:
                                 "date": str(initFractionDetail[1]),
                             }
                             self.dbAdapter.insertFractionIntoDB(fractionPack)
-                if not result:
-                    return result, "Failed"
-        return True, "Success"
+                    return True, "Success"
+        return False, "Cannot find fraction detail in database for this upload packet, please check the fraction number"
     
     # def insertFractionFilePathIntoDatabase(self) -> Tuple[bool, str]:
     #     if not self.fileInfo or not self.dataIsValid:
