@@ -35,7 +35,14 @@
 			"level": "",
 			"allowed":[]
 		}, 
-		"rt_dvh_original_pres": {
+		"planned_dvh_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"planned_dicom_pres": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
