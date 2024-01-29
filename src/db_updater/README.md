@@ -20,6 +20,7 @@ The python modules in this folder look at `data/local_settings.json` for local s
 
 ## Generating Database Scripts from Clinical Data
 This folder contains a set of Python modules for scrubbing the filesystem data and generating SQL scripts from them.
+The easest way to generate the SQL scripts is to run the `generateSQL.sh` script. This script runs all the python modules in the correct order to generate the SQL scripts. The generated SQL scripts are stored in the data folder under the name `sql_scripts.sql`. Please note that this script requires the `data/local_settings.json` file to be present, and the data templates named `new_patient_data.json` to be present in the `data/templates` folder.
 
 ### Scrubbing Filesystem
 The module [newFilesystemScrubber.py](newFilesystemScrubber.py) is responsible for walking through the clinical data drive based on the data templates named `new_patient_data.json` and generates a file named `scrubbed_patient_data.json` everytime the filesystem scrubber is run. This is an intermediate file, which contains all the parsed data is used as an input for generating the SQL scripts to insert data into the database.
