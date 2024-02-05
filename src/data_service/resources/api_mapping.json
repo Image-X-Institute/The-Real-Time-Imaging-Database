@@ -233,6 +233,15 @@
                 "type": "str"
             },
             {
+                "property" : "planned_dicom_pres",
+                "description" : "Location of the Original Dose Value Histogram file",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "planned_dicom_pres"
+                },
+                "type": "str"
+            },
+            {
                 "property" : "centroid_pres",
                 "description" : "Location of the Patient Marker location and centroids file",
                 "field" : {
@@ -470,6 +479,78 @@
                 "field" : {
                     "table": "images", 
                     "column": "respiratory_files_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_ct_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rt_ct_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_dose_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rt_dose_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_mri_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rt_mri_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_plan_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rt_plan_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rt_structure_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rt_dose_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "centroid_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "centroid_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "scan_file",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "scan_file"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "rpm_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rpm_path"
                 },
                 "type": "str"
             },

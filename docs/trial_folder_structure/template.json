@@ -184,6 +184,13 @@
 			"level": "",
 			"allowed":[]
 		}, 
+		"rpm_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
 		"couch_shift_file": {
 			"path":"",
 			"display_name":"",
