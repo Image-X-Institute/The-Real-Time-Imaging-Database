@@ -1,14 +1,16 @@
 import json
 import os
 import re
-
+import sys
+import argparse
+import sqlGenerator
 class FilesystemScrubber:
-	def __init__(self, patientDataPath, templateFilePath):
+	def __init__(self, patientDataPath, templateFilePath, rdsRoot):
 		self.patientDataPath = patientDataPath
 		self.templateFilePath = templateFilePath
 		self.templateStructure = self.getTemplateStructure()
 		self.patientData = self.getPatientData()
-		self.rootPath = self._load_local_settings()
+		self.rootPath = self._load_local_settings(rdsRoot)
 		self.trial = self.patientData['clinical_trial']
 		self.currentCenterInfo = self.patientData['centres'][0]
 		self.currentPatientInfo = self.currentCenterInfo['patients'][0]
@@ -21,15 +23,13 @@ class FilesystemScrubber:
 			}
 		}
 
-	def _load_local_settings(self):
-		settingsFilePath = "data/local_settings.json"
+	def _load_local_settings(self, rootPath):
 		try:
-			with open(settingsFilePath) as localSettingsFile:
-				localsettings = json.load(localSettingsFile)
-				return localsettings["root_filesystem_path"]
-		except FileNotFoundError as fnfErr:
-			print(f"ERROR: Please create a {settingsFilePath} file")
-			raise fnfErr
+			if os.path.exists(rootPath):
+				return rootPath
+		except Exception as e:
+			print(f"ERROR: Please check the RDS folder path, {rootPath} does not exist")
+			sys.exit(1)
 
 	def getPatientData(self):
 		with open(self.patientDataPath) as f:
@@ -139,13 +139,35 @@ class FilesystemScrubber:
 			json.dump(self.result, outfile, indent=4)
 		print("Writing done, please check " + 'data/scrubbed_patient_data.json')
 
+	def getScrubbedData(self):
+		return self.result
+
 
 			
 if __name__ == "__main__":
-	# Please change the path to the patient data and template file path
-	patientDataPath = "data/new_patient_data.json"
-	templateFilePath = "../../docs/trial_folder_structure/LARK.json"
-	fs = FilesystemScrubber(patientDataPath, templateFilePath)
-	fs.startToScrub()
-	fs.writeResultToFile()
+
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--patientData', dest='patientData', type=str, help='Path to the patient data')
+	parser.add_argument('--template', dest='template', type=str, help='Path to the template file')
+	parser.add_argument('--rdsRoot', dest='rdsRoot', type=str, help='Path to the root of the RDS')
+	parser.add_argument('--outputPath', dest='outputPath', type=str, help='Path to the output file')
+	args = parser.parse_args()
+	if args.patientData and args.template and args.rdsRoot and args.outputPath:
+		fs = FilesystemScrubber(args.patientData, args.template, args.rdsRoot)
+		fs.startToScrub()
+		# fs.writeResultToFile()
+		result = fs.getScrubbedData()
+		sqlGen = sqlGenerator.sqlGenerator(result, args.outputPath)
+		sqlGen.generateSQL()
+	else:
+		# check which argument is missing
+		if not args.patientData:
+			print("Please provide the path to the patient data")
+		if not args.template:
+			print("Please provide the path to the template file")
+		if not args.rdsRoot:
+			print("Please provide the path to the root of the RDS")
+		if not args.outputPath:
+			print("Please provide the path to the output file")
+			
       

@@ -1,14 +1,10 @@
 import json
+
 class sqlGenerator:
-  def __init__(self, patientDataPath, exportFilePath):
-    self.patientDataPath = patientDataPath
+  def __init__(self, patientData, exportFilePath):
     self.exportFilePath = exportFilePath
-    self.patientData = self.getPatientData()
+    self.patientData = patientData
     self.result = []
-  def getPatientData(self):
-    with open(self.patientDataPath) as f:
-      data = json.load(f)
-      return data
 
   def generateSQL(self):
     centreInfo = self.patientData['clinical_trial_data']['centres']
@@ -92,9 +88,3 @@ class sqlGenerator:
       for line in self.result:
         f.write(line + "\n")
     print("Done, please go to " + self.exportFilePath + " to check the result")
-if __name__ == "__main__":
-  patientDataPath = "data/scrubbed_patient_data.json"
-  exportFilePath = "data/sql_scripts.sql"
-  sqlFile = sqlGenerator(patientDataPath, exportFilePath)
-
-  sqlFile.generateSQL()
