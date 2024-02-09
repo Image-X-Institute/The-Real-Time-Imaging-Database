@@ -15,7 +15,7 @@ pip install -r requirements.txt
 ```
 
 ### Generating Database Scripts from Clinical Data
-The `generateSQL.sh` script runs all the python modules in the correct order to generate the SQL scripts. The generated SQL scripts are stored in the data folder under the name `sql_scripts.sql`. Please note that the data templates named `new_patient_data.json` to be present in the `data/templates` folder.
+The `generateSQL.sh` script runs all the python modules in the correct order to generate the SQL scripts. Please note that the data templates named `new_patient_data.json` to be present in the `data/templates` folder.
 
 The `generateSQL.sh` script requires 4 arguments to be passed to it. These are:
 1. The path to the formated patient data in json format.
