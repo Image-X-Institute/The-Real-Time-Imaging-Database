@@ -55,6 +55,27 @@
 			"field_type":"",
 			"level": "",
 			"allowed":[]
+		},
+		"magik_visual":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"magik_model":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"marker_offsets":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
 		}
 	},
 	"fraction":{
@@ -269,6 +290,13 @@
 			"allowed":[]
 		},
 		"timepoint_ct_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"magik_logs":{
 			"path":"",
 			"display_name":"",
 			"field_type":"",
