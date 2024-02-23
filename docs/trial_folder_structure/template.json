@@ -76,6 +76,13 @@
 			"field_type":"",
 			"level": "",
 			"allowed":[]
+		},
+		"cardio_ct":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
 		}
 	},
 	"fraction":{
@@ -115,6 +122,20 @@
 			"allowed":[]
 		}, 
 		"centroid_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"planned_dvh_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"planned_dicom_fraction": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
@@ -212,6 +233,13 @@
 			"level": "",
 			"allowed":[]
 		}, 
+		"kim_threshold": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
 		"couch_shift_file": {
 			"path":"",
 			"display_name":"",
@@ -297,6 +325,13 @@
 			"allowed":[]
 		},
 		"magik_logs":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"projections":{
 			"path":"",
 			"display_name":"",
 			"field_type":"",

@@ -1,19 +1,6 @@
 # DB Updater
 This folder contains the modules and data relevant to generating the database SQL scripts by walking through the clinical data file system and parsing files to collect data about them. To make the walking process efficient, the `data` and `data/templates` folders under this folder contain a set of files which define the structure in which the data should be collected and pointers to where the data should be collected from. Please refer to [data documentation](data/README.md) for more details on these files.
 
-## Setting Up the Development Environment
-The Python modules in this folder require a specific set of site packages to be installed in the python environment. To setup these, the `requirements.txt` file can be used. Please run the following commands to setup your python environment (this is required only once). Please ensure that the correct environment is set before installing the requirements. For example, if using conda, ensure that `conda activate <proper_environment_name>` has been executed.
-
-### Anaconda/Miniconda based install
-```bash
-conda install --file requirements.txt
-```
-
-### Pip based install
-```bash
-pip install -r requirements.txt
-```
-
 ### Generating Database Scripts from Clinical Data
 The `generateSQL.sh` script runs all the python modules in the correct order to generate the SQL scripts. Please note that the data templates named `new_patient_data.json` to be present in the `data/templates` folder.
 
@@ -28,6 +15,7 @@ An example of how to run the `generateSQL.sh` script is as follows:
 bash generateSQL.sh "data/new_patient_data.json" "../../docs/trial_folder_structure/LARK.json" "/Volumes/research-data/PRJ-RPL/2RESEARCH/1_ClinicalData" "data/sql_output.sql"
 ```
 
+If the script is run successfully, the generated SQL scripts will be stored in the data folder under the name `sql_scripts.sql`.
 
 
 <!-- The python modules in this folder look at `data/local_settings.json` for local system specific settings. On a fresh clone of the repository, this file needs to be created (and not added to source control there after). To create this file, the template located at `data/templates/local_settings_template.json` can be copied and changed to reflect the local system settings. Please refer to [data templates documentation](data/templates/README.md) for details. -->
