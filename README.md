@@ -21,6 +21,7 @@ This project aims to create a cloud-based secure and easy-to-use mechanism for m
   <a href="#key-features">Key Features</a> •
   <a href="#design">Design</a> •
   <a href="#how-to-use">How To Use</a> •
+  <a href="#installation">Installation</a> •
   <a href="#license">License</a> •
   <a href="#authors">Authors</a> •
   <a href="#acknowledgements">Acknowledgements</a>
@@ -37,7 +38,10 @@ This project aims to create a cloud-based secure and easy-to-use mechanism for m
 ## Design
 ![Architecture](docs/deployment_guide/images/architecture.png)
 
-## How To Use
+## How to Use
+TBA
+
+## Installation
 The project contains three main components:
 * The database server ([data_service](src/data_service))   
   - The main flask application that hosts the database server.
