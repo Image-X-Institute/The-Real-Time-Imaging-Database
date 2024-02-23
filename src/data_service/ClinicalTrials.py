@@ -92,13 +92,12 @@ class ClinicalTrials:
                             requestHeaders:Dict) -> Dict[str, List]:
         if config.APP_DEBUG_MODE:
             print(f"Request Args: {requestParams}")
-        
         if endpoint not in self.apiMapping:
             return {"error": "invalid endpoint"}
         objectFields = self.apiMapping[endpoint]["object_fields"]
         paramsOfInterest = self.apiMapping[endpoint]["query_params"]
         dbRelations = self.apiMapping[endpoint]["db_relations"]
-
+        
         if config.VALIDATE_TOKEN:
             if "Token" in requestHeaders:
                 sessionToken = requestHeaders["Token"]
@@ -186,9 +185,6 @@ class ClinicalTrials:
 
         except(Exception, pg.DatabaseError) as error:
             print(error, file=stderr)
-
-        # if config.APP_DEBUG_MODE:
-        #     print(queriedData) 
 
         return queriedData
 
