@@ -46,7 +46,6 @@ def process_request(urlPath):
         data = trails.getEndpointData(requestedEndPoint, 
                                     request.args, 
                                     request.headers)
-        print("args:", request.args)
         rsp = make_response(data)
         if "format" in request.args.keys():
             if request.args["format"] == "csv":
