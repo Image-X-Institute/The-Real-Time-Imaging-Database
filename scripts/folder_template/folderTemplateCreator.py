@@ -49,7 +49,7 @@ def createFolderTemplate(clinicalTrial, centerName, templatePath, samplePatient)
   print("Folder structure created successfully")
 
 if __name__ == "__main__":
-  clinicalTrial = "VALKIM"
+  clinicalTrial = "RAVENTA"
   centerName = "SampleCenter"
   templatePath = os.getcwd() + "/../../docs/trial_folder_structure/"
   samplePatient = {

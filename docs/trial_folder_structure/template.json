@@ -76,6 +76,13 @@
 			"field_type":"",
 			"level": "",
 			"allowed":[]
+		},
+		"cardio_ct":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
 		}
 	},
 	"fraction":{
@@ -297,6 +304,13 @@
 			"allowed":[]
 		},
 		"magik_logs":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"projections":{
 			"path":"",
 			"display_name":"",
 			"field_type":"",

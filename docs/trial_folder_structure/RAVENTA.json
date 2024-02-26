@@ -1,0 +1,73 @@
+{
+	"prescription":{
+		"rt_ct_pres": {
+      "path": "/{clinical_trial}/{test_centre}/CT/PAT{centre_patient_no}/",
+      "display_name": "CT",
+      "field_type": "folder",
+      "level": "prescription",
+      "allowed": [
+        "application/dicom"
+      ]
+		}, 
+		"rt_plan_pres": {
+      "path": "/{clinical_trial}/{test_centre}/Plan/PAT{centre_patient_no}/",
+      "display_name": "CT",
+      "field_type": "folder",
+      "level": "prescription",
+      "allowed": [
+        "application/dicom"
+      ]
+		}, 
+		"rt_structure_pres": {
+      "path": "/{clinical_trial}/{test_centre}/Structure Set/PAT{centre_patient_no}/",
+      "display_name": "CT",
+      "field_type": "folder",
+      "level": "prescription",
+      "allowed": [
+        "application/dicom"
+      ]
+		}, 
+		"cardio_ct":{
+			"path": "/{clinical_trial}/{test_centre}/Structure Set/PAT{centre_patient_no}/",
+      "display_name": "CT",
+      "field_type": "folder",
+      "level": "prescription",
+      "allowed": [
+        "application/dicom"
+      ]
+		}
+
+	},
+	"fraction":{
+		"cbct_images_path": {
+			"path": "/{clinical_trial}/{test_centre}/CBCT/PAT{centre_patient_no}/",
+      "display_name": "CBCT",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom"
+      ]
+		}, 
+		"projections":{
+      "path": "/{clinical_trial}/{test_centre}/CBCT projections/PAT{centre_patient_no}/",
+      "display_name": "CBCT Projections",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+		}
+	}
+}
