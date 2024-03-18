@@ -39,7 +39,8 @@ This project aims to create a cloud-based secure and easy-to-use mechanism for m
 ![Architecture](docs/deployment_guide/images/architecture.png)
 
 ## How to Use
-### How to 
+TBA
+
 ## Installation
 The project contains three main components:
 * The database server ([data_service](src/data_service))   
