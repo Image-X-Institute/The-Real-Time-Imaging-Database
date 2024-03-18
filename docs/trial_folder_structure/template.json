@@ -128,6 +128,20 @@
 			"level": "",
 			"allowed":[]
 		}, 
+		"planned_dvh_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"planned_dicom_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
 		"kim_logs_path": {
 			"path":"",
 			"display_name":"",
@@ -213,6 +227,13 @@
 			"allowed":[]
 		}, 
 		"rpm_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"kim_threshold": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
