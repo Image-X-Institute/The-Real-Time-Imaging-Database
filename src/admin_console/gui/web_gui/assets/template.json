@@ -35,7 +35,14 @@
 			"level": "",
 			"allowed":[]
 		}, 
-		"rt_dvh_original_pres": {
+		"planned_dvh_pres": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"planned_dicom_pres": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
@@ -43,6 +50,41 @@
 			"allowed":[]
 		}, 
 		"centroid_pres":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"magik_visual":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"magik_model":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"marker_offsets":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"cardiac_ct":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"fused_ct":{
 			"path":"",
 			"display_name":"",
 			"field_type":"",
@@ -87,6 +129,20 @@
 			"allowed":[]
 		}, 
 		"centroid_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"planned_dvh_fraction": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"planned_dicom_fraction": {
 			"path":"",
 			"display_name":"",
 			"field_type":"",
@@ -177,6 +233,20 @@
 			"level": "",
 			"allowed":[]
 		}, 
+		"rpm_path": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
+		"kim_threshold": {
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		}, 
 		"couch_shift_file": {
 			"path":"",
 			"display_name":"",
@@ -255,6 +325,20 @@
 			"allowed":[]
 		},
 		"timepoint_ct_path":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"magik_logs":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"projections":{
 			"path":"",
 			"display_name":"",
 			"field_type":"",

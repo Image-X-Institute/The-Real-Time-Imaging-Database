@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os
 import subprocess
 from datetime import datetime
@@ -11,18 +13,22 @@ def backup_db():
   imagingdb = config.DB_NAME
 
   # Create backup folder if not exists
-  subprocess.run(f'mkdir -p /data/disk1/DB_BACKUP/{now}', shell=True)
+  print("Creating backup folder")
+  subprocess.run(f'sudo mkdir -p /data/disk1/DB_BACKUP/{now}', shell=True)
+  subprocess.run(f'sudo chown -R learndb:learndb /data/disk1/DB_BACKUP/{now}', shell=True)
 
   # Backup auth database first  
-  subprocess.run(f'pg_dump postgres://{dbuser}:{password}@localhost:5432/{authdb} -Fc > /data/disk1/DB_BACKUP/{now}/{now}_auth_db.dump')
+  print("Backing up auth database")
+  subprocess.run(f'pg_dump postgres://{dbuser}:{password}@localhost:5432/{authdb} -Fc > /data/disk1/DB_BACKUP/{now}/{now}_auth_db.dump', shell=True)
   
   # Backup imaging database
-  subprocess.run(f'pg_dump postgres://{dbuser}:{password}@localhost:5432/{imagingdb} -Fc > /data/disk1/DB_BACKUP/{now}/{now}_imaging_db.dump')
+  print("Backing up imaging database")
+  subprocess.run(f'pg_dump postgres://{dbuser}:{password}@localhost:5432/{imagingdb} -Fc > /data/disk1/DB_BACKUP/{now}/{now}_imaging_db.dump', shell=True)
 
   print("Backup completed")
 
   if os.path.isdir("/data/rds/PRJ-RPL/2RESEARCH/1_ClinicalData/DB_BACKUP"):
-    subprocess.run(f'cp -r /data/disk1/DB_BACKUP/{now} /data/rds/PRJ-RPL/2RESEARCH/1_ClinicalData/DB_BACKUP')
+    subprocess.run(f'cp -r /data/disk1/DB_BACKUP/{now} /data/rds/PRJ-RPL/2RESEARCH/1_ClinicalData/DB_BACKUP', shell=True)
     print("Backup copied to RDS")
     
 if __name__ == "__main__":
