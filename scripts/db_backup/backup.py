@@ -14,6 +14,7 @@ def backup_db():
 
   # Create backup folder if not exists
   subprocess.run(f'sudo mkdir -p /data/disk1/DB_BACKUP/{now}', shell=True)
+  subprocess.run(f'sudo chown -R learndb:learndb /data/disk1/DB_BACKUP/{now}', shell=True)
 
   # Backup auth database first  
   subprocess.run(f'pg_dump postgres://{dbuser}:{password}@localhost:5432/{authdb} -Fc > /data/disk1/DB_BACKUP/{now}/{now}_auth_db.dump')
