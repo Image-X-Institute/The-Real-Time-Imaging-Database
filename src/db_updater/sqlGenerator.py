@@ -77,7 +77,10 @@ class sqlGenerator:
             colValues += "'" + str(fraction[colName]) + "'" + ", "
           insertImageSQL = insertImageSQL[:-2] + ") "
           insertImageSQL += f"SELECT get_fraction_id_for_patient ('{str(patient['patient_trial_id'])}', '{str(fraction['fraction_name'])}'), "
-          insertImageSQL += colValues[:-2] + ";"
+          if colValues:
+            insertImageSQL += colValues[:-2] + ";"
+          else:
+            insertImageSQL = insertImageSQL[:-2] + ";"
           self.result.append(insertImageSQL)
     
     self.writeToFile()

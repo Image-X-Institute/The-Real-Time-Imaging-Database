@@ -249,6 +249,51 @@
                     "column": "centroid_pres"
                 },
                 "type": "str"
+            },
+            {
+                "property" : "magik_visual",
+                "description" : "",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "magik_visual"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "magik_model",
+                "description" : "",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "magik_model"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "marker_offsets",
+                "description" : "",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "marker_offsets"
+                },
+                "type": "str"
+            },            
+            {
+                "property" : "cardiac_ct",
+                "description" : "",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "cardiac_ct"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "fused_ct",
+                "description" : "",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "fused_ct"
+                },
+                "type": "str"
             }
         ],
         "db_relations": [
@@ -551,6 +596,159 @@
                 "field" : {
                     "table": "images", 
                     "column": "rpm_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "planned_dvh_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "planned_dvh_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "planned_dicom_fraction",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "planned_dicom_fraction"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "kim_threshold",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "kim_threshold"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "couch_shift_file",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "couch_shift_file"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "cbct_images_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "cbct_images_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "contour_files_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "contour_files_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "fluoro_images_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "fluoro_images_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "pet_image_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "pet_image_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "pet_3d_attenuation_ct_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "pet_3d_attenuation_ct_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "pet_listmode_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "pet_listmode_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "pet_4d_attenuation_ct_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "pet_4d_attenuation_ct_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "petct_files",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "petct_files"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "spect_image_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "spect_image_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "spect_3d_attenuation_ct_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "spect_3d_attenuation_ct_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "timepoint_ct_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "timepoint_ct_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "magik_logs",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "magik_logs"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "projections",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "projections"
                 },
                 "type": "str"
             },
