@@ -77,7 +77,14 @@
 			"level": "",
 			"allowed":[]
 		},
-		"cardio_ct":{
+		"cardiac_ct":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
+		},
+		"fused_ct":{
 			"path":"",
 			"display_name":"",
 			"field_type":"",

@@ -140,6 +140,7 @@ class FilesystemScrubber:
 		print("Writing done, please check " + 'data/scrubbed_patient_data.json')
 
 	def getScrubbedData(self):
+		self.writeResultToFile()
 		return self.result
 
 
