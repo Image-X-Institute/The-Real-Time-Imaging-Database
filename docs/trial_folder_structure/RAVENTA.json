@@ -59,7 +59,7 @@
       ]
 		}, 
 		"projections":{
-      "path": "/{clinical_trial}/{test_centre}/CBCT projections/PAT{centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Patient CBCT projections/PAT{centre_patient_no}/",
       "display_name": "CBCT Projections",
       "field_type": "folder",
       "level": "fraction",
