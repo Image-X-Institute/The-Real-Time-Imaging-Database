@@ -2,7 +2,7 @@
 
 The University of Sydney provides a Cisco VPN client, allowing you to securely connect your computer and mobile device to the University network if you are off campus. All usage of the database queries must be done through the University VPN.
 
-## Installation
+## Step-by-step Instruction
 1. [Visit the VPN client download page](https://vpn.sydney.edu.au/+CSCOE+/noportal.html).
 2. Log in using your UniKey credentials.
 3. Follow the prompts to download the installation client.
