@@ -215,6 +215,8 @@ class ClinicalTrials:
             cur.close()
             for rowCounter in range(len(rows)):
                 data = {}
+                # if the trial name is given in the query, we could use the trial structure to filter out the fields
+                # if not, we could use the objectFields to filter out the fields
                 if trialField:
                     for columnCounter in range(listLength):
                         fieldValue = rows[rowCounter][columnCounter]
