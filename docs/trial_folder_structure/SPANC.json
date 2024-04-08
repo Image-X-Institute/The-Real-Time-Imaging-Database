@@ -1,0 +1,91 @@
+{
+	"prescription":{
+		"rt_ct_pres": {
+			"path":"/{clinical_trial}/{test_centre}/Patient Plans/PAT{centre_patient_no}/",
+			"display_name":"Pre-treatment CT series",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["application/dicom"]
+		}, 
+		"rt_dose_pres": {
+			"path":"/{clinical_trial}/{test_centre}/Patient Plans/PAT{centre_patient_no}/",
+			"display_name":"RT Dose DICOM",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["application/dicom"]
+		}, 
+		"rt_plan_pres": {
+			"path":"/{clinical_trial}/{test_centre}/Patient Plans/PAT{centre_patient_no}/",
+			"display_name":"RT Plan DICOM",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["application/dicom"]
+		}, 
+		"rt_structure_pres": {
+			"path":"/{clinical_trial}/{test_centre}/Patient Plans/PAT{centre_patient_no}/",
+			"display_name":"RT Structure set DICOM",
+			"field_type":"folder",
+			"level": "prescription",
+			"allowed":["application/dicom"]
+		}
+	},
+	"fraction":{
+		"kv_images_path": {
+      "path": "/{clinical_trial}/{test_centre}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "KV Images",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    },
+    "mv_images_path": {
+      "path": "/{clinical_trial}/{test_centre}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "MV Images",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    },
+		"cbct_images_path": {
+			"path": "/{clinical_trial}/{test_centre}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "CBCT Images",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+		}
+	}
+}
