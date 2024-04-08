@@ -17,6 +17,11 @@ class ClinicalTrials:
                                 config.DB_PASSWORD,
                                 config.DB_HOST)
         self.connector.connect()
+        self.authConnector = DBConnector(config.AUTH_DB_NAME, 
+                                config.AUTH_DB_USER, 
+                                config.AUTH_DB_PASSWORD,
+                                config.AUTH_DB_HOST)
+        self.authConnector.connect()
         self.apiMapping = ClinicalTrials.getAPIFieldMapping()
 
     @staticmethod
@@ -86,6 +91,15 @@ class ClinicalTrials:
 
                 relation["table"] += ") AS patient"
         return dbRelations
+    
+    def _getTrialField(self, trial):
+        strQuery = "SELECT trial_structure FROM trials WHERE trial_name = %s;"
+        cur = self.authConnector.getConnection().cursor()
+        cur.execute(strQuery, (trial,))
+        trialStructure = cur.fetchone()
+        cur.close()
+        return trialStructure[0]
+        
 
     def getEndpointData(self, endpoint:str, 
                             requestParams:Dict, 
@@ -97,25 +111,53 @@ class ClinicalTrials:
         objectFields = self.apiMapping[endpoint]["object_fields"]
         paramsOfInterest = self.apiMapping[endpoint]["query_params"]
         dbRelations = self.apiMapping[endpoint]["db_relations"]
-        
+        requiredField = self.apiMapping[endpoint]["required_fields"]
+
+        if 'trial' in requestParams.keys():
+            trialStructure = self._getTrialField(requestParams['trial'])
+            trialField = list(trialStructure['prescription'].keys()) + list(trialStructure['fraction'].keys())
+        else:
+            trialField = None
         if config.VALIDATE_TOKEN:
             if "Token" in requestHeaders:
                 sessionToken = requestHeaders["Token"]
             dbRelations = self._getAllowedDBRelations(dbRelations, 
                                                         sessionToken, 
                                                         AccessType.READ)
-        endpointData = {endpoint: []}
-
         strQuery = "SELECT "
         firstfield = True
-        for fieldMapping in objectFields:
-            if firstfield:
-                firstfield = False
-            else:
-                strQuery += ", "
-            strQuery += fieldMapping["field"]["table"] + "." \
-                        + fieldMapping["field"]["column"] + " as " \
-                        + fieldMapping["property"]
+        listLength = 0
+        if requiredField and trialField:
+            for field in requiredField:
+                if firstfield:
+                    firstfield = False
+                else:
+                    strQuery += ", "
+                strQuery += field["field"]["table"] + "." \
+                    + field["field"]["column"] + " as " \
+                    + field["property"]
+            listLength = len(requiredField)
+
+            for field in objectFields:
+                if field["field"]["column"].lower() in trialField:
+                    if firstfield:
+                        firstfield = False
+                    else:
+                        strQuery += ", "
+                    strQuery += field["field"]["table"] + "." \
+                        + field["field"]["column"] + " as " \
+                        + field["property"]
+                    listLength += 1
+        else:
+            for fieldMapping in objectFields:
+                if firstfield:
+                    firstfield = False
+                else:
+                    strQuery += ", "
+                strQuery += fieldMapping["field"]["table"] + "." \
+                            + fieldMapping["field"]["column"] + " as " \
+                            + fieldMapping["property"]
+            listLength = len(objectFields)
 
         strQuery += " FROM " + dbRelations[0]["table"]
 
@@ -171,16 +213,23 @@ class ClinicalTrials:
                 print("number of rows returned:", cur.rowcount)
             rows = cur.fetchall()
             cur.close()
-
             for rowCounter in range(len(rows)):
                 data = {}
-                for columnCounter in range(len(objectFields)):
-                    fieldValue = rows[rowCounter][columnCounter]
-                    if objectFields[columnCounter]["type"] == "date" and fieldValue:
-                        fieldValue = fieldValue.isoformat()
-                    if fieldValue:
+                # if the trial name is given in the query, we could use the trial structure to filter out the fields
+                # if not, we could use the objectFields to filter out the fields
+                if trialField:
+                    for columnCounter in range(listLength):
+                        fieldValue = rows[rowCounter][columnCounter]
+                        if objectFields[columnCounter]["type"] == "date" and fieldValue:
+                            fieldValue = fieldValue.isoformat()
                         data[objectFields[columnCounter]["property"]] = fieldValue
-
+                else:
+                    for columnCounter in range(len(objectFields)):
+                        fieldValue = rows[rowCounter][columnCounter]
+                        if objectFields[columnCounter]["type"] == "date" and fieldValue:
+                            fieldValue = fieldValue.isoformat()
+                        if fieldValue:
+                            data[objectFields[columnCounter]["property"]] = fieldValue
                 queriedData[endpoint].append(data)
 
         except(Exception, pg.DatabaseError) as error:

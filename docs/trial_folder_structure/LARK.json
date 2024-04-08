@@ -293,6 +293,17 @@
         "text/plain"
       ]
     },
+    "RPM_kim_matching": {
+      "path": "/{clinical_trial}/{test_centre}/RPM/RPM and KIM matching/PAT{centre_patient_no}/",
+      "display_name": "RPM_kim_matching",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom",
+        "text/plain",
+        "text/csv"
+      ]
+    },
     "dicom_no_track_plan_path": {
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/PAT{centre_patient_no}/",
       "display_name": "DICOM No Track Plan",
