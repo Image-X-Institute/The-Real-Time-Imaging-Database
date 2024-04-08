@@ -215,12 +215,19 @@ class ClinicalTrials:
             cur.close()
             for rowCounter in range(len(rows)):
                 data = {}
-                for columnCounter in range(listLength):
-                    fieldValue = rows[rowCounter][columnCounter]
-                    if objectFields[columnCounter]["type"] == "date" and fieldValue:
-                        fieldValue = fieldValue.isoformat()
-                    if fieldValue:
+                if trialField:
+                    for columnCounter in range(listLength):
+                        fieldValue = rows[rowCounter][columnCounter]
+                        if objectFields[columnCounter]["type"] == "date" and fieldValue:
+                            fieldValue = fieldValue.isoformat()
                         data[objectFields[columnCounter]["property"]] = fieldValue
+                else:
+                    for columnCounter in range(len(objectFields)):
+                        fieldValue = rows[rowCounter][columnCounter]
+                        if objectFields[columnCounter]["type"] == "date" and fieldValue:
+                            fieldValue = fieldValue.isoformat()
+                        if fieldValue:
+                            data[objectFields[columnCounter]["property"]] = fieldValue
                 queriedData[endpoint].append(data)
 
         except(Exception, pg.DatabaseError) as error:
