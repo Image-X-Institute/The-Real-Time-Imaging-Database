@@ -33,6 +33,7 @@
                 "example": "SPARK"
             }
         },
+        "required_fields": [],
         "object_fields": [
             {
                 "property" : "patient_trial_id",
@@ -141,6 +142,44 @@
                 "example": "SPARK"
             }
         },
+        "required_fields":[
+            {
+                "property" : "patient_trial_id",
+                "description" : "The TROG provided patient ID (not the hospital one)",
+                "field" : {
+                    "table": "patient", 
+                    "column": "patient_trial_id"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "test_centre",
+                "description" : "Acronym of the test/treatment centre, where the RT fraction was carried out",
+                "field" : {
+                    "table": "patient", 
+                    "column": "test_centre"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "patient_no", 
+                "description" : "The sequence number of the patient within a test centre",
+                "field" : {
+                    "table": "patient", 
+                    "column": "centre_patient_no"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "linac_type", 
+                "description" : "The Manufacturer and model of the LINAC used",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "linac_type"
+                },
+                "type": "str"
+            }
+        ],
         "object_fields": [
             {
                 "property" : "patient_trial_id",
@@ -346,6 +385,89 @@
                 "example": "SPARK"
             }
         },
+        "required_fields":[
+            {
+                "property" : "patient_trial_id",
+                "description" : "The TROG provided patient ID (not the hospital one)",
+                "field" : {
+                    "table": "patient", 
+                    "column": "patient_trial_id"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "test_centre",
+                "description" : "Acronym of the test/treatment centre, where the RT fraction was carried out",
+                "field" : {
+                    "table": "patient", 
+                    "column": "test_centre"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "patient_no", 
+                "description" : "The sequence number of the patient within a test centre",
+                "field" : {
+                    "table": "patient", 
+                    "column": "centre_patient_no"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "fraction_no", 
+                "description" : "The sequence number of a fraction",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "fraction_number"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "fraction_name", 
+                "description" : "The folder name of the fraction",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "fraction_name"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "date", 
+                "description" : "The date on which the fraction was performed",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "fraction_date"
+                },
+                "type": "date"
+            },
+            {
+                "property" : "gating_events", 
+                "description" : "The number of gating events that took place during the fraction",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "num_gating_events"
+                },
+                "type": "int"
+            },
+            {
+                "property" : "kvsdd", 
+                "description" : "The detector distance value (in meters) for the kV beam",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "kvsdd"
+                },
+                "type": "float"
+            },
+            {
+                "property" : "mvsdd", 
+                "description" : "The detector distance value (in meters) for the kV beam",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "mvsdd"
+                },
+                "type": "float"
+            }
+        ],
         "object_fields": [
             {
                 "property" : "patient_trial_id",
@@ -832,6 +954,7 @@
                 "example": "CTV"
             }
         },
+        "required_fields":[],
         "object_fields": [
             {
                 "property" : "patient_trial_id",
@@ -1074,6 +1197,7 @@
                 "example": "CTV"
             }
         },
+        "required_fields":[],
         "object_fields": [
             {
                 "property" : "patient_trial_id",
