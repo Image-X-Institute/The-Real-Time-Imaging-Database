@@ -313,6 +313,12 @@ def addSiteTrialEntry():
     rsp.headers['Access-Control-Allow-Origin'] = '*'
     return rsp
 
+
+# The below code is to provide apis for the frontend application.
+
+from controller.frontendAPI import frontendAPI_blueprint
+app.register_blueprint(frontendAPI_blueprint)
+
 if __name__ == '__main__':
     if config.APP_DEBUG_MODE:
         app.run (host=config.LISTENING_HOST, 
