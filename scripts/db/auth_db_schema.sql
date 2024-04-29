@@ -15,7 +15,7 @@ CREATE TABLE token_details
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     token_subject VARCHAR NOT NULL,
     subject_email VARCHAR,
-    audience VARCHAR NOT NULL,
+    audience VARCHAR,
     issued_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '365 days',
     jwt_id TEXT NOT NULL DEFAULT 'JTID00'||nextval('jtid_sequence')::TEXT,

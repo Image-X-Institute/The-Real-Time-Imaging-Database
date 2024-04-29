@@ -60,10 +60,6 @@ if __name__ == "__main__":
   templatePath = os.getcwd() + "/../../docs/trial_folder_structure/"
   samplePatient = {
     "patient_id": ["1", "2"],
-    "tumour_site": {
-      "1": "Prostate",
-      "2": "Liver"
-    },
     "fraction":{
       "1": [{
         "fraction_name": "Fx1",
