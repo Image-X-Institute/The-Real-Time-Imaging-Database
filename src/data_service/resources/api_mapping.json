@@ -722,6 +722,15 @@
                 "type": "str"
             },
             {
+                "property" : "rpm_kim_matching",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "rpm_kim_matching"
+                },
+                "type": "str"
+            },
+            {
                 "property" : "planned_dvh_fraction",
                 "description" : "",
                 "field" : {

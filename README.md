@@ -14,13 +14,12 @@
 ![Flask](https://img.shields.io/badge/Flask-2.3.x-orange)
 
 <p>
-This project aims to create a cloud-based secure and easy-to-use mechanism for managing the already acquired and to-be-generated clinical trial data into a central searchable service, which can be used to analyse clinical data and create deep-learning models for predicting various features of interest. The learning system provides a RESTful API and token-based authentication for ease of integration with existing and new applications that produce or require access to the de-identified patient data to researchers, clinicians, and other health professionals who want to use the available clinical data.
+This project aims to create a secure and easy-to-use mechanism for managing the already acquired and to-be-generated clinical trial data into a central searchable service, which can be used to analyse clinical data and create deep-learning models for predicting various features of interest. The learning system provides a RESTful API and token-based authentication for ease of integration with existing and new applications that produce or require access to the de-identified patient data to researchers, clinicians, and other health professionals who want to use the available clinical data.
 </p>
 
 <p align="center">
   <a href="#key-features">Key Features</a> •
   <a href="#design">Design</a> •
-  <a href="#how-to-use">How To Use</a> •
   <a href="#installation">Installation</a> •
   <a href="#license">License</a> •
   <a href="#authors">Authors</a> •
@@ -37,9 +36,6 @@ This project aims to create a cloud-based secure and easy-to-use mechanism for m
 
 ## Design
 ![Architecture](docs/deployment_guide/images/architecture.png)
-
-## How to Use
-TBA
 
 ## Installation
 The project contains three main components:

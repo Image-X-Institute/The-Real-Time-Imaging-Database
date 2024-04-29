@@ -8,6 +8,7 @@ import json
 import datetime as dt
 from AccessManager import accessManagerInstance, AccessType
 from sys import stderr
+import psycopg2.extras
 
 
 class ClinicalTrials:
@@ -116,6 +117,7 @@ class ClinicalTrials:
         if 'trial' in requestParams.keys():
             trialStructure = self._getTrialField(requestParams['trial'])
             trialField = list(trialStructure['prescription'].keys()) + list(trialStructure['fraction'].keys())
+            trialField = [field.lower() for field in trialField]
         else:
             trialField = None
         if config.VALIDATE_TOKEN:
@@ -126,7 +128,6 @@ class ClinicalTrials:
                                                         AccessType.READ)
         strQuery = "SELECT "
         firstfield = True
-        listLength = 0
         if requiredField and trialField:
             for field in requiredField:
                 if firstfield:
@@ -134,9 +135,7 @@ class ClinicalTrials:
                 else:
                     strQuery += ", "
                 strQuery += field["field"]["table"] + "." \
-                    + field["field"]["column"] + " as " \
-                    + field["property"]
-            listLength = len(requiredField)
+                    + field["field"]["column"]
 
             for field in objectFields:
                 if field["field"]["column"].lower() in trialField:
@@ -145,9 +144,7 @@ class ClinicalTrials:
                     else:
                         strQuery += ", "
                     strQuery += field["field"]["table"] + "." \
-                        + field["field"]["column"] + " as " \
-                        + field["property"]
-                    listLength += 1
+                        + field["field"]["column"]
         else:
             for fieldMapping in objectFields:
                 if firstfield:
@@ -155,9 +152,7 @@ class ClinicalTrials:
                 else:
                     strQuery += ", "
                 strQuery += fieldMapping["field"]["table"] + "." \
-                            + fieldMapping["field"]["column"] + " as " \
-                            + fieldMapping["property"]
-            listLength = len(objectFields)
+                            + fieldMapping["field"]["column"]
 
         strQuery += " FROM " + dbRelations[0]["table"]
 
@@ -207,30 +202,30 @@ class ClinicalTrials:
 
         queriedData = {endpoint: []}
         try:
-            cur = self.connector.getConnection().cursor()
+            cur = self.connector.getConnection().cursor(cursor_factory=psycopg2.extras.DictCursor)
             cur.execute(strQuery)
-            if config.APP_DEBUG_MODE:
-                print("number of rows returned:", cur.rowcount)
-            rows = cur.fetchall()
+            fetchedRows = cur.fetchall()
+            colName = [desc[0] for desc in cur.description]
+            fetchedRows = [dict(zip(colName, row)) for row in fetchedRows]
             cur.close()
-            for rowCounter in range(len(rows)):
-                data = {}
-                # if the trial name is given in the query, we could use the trial structure to filter out the fields
-                # if not, we could use the objectFields to filter out the fields
-                if trialField:
-                    for columnCounter in range(listLength):
-                        fieldValue = rows[rowCounter][columnCounter]
-                        if objectFields[columnCounter]["type"] == "date" and fieldValue:
-                            fieldValue = fieldValue.isoformat()
-                        data[objectFields[columnCounter]["property"]] = fieldValue
-                else:
-                    for columnCounter in range(len(objectFields)):
-                        fieldValue = rows[rowCounter][columnCounter]
-                        if objectFields[columnCounter]["type"] == "date" and fieldValue:
-                            fieldValue = fieldValue.isoformat()
-                        if fieldValue:
-                            data[objectFields[columnCounter]["property"]] = fieldValue
-                queriedData[endpoint].append(data)
+            if trialField:
+                for item in fetchedRows:
+                    data = {}
+                    for key in list(item.keys()):
+                        if type(item[key]) == dt.datetime:
+                            item[key] = item[key].isoformat()
+                        if key in trialField or key in [field["property"] for field in requiredField]:
+                            data[key] = item[key]
+                    queriedData[endpoint].append(data)
+            else:
+                for item in fetchedRows:
+                    data = {}
+                    for key in list(item.keys()):
+                        if item[key] is not None:
+                            if type(item[key]) == dt.datetime:
+                                item[key] = item[key].isoformat()
+                            data[key] = item[key]
+                    queriedData[endpoint].append(data)
 
         except(Exception, pg.DatabaseError) as error:
             print(error, file=stderr)

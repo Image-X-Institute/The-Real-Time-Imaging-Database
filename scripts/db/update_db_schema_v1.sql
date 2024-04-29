@@ -113,3 +113,6 @@ ALTER TABLE images
 
 ALTER TABLE images
   ADD COLUMN rpm_kim_matching VARCHAR;
+
+ALTER TABLE images
+  ADD COLUMN couch_register_file VARCHAR;
