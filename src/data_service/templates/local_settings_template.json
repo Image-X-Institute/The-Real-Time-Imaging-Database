@@ -15,6 +15,8 @@
     "auth_db_password": "<database password>",
     "upload_folder_path": "<path to the upload folder>",
     "temp_cache_path": "<path to a temporary location>",
+    "JWT_SECRET": "<secret>",
+    "JWT_ALGORITHM": "<algorithm>",
     "diagnostics": false,
     "debug_mode": false
 }

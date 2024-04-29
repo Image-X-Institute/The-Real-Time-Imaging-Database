@@ -1,7 +1,7 @@
 {
   "prescription": {
     "rt_ct_pres": {
-      "path": "/{clinical_trial}/{test_centre}/Patient Planning CTs/Patient {centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Patient Planning CTs/PAT{centre_patient_no}/",
       "display_name": "Planning CT Files",
       "field_type": "folder",
       "level": "prescription",
@@ -10,7 +10,7 @@
       ]
     },
     "rt_dose_pres": {
-      "path": "/{clinical_trial}/{test_centre}/Patient Dose Files/Patient {centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Patient Dose Files/PAT{centre_patient_no}/",
       "display_name": "RT Dose Path",
       "field_type": "folder",
       "level": "prescription",
@@ -19,7 +19,7 @@
       ]
     },
     "rt_plan_pres": {
-      "path": "/{clinical_trial}/{test_centre}/Patient Plans/Patient {centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Patient Plans/PAT{centre_patient_no}/",
       "display_name": "Dicom Plan Files",
       "field_type": "folder",
       "level": "prescription",
@@ -28,7 +28,7 @@
       ]
     },
     "rt_structure_pres": {
-      "path": "/{clinical_trial}/{test_centre}/Patient Structure Sets/Patient {centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Patient Structure Sets/PAT{centre_patient_no}/",
       "display_name": "Dicom Structure Files",
       "field_type": "folder",
       "level": "prescription",
@@ -39,7 +39,7 @@
   },
   "fraction": {
     "kv_images_path": {
-      "path": "/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Patient Images/PAT{centre_patient_no}/kV Images/",
       "display_name": "kV Images",
       "field_type": "folder",
       "level": "fraction",
@@ -49,7 +49,7 @@
       ]
     },
     "scan_file": {
-      "path": "/{clinical_trial}/{test_centre}/Patient Images/Patient {centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Patient Images/PAT{centre_patient_no}/Scan Files/",
       "display_name": "Scan Files",
       "field_type": "folder",
       "level": "fraction",
@@ -58,8 +58,8 @@
         "application/dicom"
       ]
     },
-    "couch_Register_file": {
-      "path": "/{clinical_trial}/{test_centre}/Couch Registration Files/Patient {centre_patient_no}/",
+    "couch_register_file": {
+      "path": "/{clinical_trial}/{test_centre}/Patient Images/PAT{centre_patient_no}/Dicom Registration Files/",
       "display_name": "Dicom Registration Files",
       "field_type": "folder",
       "level": "fraction",
@@ -69,7 +69,7 @@
       ]
     },
     "cbct_images_path": {
-      "path": "/{clinical_trial}/{test_centre}/Patient CBCT Images/Patient {centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Patient Images/PAT{centre_patient_no}/Dicom CBCT Images/",
       "display_name": "Dicom CBCT Images",
       "field_type": "folder",
       "level": "fraction",

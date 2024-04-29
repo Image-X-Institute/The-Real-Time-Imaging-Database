@@ -2,7 +2,7 @@
 import json
 import os
 import re
-folder_path = "/Volumes/research-data/PRJ-RPL/2RESEARCH/1_ClinicalData/SpanC/RNSH/Patient Images"
+folder_path = "/Volumes/research-data/PRJ-RPL/2RESEARCH/1_ClinicalData/CHIRP/Blacktown/Patient Images"
 
 relist = []
 patList = []
@@ -12,7 +12,10 @@ for name in os.listdir(folder_path):
 
 patList.sort()
 for pat in patList:
-  fractfolder = os.listdir(f"{folder_path}/{pat}")
+  try:
+    fractfolder = os.listdir(f"{folder_path}/{pat}/kV Images")
+  except FileNotFoundError:
+    continue
   fractfolderList = []
   for name in fractfolder:
     if re.fullmatch(r"Fx\d+", name):
@@ -23,7 +26,7 @@ for pat in patList:
       }
       fractfolderList.append(fracPack)
   patPack = {
-    "patient_trial_id": f"SPANC_{pat[3:]}",
+    "patient_trial_id": f"CHIRP_{pat[3:]}",
     "centre_patient_no": int(pat[3:]),
     "age": 0,
     "gender": "",
