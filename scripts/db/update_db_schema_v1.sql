@@ -110,3 +110,6 @@ ALTER TABLE images
 
 ALTER TABLE images
   ADD COLUMN projections VARCHAR;
+
+ALTER TABLE images
+  ADD COLUMN rpm_kim_matching VARCHAR;

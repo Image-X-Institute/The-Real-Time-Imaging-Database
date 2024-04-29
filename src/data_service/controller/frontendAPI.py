@@ -1,5 +1,14 @@
 from flask import request, Blueprint
-from .service import getTrialList, getCenterList, getPatientList, getPatientInfo, updatePatientInfo
+from .service import getTrialList, \
+                      getCenterList, \
+                      getPatientList, \
+                      getPatientInfo, \
+                      updatePatientInfo, \
+                      getFractionDetialByPatientId, \
+                      updateFractionInfo, \
+                      getPatientTrialStats, \
+                      getMissingPrescriptionFieldCheck, \
+                      getMissingFractionFieldCheck
 
 frontendAPI_blueprint = Blueprint('frontendAPI', __name__)
 
@@ -22,3 +31,23 @@ def getPatinetInfoFunction():
 @frontendAPI_blueprint.route('/api/updatePatientInfo', methods=['PATCH'])
 def updatePatientInfoFunction():
   return updatePatientInfo(request)
+
+@frontendAPI_blueprint.route('/api/getFractionDetialByPatientId', methods=['GET'])
+def getFractionDetialByPatientIdFunction():
+  return getFractionDetialByPatientId(request)
+
+@frontendAPI_blueprint.route('/api/updateFractionInfo', methods=['PATCH'])
+def updateFractionInfoFunction():
+  return updateFractionInfo(request)
+
+@frontendAPI_blueprint.route('/api/getPatientTrialStats', methods=['GET'])
+def getPatientTrialStatsFunction():
+  return getPatientTrialStats(request)
+
+@frontendAPI_blueprint.route('/api/getMissingPrescriptionFieldCheck', methods=['GET'])
+def getMissingPrescriptionFieldCheckFunction():
+  return getMissingPrescriptionFieldCheck(request)
+
+@frontendAPI_blueprint.route('/api/getMissingFractionFieldCheck', methods=['GET'])
+def getMissingFractionFieldCheckFunction():
+  return getMissingFractionFieldCheck(request)
