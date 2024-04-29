@@ -78,7 +78,10 @@ class FilesystemScrubber:
 				prescriptionPack = {}
 				for key in self.templateStructure['prescription']:
 					path = self.templateStructure['prescription'][key]['path']
-					relativePath = path.format(clinical_trial=self.trial, test_centre=centre['centre'], centre_patient_no=patientNo)
+					if re.search(r"tumour_site", key):
+						relativePath = path.format(clinical_trial=self.trial, test_centre=centre['centre'], centre_patient_no=patientNo, tumour_site=patient['tumour_site'])
+					else:
+						relativePath = path.format(clinical_trial=self.trial, test_centre=centre['centre'], centre_patient_no=patientNo)
 					folderPath = self.rootPath + relativePath
 					if os.path.exists(folderPath):
 						prescriptionPack[key] = relativePath
@@ -116,7 +119,10 @@ class FilesystemScrubber:
 								path = self.templateStructure['fraction'][key]['path']
 								fractionNo = fraction['fraction_number']
 								fractionPath = f'Fx{fractionNo}/'
-								relativePath = path.format(clinical_trial=self.trial, test_centre=centre['centre'], centre_patient_no=patientNo)						
+								if re.search(r"tumour_site", key):
+									relativePath = path.format(clinical_trial=self.trial, test_centre=centre['centre'], centre_patient_no=patientNo, tumour_site=patient['tumour_site'])
+								else:
+									relativePath = path.format(clinical_trial=self.trial, test_centre=centre['centre'], centre_patient_no=patientNo)	
 								if os.path.exists(self.rootPath + relativePath + fractionPath + fractionName):
 									KV_pattern = r"kv"
 									MV_pattern = r"mv"
