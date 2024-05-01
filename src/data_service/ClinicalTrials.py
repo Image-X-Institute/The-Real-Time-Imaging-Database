@@ -116,6 +116,7 @@ class ClinicalTrials:
         if 'trial' in requestParams.keys():
             trialStructure = self._getTrialField(requestParams['trial'])
             trialField = list(trialStructure['prescription'].keys()) + list(trialStructure['fraction'].keys())
+            trialField = [field.lower() for field in trialField]
         else:
             trialField = None
         if config.VALIDATE_TOKEN:
