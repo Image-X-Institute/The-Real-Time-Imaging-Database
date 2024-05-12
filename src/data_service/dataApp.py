@@ -316,8 +316,17 @@ def addSiteTrialEntry():
 
 # The below code is to provide apis for the frontend application.
 
-from controller.frontendAPI import frontendAPI_blueprint
-app.register_blueprint(frontendAPI_blueprint)
+from frontend_api.generalApi import generalApi_blueprint
+app.register_blueprint(generalApi_blueprint)
+
+from frontend_api.prescriptionInfoManagement import prescriptionInfo_blueprint
+app.register_blueprint(prescriptionInfo_blueprint)
+
+from frontend_api.fractionInfoManagement import fractionInfo_blueprint
+app.register_blueprint(fractionInfo_blueprint)
+
+from frontend_api.patientInfoManagement import patientInfo_blueprint
+app.register_blueprint(patientInfo_blueprint)
 
 if __name__ == '__main__':
     if config.APP_DEBUG_MODE:
