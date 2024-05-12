@@ -55,7 +55,6 @@ def getUpdatePrescriptionField(req):
           filePath = trialStructure[key]['path']
           formatedPath = filePath.format(clinical_trial=trialName, test_centre=field['test_centre'], centre_patient_no=str(field['centre_patient_no']).zfill(2))
           path = rootPath + formatedPath
-          print(path)
           if os.path.exists(path):
             # sqlStmt = f"UPDATE prescription SET {key}='{formatedPath}' WHERE prescription_id=(SELECT get_prescription_id_for_patient('{field['patient_trial_id']}'))"
             # executeQuery(sqlStmt)
