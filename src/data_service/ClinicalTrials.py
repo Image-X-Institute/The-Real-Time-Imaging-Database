@@ -135,8 +135,7 @@ class ClinicalTrials:
                 else:
                     strQuery += ", "
                 strQuery += field["field"]["table"] + "." \
-                    + field["field"]["column"] + " as " \
-                    + field["property"]
+                    + field["field"]["column"]
 
             for field in objectFields:
                 if field["field"]["column"].lower() in trialField:
@@ -145,8 +144,7 @@ class ClinicalTrials:
                     else:
                         strQuery += ", "
                     strQuery += field["field"]["table"] + "." \
-                        + field["field"]["column"] + " as " \
-                        + field["property"]
+                        + field["field"]["column"]
         else:
             for fieldMapping in objectFields:
                 if firstfield:
@@ -154,8 +152,7 @@ class ClinicalTrials:
                 else:
                     strQuery += ", "
                 strQuery += fieldMapping["field"]["table"] + "." \
-                            + fieldMapping["field"]["column"] + " as " \
-                            + fieldMapping["property"]
+                            + fieldMapping["field"]["column"]
 
         strQuery += " FROM " + dbRelations[0]["table"]
 
@@ -211,7 +208,6 @@ class ClinicalTrials:
             colName = [desc[0] for desc in cur.description]
             fetchedRows = [dict(zip(colName, row)) for row in fetchedRows]
             cur.close()
-
             if trialField:
                 for item in fetchedRows:
                     data = {}
