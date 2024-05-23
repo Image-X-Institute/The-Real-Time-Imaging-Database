@@ -344,6 +344,13 @@
 			"field_type":"",
 			"level": "",
 			"allowed":[]
+		},
+		"couch_register_file":{
+			"path":"",
+			"display_name":"",
+			"field_type":"",
+			"level": "",
+			"allowed":[]
 		}
 	}
 }
