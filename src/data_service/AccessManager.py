@@ -540,7 +540,7 @@ def addTrialStructure(trialPack:Dict) -> Tuple[bool, str]:
     connector.connect()
     conn = connector.getConnection()
     if len(rows) > 0:
-        updateQuery = f"UPDATE trials SET trial_structure = \'{trialStructure}\' " \
+        updateQuery = f"UPDATE trials SET trial_structure = \'{json.dumps(trialStructure)}\' " \
                     + f"WHERE trial_name = \'{trialDetail['trialName']}\'"
         try:
             cur = conn.cursor()

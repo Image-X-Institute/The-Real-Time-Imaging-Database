@@ -12,6 +12,8 @@ from utils import make_csv
 from ContentManager import ContentManager
 from diagnostics import ServiceStatusAgent
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from datetime import timedelta
 
 # from flask_mail import Mail
 
@@ -20,6 +22,10 @@ app = Flask(__name__,
             static_folder=config.UI_DIR, 
             template_folder=config.JINJA_TEMPLATES_FOLDER)
 CORS(app)
+JWTManager(app)
+app.config['JWT_ALGORITHM'] = config.JWT_ALGORITHM
+app.config['JWT_SECRET_KEY'] = config.JWT_SECRET_KEY
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=14)
 application = app  # required for making it work on AWS
 
 # config.setMailConfig(app)
