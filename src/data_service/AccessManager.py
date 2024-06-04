@@ -462,6 +462,8 @@ def getTrials() -> List[TrialDetails]:
 
 def addSiteTrial(newDetails: Dict[str, str]) -> Tuple[bool, str]:
     query = ""
+    if not 'fullName' in newDetails.keys():
+        newDetails['fullName'] = newDetails['name']
     if newDetails['type'] == 'site':
         query = "INSERT INTO treatment_sites (site_name, site_full_name, site_location) " \
                 + f"VALUES (\'{newDetails['name']}\', \'{newDetails['fullName']}\', \'{newDetails['location']}\');"
@@ -532,7 +534,6 @@ def addTrialStructure(trialPack:Dict) -> Tuple[bool, str]:
     trialStructure = trialPack["fileStructure"]
     checkQuery = f"SELECT trial_structure FROM trials WHERE trial_name = \'{trialDetail['trialName']}\'"
     rows = _executeQuery(checkQuery)
-    print("rows:", rows)
     connector = DBConnector(config.AUTH_DB_NAME,
                             config.AUTH_DB_USER,
                             config.AUTH_DB_PASSWORD,
@@ -552,6 +553,8 @@ def addTrialStructure(trialPack:Dict) -> Tuple[bool, str]:
             return False, str(err)
 
     else:
+        if "trialFullName" not in trialDetail.keys():
+            trialDetail["trialFullName"] = trialDetail["trialName"]
         insertQuery = f"INSERT INTO trials (trial_name, trial_full_name, trial_structure) " \
                     + f"VALUES (\'{trialDetail['trialName']}\', \'{trialDetail['trialFullName']}\', \'{json.dumps(trialStructure)}\');"
         try:
