@@ -142,7 +142,7 @@
       "allowed": ["text/plain"]
     },
     "kim_logs_path": {
-      "path": "/{clinical_trial}/{test_centre}/Patient Measured Motions/PAT{centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/Patient Measured Motion/PAT{centre_patient_no}/",
       "display_name": "KIM Logs",
       "field_type": "folder",
       "level": "fraction",
