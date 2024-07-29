@@ -5,7 +5,19 @@ import config
 import os
 import re
 
-def getFractionDetialByPatientId(req):
+fractionTableItemList = [
+    "fraction_number",
+    "fraction_name",
+    "mvsdd",
+    "kvsdd",
+    "kv_pixel_size",
+    "mv_pixel_size",
+    "marker_length",
+    "marker_width"
+  ]
+
+
+def getFractionDetailByPatientId(req):
   patientId = req.args.get("patientId")
   trial = req.args.get("trialName")
   sqlStmt = f"Select * from patient, prescription, fraction, images where patient.id = prescription.patient_id and prescription.prescription_id=fraction.prescription_id and images.fraction_id=fraction.fraction_id and patient.patient_trial_id='{patientId}'"
@@ -14,7 +26,7 @@ def getFractionDetialByPatientId(req):
     return make_response("No fraction found", 400)
 
   trialStructure = executeQuery(f"SELECT trial_structure FROM trials WHERE trial_name='{trial}'", authDB=True)[0][0]['fraction']
-  requiredFields = list(trialStructure.keys()) + ["fraction_number","fraction_name"]
+  requiredFields = list(trialStructure.keys()) + fractionTableItemList
   result = [{key: row[key.lower()] for key in requiredFields} for row in result]
   fractionPack = {}
   for row in result:
@@ -92,18 +104,18 @@ def getUpdateFractionField(req):
         if key in trialStructure.keys():
           filePath = trialStructure[key]['path']
           formatedPath = filePath.format(clinical_trial=trialName, test_centre=field['test_centre'], centre_patient_no=str(field['centre_patient_no']).zfill(2))
-          pathWithFraction = formatedPath + f'Fx{field["fraction_number"]}/'
-          pathWithFractionName = pathWithFraction + field['fraction_name'] + '/'
+          pathWithFraction = formatedPath + f'Fx{field["fraction_number"]}'
+          pathWithFractionName = pathWithFraction + '/' + field['fraction_name']
           
           KV_pattern = r"kv"
           MV_pattern = r"mv"
           
           if re.search(KV_pattern, key):
-            pathWithFractionName = pathWithFractionName + 'KIM-KV/'
-            pathWithFraction = pathWithFraction + 'KIM-KV/'
+            pathWithFractionName = pathWithFractionName + '/' + 'KIM-KV'
+            pathWithFraction = pathWithFraction + '/' + 'KIM-KV'
           elif re.search(MV_pattern, key):
-            pathWithFractionName = pathWithFractionName + 'KIM-MV/'
-            pathWithFraction = pathWithFraction + 'KIM-MV/'
+            pathWithFractionName = pathWithFractionName + '/' + 'KIM-MV'
+            pathWithFraction = pathWithFraction + '/' + 'KIM-MV'
 
           if os.path.exists(rootPath + pathWithFractionName):
             patientPack['updateFields'][key] = pathWithFractionName
@@ -125,8 +137,12 @@ def updateFractionField(req):
     fractionName = update["fraction_name"]
     for key in update["updateFields"]:
       try:
-        sqlStmt = f"UPDATE images SET {key}='{update['updateFields'][key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
-        executeQuery(sqlStmt)
+        if key in fractionTableItemList:
+          sqlStmt = f"UPDATE fraction SET {key}='{update['updateFields'][key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
+          executeQuery(sqlStmt)
+        else:
+          sqlStmt = f"UPDATE images SET {key}='{update['updateFields'][key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
+          executeQuery(sqlStmt)
       except Exception as err:
         print(err, file=sys.stderr)
         return make_response({"message": "Failed to update patient info"}, 400)

@@ -208,7 +208,7 @@ class ClinicalTrials:
             colName = [desc[0] for desc in cur.description]
             fetchedRows = [dict(zip(colName, row)) for row in fetchedRows]
             cur.close()
-            if trialField:
+            if trialField and endpoint in ["prescription", "fraction"]:
                 for item in fetchedRows:
                     data = {}
                     for key in list(item.keys()):
