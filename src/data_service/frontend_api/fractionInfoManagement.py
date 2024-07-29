@@ -1,11 +1,11 @@
 from flask import request, Blueprint
-from .service.fraction import getFractionDetialByPatientId, updateFractionInfo, getMissingFractionFieldCheck, getUpdateFractionField, updateFractionField
+from .service.fraction import getFractionDetailByPatientId, updateFractionInfo, getMissingFractionFieldCheck, getUpdateFractionField, updateFractionField
 
 fractionInfo_blueprint = Blueprint('fractionInfo', __name__)
 
-@fractionInfo_blueprint.route('/api/fraction/getFractionDetialByPatientId', methods=['GET'])
-def getFractionDetialByPatientIdFunction():
-  return getFractionDetialByPatientId(request)
+@fractionInfo_blueprint.route('/api/fraction/getFractionDetailByPatientId', methods=['GET'])
+def getFractionDetailByPatientIdFunction():
+  return getFractionDetailByPatientId(request)
 
 @fractionInfo_blueprint.route('/api/fraction/updateFractionInfo', methods=['PATCH'])
 def updateFractionInfoFunction():

@@ -86,7 +86,23 @@
                 "kvsdd": {
                     "type": "float",
                     "required": false
-                }                
+                },
+                "kv_pixel_size": {
+                    "type": "float",
+                    "required": false
+                },
+                "mv_pixel_size": {
+                    "type": "float",
+                    "required": false
+                },
+                "marker_length": {
+                    "type": "float",
+                    "required": false
+                },
+                "marker_width": {
+                    "type": "float",
+                    "required": false
+                }           
             }
         }
     }
