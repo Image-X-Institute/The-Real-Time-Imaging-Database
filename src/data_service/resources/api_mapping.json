@@ -466,6 +466,38 @@
                     "column": "mvsdd"
                 },
                 "type": "float"
+            },
+            {
+                "property" : "kv_pixel_size",
+                "description" : "The pixel size of the kV images",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "kv_pixel_size"
+                }
+            },
+            {
+                "property" : "mv_pixel_size",
+                "description" : "The pixel size of the MV images",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "mv_pixel_size"
+                }
+            },
+            {
+                "property" : "marker_length",
+                "description" : "The length of the marker in millimeters",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "marker_length"
+                }
+            },
+            {
+                "property" : "marker_width",
+                "description" : "The width of the marker in millimeters",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "marker_width"
+                }
             }
         ],
         "object_fields": [
@@ -891,6 +923,38 @@
                     "column": "extra_items"
                 },
                 "type": "jsonb"
+            },
+            {
+                "property" : "kv_pixel_size",
+                "description" : "The pixel size of the kV images",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "kv_pixel_size"
+                }
+            },
+            {
+                "property" : "mv_pixel_size",
+                "description" : "The pixel size of the MV images",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "mv_pixel_size"
+                }
+            },
+            {
+                "property" : "marker_length",
+                "description" : "The length of the marker in millimeters",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "marker_length"
+                }
+            },
+            {
+                "property" : "marker_width",
+                "description" : "The width of the marker in millimeters",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "marker_width"
+                }
             }
         ],
         "db_relations": [

@@ -36,6 +36,19 @@ ALTER TABLE prescription
   ADD COLUMN cardio_ct VARCHAR;
 
 -- ADD COLUMN at fraction/image level
+
+ALTER TABLE fraction
+  ADD COLUMN kv_pixel_size FLOAT DEFAULT 0.0;
+
+ALTER TABLE fraction
+  ADD COLUMN mv_pixel_size FLOAT DEFAULT 0.0;
+
+ALTER TABLE fraction
+  ADD COLUMN marker_length FLOAT DEFAULT 0.0;
+
+ALTER TABLE fraction
+  ADD COLUMN marker_width FLOAT DEFAULT 0.0;
+
 ALTER TABLE images
   ADD COLUMN rt_ct_fraction VARCHAR;
 
