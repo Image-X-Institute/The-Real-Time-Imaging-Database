@@ -1,7 +1,7 @@
 from flask import request, Blueprint
 from .service.util import getTrialList, getCenterList
 from .service.patient import getPatientTrialStats
-from .service.general import addCentre, addTrial, getTrialStructure
+from .service.general import addCentre, addTrial, getTrialStructure, getPatientInfoTemplate
 
 generalApi_blueprint = Blueprint('generalApi', __name__)
 
@@ -28,3 +28,7 @@ def addTrialFunction():
 @generalApi_blueprint.route('/api/getTrialStructure', methods=['GET'])
 def getTrialStructureFunction():
   return getTrialStructure(request)
+
+@generalApi_blueprint.route('/api/getPatientInfoTemplate', methods=['GET'])
+def getPatientInfoTemplateFunction():
+  return getPatientInfoTemplate(request)

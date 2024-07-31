@@ -51,6 +51,30 @@ class FilesystemScrubber:
 	def fractionPathLookUp(self, fractionNo):
 		pass
 
+	def tryToFindKVorMVFolder(self, rootPath, mainPath, fractionPath, subFractionPath, case):
+		# For many of the trials, the name of the KV folder could be different, so we need to check all the possible names. 
+		# If the folder name is neither KIM-KV nor kV, we can't do anything, but return the path to fraction folder level. 
+
+		possibleKVFolderNames = ['KIM-KV', 'KIM-kV', 'kV', 'KV', 'kv']
+		possibleMVFolderNames = ['KIM-MV', 'MV', 'mv']
+
+		if case == "KV":
+			for folderName in possibleKVFolderNames:
+				if os.path.exists(rootPath + mainPath + fractionPath + subFractionPath + '/' + folderName):
+					return mainPath + fractionPath + subFractionPath + '/' + folderName
+				
+				if os.path.exists(rootPath + mainPath + fractionPath + '/' + folderName):
+					return mainPath + fractionPath + '/' + folderName
+		else:
+			for folderName in possibleMVFolderNames:
+				if os.path.exists(rootPath + mainPath + fractionPath + subFractionPath + '/' + folderName):
+					return mainPath + fractionPath + subFractionPath + '/' + folderName
+
+				if os.path.exists(rootPath + mainPath + fractionPath + '/' + folderName):
+					return mainPath + fractionPath + '/' + folderName
+				
+		return mainPath + fractionPath
+
 	def startToScrub(self):
 		print("Start to scrub the filesystem")
 		for centre in self.patientData['centres']:
@@ -89,6 +113,7 @@ class FilesystemScrubber:
 						prescriptionPack[key] = None
 				patientPack['prescription'] = prescriptionPack
 				print(f"		Scrubbing Patient {patient['patient_trial_id']} prescription done")
+				
 				# Then for each fraction
 				print(f"		Scrubbing Patient {patient['patient_trial_id']} fractions")
 				for fraction in patient['fractions']:
@@ -103,6 +128,12 @@ class FilesystemScrubber:
 							path = self.templateStructure['fraction'][key]['path']
 							relativePath = path.format(clinical_trial=self.trial, test_centre=centre['centre'], centre_patient_no=patientNo) + fraction["fraction_name"][0]
 							if os.path.exists(self.rootPath + relativePath):
+								KV_pattern = r"kv"
+								MV_pattern = r"mv"
+								if re.search(KV_pattern, key):
+										relativePath = self.tryToFindKVorMVFolder(self.rootPath, relativePath, '', '', "KV")
+								elif re.search(MV_pattern, key):
+									relativePath = self.tryToFindKVorMVFolder(self.rootPath, relativePath, '', '', "MV")
 								fractionPack[key] = relativePath
 							else:
 								fractionPack[key] = None
@@ -128,13 +159,21 @@ class FilesystemScrubber:
 									MV_pattern = r"mv"
 									
 									if re.search(KV_pattern, key):
-										relativePath = relativePath + fractionPath + fractionName + '/KIM-KV/'
+										relativePath = self.tryToFindKVorMVFolder(self.rootPath, relativePath, fractionPath, fractionName, "KV")
 									elif re.search(MV_pattern, key):
-										relativePath = relativePath + fractionPath + fractionName + '/KIM-MV/'
+										relativePath = self.tryToFindKVorMVFolder(self.rootPath, relativePath, fractionPath, fractionName, "MV")
+
 									fractionPack[key] = relativePath
 								else:
-									if os.path.exists(self.rootPath + relativePath + fractionPath):
-										fractionPack[key] = relativePath + fractionName
+									KV_pattern = r"kv"
+									MV_pattern = r"mv"
+									
+									if re.search(KV_pattern, key):
+										relativePath = self.tryToFindKVorMVFolder(self.rootPath, relativePath, fractionPath, fractionName, "KV")
+									elif re.search(MV_pattern, key):
+										relativePath = self.tryToFindKVorMVFolder(self.rootPath, relativePath, fractionPath, fractionName, "MV")
+									fractionPack[key] = relativePath
+
 							patientPack['fractions'].append(fractionPack)
 				centrePack['patients'].append(patientPack)
 			self.result['clinical_trial_data']['centres'].append(centrePack)

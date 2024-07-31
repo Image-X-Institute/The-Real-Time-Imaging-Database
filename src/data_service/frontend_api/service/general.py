@@ -45,3 +45,8 @@ def getTrialStructure(request):
     return make_response({'message': 'Trial structure not found.'}, 404)
   return make_response({'trialStructure': result[0][0]}, 200)
 
+
+def getPatientInfoTemplate(request):
+  with open('resources/patient_info_template.csv') as f:
+    patientInfoTemplate = f.read()
+  return make_response({'patientInfoTemplate': patientInfoTemplate}, 200)

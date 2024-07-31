@@ -1,6 +1,8 @@
 from flask import make_response
 from .util import executeQuery
 import sys
+import csv
+import io
 
 def getPatientList(req):
   trialName = req.args.get("trialName")
@@ -117,8 +119,6 @@ def addOnePatient(req):
   except Exception as err:
     print(err, file=sys.stderr)
     return make_response({"message": "Failed to add patient"}, 400)
-  if not linacType:
-    return make_response({"message": "Patient added successfully"}, 200)
   
   getPatientUUIDStmt = f"SELECT id FROM patient WHERE patient_trial_id='{patientInfo['patient_trial_id']}';"
   fetchedRows = executeQuery(getPatientUUIDStmt)
@@ -135,3 +135,21 @@ def addOnePatient(req):
   return make_response({"message": "Patient added successfully"}, 200)
 
   
+def addBulkPatient(req):
+  rawData = req.json
+  csvRawData = csv.reader(io.StringIO(rawData['patientList']))
+  csvHeader = next(csvRawData)
+  patientInfoList = []
+  row = next(csvRawData)
+  while row:
+    patientInfoList.append({csvHeader[i]: row[i] for i in range(len(row))})
+    try:
+      row = next(csvRawData)
+    except StopIteration:
+      break
+  
+
+
+
+  return make_response({"message": "Not implemented yet"}, 501)
+  pass

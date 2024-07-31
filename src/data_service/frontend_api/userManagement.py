@@ -1,5 +1,5 @@
 from flask import request, Blueprint
-from .service.user import getUserList, registerUser, loginUser
+from .service.user import getUserList, registerUser, loginUser, changePassword
 
 
 
@@ -16,3 +16,7 @@ def registerUserFunction():
 @userManagement_blueprint.route('/api/user/login', methods=['POST'])
 def loginUserFunction():
   return loginUser(request)
+
+@userManagement_blueprint.route('/api/user/changePassword', methods=['POST'])
+def changePasswordFunction():
+  return changePassword(request)
