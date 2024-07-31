@@ -15,4 +15,4 @@ OUTPUT_PATH="$4"
 
 python newFilesystemScrubber.py --template $TEMPLATE_FILE --patientData $PATIENT_DATA_PATH --rdsRoot $RDS_PATH --outputPath $OUTPUT_PATH
 
-python newFilesystemScrubber.py --template "../../docs/trial_folder_structure/CHIRP.json" --patientData "data/CHIRP_patient.json" --rdsRoot "/Volumes/research-data/PRJ-RPL/2RESEARCH/1_ClinicalData" --outputPath "data/sql_output.sql"
+python newFilesystemScrubber.py --template "../../docs/trial_folder_structure/LARK.json" --patientData "data/Gosford_patient.json" --rdsRoot "/Volumes/research-data/PRJ-RPL/2RESEARCH/1_ClinicalData" --outputPath "data/sql_output.sql"

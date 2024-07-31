@@ -39,7 +39,7 @@
       "file_name": []
     },
     "rt_structure_pres": {
-      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Structure Sets/PAT{centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Plans/PAT{centre_patient_no}/Structure set/",
       "display_name": "RT Structure (prescription level)",
       "field_type": "folder",
       "level": "fraction",
@@ -108,7 +108,7 @@
       "file_name": []
     },
     "rt_structure_fraction": {
-      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Structure Sets/PAT{centre_patient_no}/",
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Plans/PAT{centre_patient_no}/Structure set/",
       "display_name": "RT Structure (fraction level)",
       "field_type": "folder",
       "level": "fraction",

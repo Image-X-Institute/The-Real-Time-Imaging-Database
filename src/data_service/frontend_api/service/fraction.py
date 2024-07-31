@@ -41,14 +41,42 @@ def updateFractionInfo(req):
   payload = req.json
   patientId = payload["patientId"]
   fractionName = payload["fractionName"]
-  try:
-    coloumnStr = ', '.join([f"{key}='{payload[key]}'" for key in payload if key not in ['patientId', 'fractionName']])
-    sqlStmt = f"UPDATE images SET {coloumnStr} WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
-    executeQuery(sqlStmt)
-    return make_response({"message": "Fraction info updated successfully"}, 200)
-  except Exception as err:
-    print(err, file=sys.stderr)
-    return make_response({"message": "Failed to update patient info"}, 400)
+
+  for key in payload:
+    if key not in ['patientId', 'fractionName']:
+      try:
+        if key in fractionTableItemList:
+          sqlStmt = f"UPDATE fraction SET {key}='{payload[key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
+          executeQuery(sqlStmt)
+        else:
+          sqlStmt = f"UPDATE images SET {key}='{payload[key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
+          executeQuery(sqlStmt)
+      except Exception as err:
+        print(err, file=sys.stderr)
+        return make_response({"message": "Failed to update patient info"}, 400)
+  
+  return make_response({"message": "Fraction info updated successfully"}, 200)
+  
+def updateFractionField(req):
+  updatePack = req.json
+  if updatePack == None:
+    return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
+  for update in updatePack:
+    patientId = update["patient_trial_id"]
+    fractionName = update["fraction_name"]
+    for key in update["updateFields"]:
+      try:
+        if key in fractionTableItemList:
+          sqlStmt = f"UPDATE fraction SET {key}='{update['updateFields'][key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
+          executeQuery(sqlStmt)
+        else:
+          sqlStmt = f"UPDATE images SET {key}='{update['updateFields'][key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
+          executeQuery(sqlStmt)
+      except Exception as err:
+        print(err, file=sys.stderr)
+        return make_response({"message": "Failed to update patient info"}, 400)
+
+  return make_response({"message": "Fraction info updated successfully"}, 200)
   
 def _getMissingFractionFieldCheck(req):
   try:
@@ -81,6 +109,24 @@ def getMissingFractionFieldCheck(req):
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
   return make_response(missingFields)
 
+def _tryToFindKVorMVFolder(rootPath, mainPath, case):
+  # For many of the trials, the name of the KV folder could be different, so we need to check all the possible names. 
+  # If the folder name is neither KIM-KV nor kV, we can't do anything, but return the path to fraction folder level. 
+
+  possibleKVFolderNames = ['KIM-KV', 'KIM-kV', 'kV', 'KV', 'kv']
+  possibleMVFolderNames = ['KIM-MV', 'MV', 'mv']
+
+  if case == "KV":
+    for folderName in possibleKVFolderNames:
+
+      if os.path.exists(rootPath + mainPath + '/' + folderName):
+        return mainPath + '/' + folderName
+  else:
+    for folderName in possibleMVFolderNames:
+      if os.path.exists(rootPath + mainPath + '/' + folderName):
+        return mainPath + '/' + folderName
+      
+  return mainPath
   
 def getUpdateFractionField(req):
   missingFields = _getMissingFractionFieldCheck(req)
@@ -106,45 +152,77 @@ def getUpdateFractionField(req):
           formatedPath = filePath.format(clinical_trial=trialName, test_centre=field['test_centre'], centre_patient_no=str(field['centre_patient_no']).zfill(2))
           pathWithFraction = formatedPath + f'Fx{field["fraction_number"]}'
           pathWithFractionName = pathWithFraction + '/' + field['fraction_name']
+          if os.path.exists(rootPath + formatedPath + field['fraction_name']):
+            pathWithFractionName = formatedPath + field['fraction_name']
           
           KV_pattern = r"kv"
           MV_pattern = r"mv"
-          
-          if re.search(KV_pattern, key):
-            pathWithFractionName = pathWithFractionName + '/' + 'KIM-KV'
-            pathWithFraction = pathWithFraction + '/' + 'KIM-KV'
-          elif re.search(MV_pattern, key):
-            pathWithFractionName = pathWithFractionName + '/' + 'KIM-MV'
-            pathWithFraction = pathWithFraction + '/' + 'KIM-MV'
 
+          # The logic here is to check if the path with fraction name exists, if not, check if the path with fraction exists.
           if os.path.exists(rootPath + pathWithFractionName):
-            patientPack['updateFields'][key] = pathWithFractionName
+            # If the key is KV or MV, we need to check if the folder name is different from the expected one.
+            if re.search(KV_pattern, key):
+              # If the key is KV, we need to add the KV folder name to the path.
+              pathWithFractionName = _tryToFindKVorMVFolder(rootPath, pathWithFractionName, 'KV')
+              # The function will return the path with KV folder name if it exists, otherwise, it will return the path with fraction name.
+              # The below step is to check if the path contains KV, if it does, we will add it to the updateFields.
+              if re.search(KV_pattern, pathWithFractionName):
+                patientPack['updateFields'][key] = pathWithFractionName
+            # The same logic as above, but for MV.
+            elif re.search(MV_pattern, key):
+              pathWithFractionName = _tryToFindKVorMVFolder(rootPath, pathWithFractionName, 'MV')
+              # The function will return the path with MV folder name if it exists, otherwise, it will return the path with fraction name.
+              # The below step is to check if the path contains MV, if it does, we will add it to the updateFields.
+              if re.search(MV_pattern, pathWithFractionName):
+                patientPack['updateFields'][key] = pathWithFractionName
+            else:
+              patientPack['updateFields'][key] = pathWithFractionName
+          # If the path with fraction name does not exist, we will check if the path with fraction exists.
           elif os.path.exists(rootPath + pathWithFraction):
-            patientPack['updateFields'][key] = pathWithFraction
+            if re.search(KV_pattern, key):
+              pathWithFraction = _tryToFindKVorMVFolder(rootPath, pathWithFraction, 'KV')
+              if re.search(KV_pattern, pathWithFraction):
+                patientPack['updateFields'][key] = pathWithFraction
+            elif re.search(MV_pattern, key):
+              pathWithFraction = _tryToFindKVorMVFolder(rootPath, pathWithFraction, 'MV')
+              if re.search(MV_pattern, pathWithFraction):
+                patientPack['updateFields'][key] = pathWithFraction
+            else:
+              patientPack['updateFields'][key] = pathWithFraction
       if patientPack['updateFields']:
         returnPack.append(patientPack)
     return make_response(returnPack)
   except Exception as err:
     print(err, file=sys.stderr)
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
-  
-def updateFractionField(req):
-  updatePack = req.json
-  if updatePack == None:
-    return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
-  for update in updatePack:
-    patientId = update["patient_trial_id"]
-    fractionName = update["fraction_name"]
-    for key in update["updateFields"]:
-      try:
-        if key in fractionTableItemList:
-          sqlStmt = f"UPDATE fraction SET {key}='{update['updateFields'][key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
-          executeQuery(sqlStmt)
-        else:
-          sqlStmt = f"UPDATE images SET {key}='{update['updateFields'][key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
-          executeQuery(sqlStmt)
-      except Exception as err:
-        print(err, file=sys.stderr)
-        return make_response({"message": "Failed to update patient info"}, 400)
 
-  return make_response({"message": "Fraction info updated successfully"}, 200)
+def addNewFraction(req):
+  payload = req.json
+  patientId = payload["patientId"]
+  fractionName = payload["fractionName"]
+  # check if fraction name exists
+  sqlStmt = f"SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}')"
+  result = executeQuery(sqlStmt)
+  print(result)
+  if result:
+    return make_response({"message": "Fraction name already exists"}, 400)
+  fractionDate = payload["fractionDate"] if "fractionDate" in payload else 'Null'
+  if fractionDate != 'Null':
+    fractionDate = f"'{fractionDate}'"
+  mvsdd = payload["mvsdd"] if "mvsdd" in payload else 'Null'
+  kvsdd = payload["kvsdd"] if "kvsdd" in payload else 'Null'
+  kvPixelSize = payload["kvPixelSize"] if "kvPixelSize" in payload else 'Null'
+  mvPixelSize = payload["mvPixelSize"] if "mvPixelSize" in payload else 'Null'
+  markerLength = payload["markerLength"] if "markerLength" in payload else 'Null'
+  markerWidth = payload["markerWidth"] if "markerWidth" in payload else 'Null'
+
+  try:
+    sqlStmt = f"INSERT INTO fraction (prescription_id, fraction_number, fraction_name, fraction_date, mvsdd, kvsdd, kv_pixel_size, mv_pixel_size, marker_length, marker_width) VALUES ((SELECT prescription_id FROM prescription WHERE patient_id=(SELECT id FROM patient WHERE patient_trial_id='{patientId}')), {payload['fractionNumber']}, '{fractionName}', {fractionDate}, {mvsdd}, {kvsdd}, {kvPixelSize}, {mvPixelSize}, {markerLength}, {markerWidth})"
+    executeQuery(sqlStmt)
+    fractionId = executeQuery(f"SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}')")[0][0]
+    sqlStmt = f"INSERT INTO images (fraction_id) VALUES ({fractionId})"
+    executeQuery(sqlStmt)    
+    return make_response({"message": "Fraction added successfully"}, 200)
+  except Exception as err:
+    print(err, file=sys.stderr)
+    return make_response({"message": "Failed to add fraction"}, 400)
