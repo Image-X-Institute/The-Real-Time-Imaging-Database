@@ -337,6 +337,9 @@ app.register_blueprint(patientInfo_blueprint)
 from frontend_api.userManagement import userManagement_blueprint
 app.register_blueprint(userManagement_blueprint)
 
+from frontend_api.filesystemManagement import filesystemManagement_blueprint
+app.register_blueprint(filesystemManagement_blueprint)
+
 if __name__ == '__main__':
     if config.APP_DEBUG_MODE:
         app.run (host=config.LISTENING_HOST, 
