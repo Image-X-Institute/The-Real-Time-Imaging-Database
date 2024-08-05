@@ -51,5 +51,5 @@ def deleteFolder(req):
 
 def syncCloudDrive(req):
   #  Update the onedrive folder with the latest data from the filesystem
-  subprocess.run(["onedrive", "--synchronize", "--download-only"], shell=True)
+  subprocess.run(['onedrive', '--synchronize', '--download-only'], check=True, text=True)
   return make_response({"message": "ok"}, 200)
