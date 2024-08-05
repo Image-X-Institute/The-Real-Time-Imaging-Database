@@ -2,6 +2,7 @@ import os
 from flask import make_response
 import config
 import shutil
+import subprocess
 
 def create_folder_structure_json(path): 
     # Initialize the result dictionary with folder 
@@ -46,4 +47,9 @@ def deleteFolder(req):
   sourceList = payload["source"]
   for source in sourceList:
     shutil.rmtree(source)
+  return make_response({"message": "ok"}, 200)
+
+def syncCloudDrive(req):
+  #  Update the onedrive folder with the latest data from the filesystem
+  subprocess.run(["onedrive", "--synchronize", "--download-only"], shell=True)
   return make_response({"message": "ok"}, 200)
