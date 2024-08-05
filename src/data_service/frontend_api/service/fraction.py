@@ -148,3 +148,31 @@ def updateFractionField(req):
         return make_response({"message": "Failed to update patient info"}, 400)
 
   return make_response({"message": "Fraction info updated successfully"}, 200)
+
+def addNewFraction(req):
+  payload = req.json
+  patientId = payload["patientId"]
+  fractionName = payload["fractionName"]
+  # check if fraction name exists
+  sqlStmt = f"SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}')"
+  result = executeQuery(sqlStmt)
+  print(result)
+  if result:
+    return make_response({"message": "Fraction name already exists"}, 400)
+  fractionDate = payload["fractionDate"] if "fractionDate" in payload else 'Null'
+  if fractionDate != 'Null':
+    fractionDate = f"'{fractionDate}'"
+  mvsdd = payload["mvsdd"] if "mvsdd" in payload else 'Null'
+  kvsdd = payload["kvsdd"] if "kvsdd" in payload else 'Null'
+  kvPixelSize = payload["kvPixelSize"] if "kvPixelSize" in payload else 'Null'
+  mvPixelSize = payload["mvPixelSize"] if "mvPixelSize" in payload else 'Null'
+  markerLength = payload["markerLength"] if "markerLength" in payload else 'Null'
+  markerWidth = payload["markerWidth"] if "markerWidth" in payload else 'Null'
+
+  try:
+    sqlStmt = f"INSERT INTO fraction (prescription_id, fraction_number, fraction_name, fraction_date, mvsdd, kvsdd, kv_pixel_size, mv_pixel_size, marker_length, marker_width) VALUES ((SELECT prescription_id FROM prescription WHERE patient_id=(SELECT id FROM patient WHERE patient_trial_id='{patientId}')), {payload['fractionNumber']}, '{fractionName}', {fractionDate}, {mvsdd}, {kvsdd}, {kvPixelSize}, {mvPixelSize}, {markerLength}, {markerWidth})"
+    executeQuery(sqlStmt)
+    return make_response({"message": "Fraction added successfully"}, 200)
+  except Exception as err:
+    print(err, file=sys.stderr)
+    return make_response({"message": "Failed to add fraction"}, 400)
