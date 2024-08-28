@@ -50,3 +50,8 @@ def getPatientInfoTemplate(request):
   with open('resources/patient_info_template.csv') as f:
     patientInfoTemplate = f.read()
   return make_response({'patientInfoTemplate': patientInfoTemplate}, 200)
+
+def getFractionInfoTemplate(request):
+  with open('resources/patient_fraction_template.csv') as f:
+    fractionInfoTemplate = f.read()
+  return make_response({'fractionInfoTemplate': fractionInfoTemplate}, 200)

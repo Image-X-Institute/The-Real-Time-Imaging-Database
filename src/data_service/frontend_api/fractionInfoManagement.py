@@ -1,5 +1,5 @@
 from flask import request, Blueprint
-from .service.fraction import getFractionDetailByPatientId, updateFractionInfo, getMissingFractionFieldCheck, getUpdateFractionField, updateFractionField, addNewFraction
+from .service.fraction import getFractionDetailByPatientId, updateFractionInfo, getMissingFractionFieldCheck, getUpdateFractionField, updateFractionField, addNewFraction, addBulkFraction
 
 fractionInfo_blueprint = Blueprint('fractionInfo', __name__)
 
@@ -26,3 +26,7 @@ def updateFractionFieldFunction():
 @fractionInfo_blueprint.route('/api/fraction/addNewFraction', methods=['POST'])
 def addNewFractionFunction():
   return addNewFraction(request)
+
+@fractionInfo_blueprint.route('/api/fraction/addBulkFraction', methods=['POST'])
+def addBulkFractionFunction():
+  return addBulkFraction(request)

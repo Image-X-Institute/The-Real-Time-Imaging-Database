@@ -129,3 +129,6 @@ ALTER TABLE images
 
 ALTER TABLE images
   ADD COLUMN couch_register_file VARCHAR;
+
+ALTER TABLE images
+  ADD COLUMN surface_imaging VARCHAR;
