@@ -85,8 +85,9 @@ def getPatientTrialStats(req):
     print(err, file=sys.stderr)
     return make_response({"message": "Failed to get patient trial stats"}, 400)
   
-def addOnePatient(req):
-  rawData = req.json
+
+def _addPatientToDB(rawData):
+
   patientInfo = {}
   linacType = ''
   for key in rawData.keys():
@@ -107,7 +108,7 @@ def addOnePatient(req):
   checkPatientStmt = f"SELECT * FROM patient WHERE patient_trial_id='{patientInfo['patient_trial_id']}';"
   fetchedRows = executeQuery(checkPatientStmt)
   if fetchedRows:
-    return make_response({"message": "Patient already exists"}, 400)
+    return False, {"message":f"Patient already exists, patient_trial_id: {patientInfo['patient_trial_id']}"}
 
   sqlStmt = "INSERT INTO patient ("
   sqlStmt += ', '.join([key for key in patientInfo])
@@ -118,22 +119,29 @@ def addOnePatient(req):
     executeQuery(sqlStmt)
   except Exception as err:
     print(err, file=sys.stderr)
-    return make_response({"message": "Failed to add patient"}, 400)
+    return False, {"message": f"Failed to add patient, patient_trial_id: {patientInfo['patient_trial_id']}"}
   
   getPatientUUIDStmt = f"SELECT id FROM patient WHERE patient_trial_id='{patientInfo['patient_trial_id']}';"
   fetchedRows = executeQuery(getPatientUUIDStmt)
   patientUUID = fetchedRows[0][0]
   if not patientUUID:
-    return make_response({"message": "Failed to add patient"}, 400)
+    return False, {"message": f"Failed to add patient, patient_trial_id: {patientInfo['patient_trial_id']}"}
   sqlStmt2 = f"INSERT INTO prescription (patient_id, linac_type) VALUES ('{patientUUID}', '{linacType}');"
   try:
     executeQuery(sqlStmt2)
   except Exception as err:
     print(err, file=sys.stderr)
-    return make_response({"message": "Failed to add patient"}, 400)
+    return False, {"message": f"Failed to add patient, patient_trial_id: {patientInfo['patient_trial_id']}"}
   
-  return make_response({"message": "Patient added successfully"}, 200)
+  return True, {"message": "Patient added successfully"}
 
+def addOnePatient(req):
+  rawData = req.json
+  status, rsp = _addPatientToDB(rawData)
+  if status:
+    return make_response(rsp, 200)
+  else:
+    return make_response(rsp, 400)
   
 def addBulkPatient(req):
   rawData = req.json
@@ -147,9 +155,17 @@ def addBulkPatient(req):
       row = next(csvRawData)
     except StopIteration:
       break
-  
-
-
-
-  return make_response({"message": "Not implemented yet"}, 501)
-  pass
+  resultList = []
+  failedList = []
+  for patientInfo in patientInfoList:
+    status, rsp = _addPatientToDB(patientInfo)
+    if not status:
+      failedList.append(patientInfo['patient_trial_id'])
+    else:
+      resultList.append(patientInfo['patient_trial_id'])
+  if failedList and resultList:
+    return make_response({"message": "Some patients failed to add", "failedPatients": failedList, "successPatients": resultList}, 200)
+  elif resultList:
+    return make_response({"message": "All patients added successfully", "successPatients": resultList}, 200)
+  else:
+    return make_response({"message": "All patients failed to add", "failedPatients": failedList}, 400)

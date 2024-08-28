@@ -20,6 +20,7 @@ def _getMissingPrescriptionFieldCheck(pack):
       missedPack['clinical_trial'] = row['clinical_trial']
       missedPack['test_centre'] = row['test_centre']
       missedPack['centre_patient_no'] = row['centre_patient_no']
+      missedPack['tumour_site'] = row['tumour_site']
       missedPack['missedFields'] = {key: row[key] for key in requiredFields if row[key] == None or row[key] == "not found" or row[key] == ""}
       missingFields.append(missedPack)
     return missingFields
@@ -53,7 +54,7 @@ def getUpdatePrescriptionField(req):
       for key in field['missedFields']:
         if key in trialStructure.keys():
           filePath = trialStructure[key]['path']
-          formatedPath = filePath.format(clinical_trial=trialName, test_centre=field['test_centre'], centre_patient_no=str(field['centre_patient_no']).zfill(2))
+          formatedPath = filePath.format(clinical_trial=trialName, tumour_site=field['tumour_site'], test_centre=field['test_centre'], centre_patient_no=str(field['centre_patient_no']).zfill(2))
           path = rootPath + formatedPath
           if os.path.exists(path):
             # sqlStmt = f"UPDATE prescription SET {key}='{formatedPath}' WHERE prescription_id=(SELECT get_prescription_id_for_patient('{field['patient_trial_id']}'))"
@@ -68,7 +69,6 @@ def getUpdatePrescriptionField(req):
   
 def updatePrescriptionField(req):
   updatePack = req.json
-  print(updatePack)
   if updatePack == None:
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
   try:

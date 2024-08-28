@@ -4,6 +4,8 @@ import sys
 import config
 import os
 import re
+import csv
+import io
 
 fractionTableItemList = [
     "fraction_number",
@@ -15,6 +17,18 @@ fractionTableItemList = [
     "marker_length",
     "marker_width"
   ]
+
+fractionTableNameDict = {
+  "fractionNumber": "fraction_number",
+  "fractionName": "fraction_name",
+  "fractionDate": "fraction_date",
+  "mvsdd": "mvsdd",
+  "kvsdd": "kvsdd",
+  "kvPixelSize": "kv_pixel_size",
+  "mvPixelSize": "mv_pixel_size",
+  "markerLength": "marker_length",
+  "markerWidth": "marker_width"
+}
 
 
 def getFractionDetailByPatientId(req):
@@ -96,6 +110,7 @@ def _getMissingFractionFieldCheck(req):
       missedPack['test_centre'] = row['test_centre']
       missedPack['fraction_number'] = row['fraction_number']
       missedPack['fraction_name'] = row['fraction_name']
+      missedPack['tumour_site'] = row['tumour_site']
       missedPack['missedFields'] = {key: row[key.lower()] for key in requiredFields if row[key.lower()] == None or row[key.lower()] == "not found" or row[key.lower()] == ""}
       missingFields.append(missedPack)
     return missingFields
@@ -115,14 +130,18 @@ def _tryToFindKVorMVFolder(rootPath, mainPath, case):
 
   possibleKVFolderNames = ['KIM-KV', 'KIM-kV', 'kV', 'KV', 'kv']
   possibleMVFolderNames = ['KIM-MV', 'MV', 'mv']
+  possibleSurfaceFolderNames = ['surface', 'Surface', 'surface_imaging', 'Surface_Imaging', 'Surface_imaging', 'Surface Imaging', 'surface_images', 'Surface Images', 'surface_images', 'Surface_Images']
 
   if case == "KV":
     for folderName in possibleKVFolderNames:
-
+      if os.path.exists(rootPath + mainPath + '/' + folderName):
+        return mainPath + '/' + folderName
+  elif case == "MV":
+    for folderName in possibleMVFolderNames:
       if os.path.exists(rootPath + mainPath + '/' + folderName):
         return mainPath + '/' + folderName
   else:
-    for folderName in possibleMVFolderNames:
+    for folderName in possibleSurfaceFolderNames:
       if os.path.exists(rootPath + mainPath + '/' + folderName):
         return mainPath + '/' + folderName
       
@@ -149,7 +168,7 @@ def getUpdateFractionField(req):
       for key in field['missedFields']:
         if key in trialStructure.keys():
           filePath = trialStructure[key]['path']
-          formatedPath = filePath.format(clinical_trial=trialName, test_centre=field['test_centre'], centre_patient_no=str(field['centre_patient_no']).zfill(2))
+          formatedPath = filePath.format(clinical_trial=trialName, tumour_site=field['tumour_site'], test_centre=field['test_centre'], centre_patient_no=str(field['centre_patient_no']).zfill(2))
           pathWithFraction = formatedPath + f'Fx{field["fraction_number"]}'
           pathWithFractionName = pathWithFraction + '/' + field['fraction_name']
           if os.path.exists(rootPath + formatedPath + field['fraction_name']):
@@ -157,6 +176,7 @@ def getUpdateFractionField(req):
           
           KV_pattern = r"kv"
           MV_pattern = r"mv"
+          surface_pattern = r"surface"
 
           # The logic here is to check if the path with fraction name exists, if not, check if the path with fraction exists.
           if os.path.exists(rootPath + pathWithFractionName):
@@ -174,6 +194,11 @@ def getUpdateFractionField(req):
               # The function will return the path with MV folder name if it exists, otherwise, it will return the path with fraction name.
               # The below step is to check if the path contains MV, if it does, we will add it to the updateFields.
               if re.search(MV_pattern, pathWithFractionName):
+                patientPack['updateFields'][key] = pathWithFractionName
+            # The same logic as above, but for surface.
+            elif re.search(surface_pattern, key):
+              pathWithFractionName = _tryToFindKVorMVFolder(rootPath, pathWithFractionName, 'surface')
+              if re.search(surface_pattern, pathWithFractionName):
                 patientPack['updateFields'][key] = pathWithFractionName
             else:
               patientPack['updateFields'][key] = pathWithFractionName
@@ -196,33 +221,55 @@ def getUpdateFractionField(req):
     print(err, file=sys.stderr)
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
 
-def addNewFraction(req):
-  payload = req.json
-  patientId = payload["patientId"]
-  fractionName = payload["fractionName"]
+def _addFractionToDB(rawData):
+  patientId = rawData["patientId"]
+  fractionName = rawData["fractionName"]
   # check if fraction name exists
   sqlStmt = f"SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}')"
   result = executeQuery(sqlStmt)
-  print(result)
   if result:
-    return make_response({"message": "Fraction name already exists"}, 400)
-  fractionDate = payload["fractionDate"] if "fractionDate" in payload else 'Null'
-  if fractionDate != 'Null':
-    fractionDate = f"'{fractionDate}'"
-  mvsdd = payload["mvsdd"] if "mvsdd" in payload else 'Null'
-  kvsdd = payload["kvsdd"] if "kvsdd" in payload else 'Null'
-  kvPixelSize = payload["kvPixelSize"] if "kvPixelSize" in payload else 'Null'
-  mvPixelSize = payload["mvPixelSize"] if "mvPixelSize" in payload else 'Null'
-  markerLength = payload["markerLength"] if "markerLength" in payload else 'Null'
-  markerWidth = payload["markerWidth"] if "markerWidth" in payload else 'Null'
-
+    return False, {"message": f"Fraction name already exists, patient_trial_id: {patientId}, fraction_name: {fractionName}"}
+  
+  formatedPack = {fractionTableNameDict[key]: rawData[key] for key in rawData if key in fractionTableNameDict and rawData[key]}
   try:
-    sqlStmt = f"INSERT INTO fraction (prescription_id, fraction_number, fraction_name, fraction_date, mvsdd, kvsdd, kv_pixel_size, mv_pixel_size, marker_length, marker_width) VALUES ((SELECT prescription_id FROM prescription WHERE patient_id=(SELECT id FROM patient WHERE patient_trial_id='{patientId}')), {payload['fractionNumber']}, '{fractionName}', {fractionDate}, {mvsdd}, {kvsdd}, {kvPixelSize}, {mvPixelSize}, {markerLength}, {markerWidth})"
+    sqlStmt = "INSERT INTO fraction (prescription_id, "
+    sqlStmt += ', '.join([key for key in formatedPack])
+    sqlStmt += f") VALUES ((SELECT prescription_id FROM prescription WHERE patient_id=(SELECT id FROM patient WHERE patient_trial_id='{patientId}')),"
+    sqlStmt += ', '.join([f"'{formatedPack[key]}'" for key in formatedPack])
+    sqlStmt += ");"
     executeQuery(sqlStmt)
-    fractionId = executeQuery(f"SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}')")[0][0]
-    sqlStmt = f"INSERT INTO images (fraction_id) VALUES ({fractionId})"
+    fractionId = executeQuery(f"SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}');")[0][0]
+    sqlStmt = f"INSERT INTO images (fraction_id) VALUES ('{fractionId}')"
     executeQuery(sqlStmt)    
-    return make_response({"message": "Fraction added successfully"}, 200)
+    return True, {"message": "Fraction added successfully"}
   except Exception as err:
     print(err, file=sys.stderr)
-    return make_response({"message": "Failed to add fraction"}, 400)
+    return False, {"message": f"Failed to add fraction, patient_trial_id: {patientId}, fraction_name: {fractionName}"}
+
+def addNewFraction(req):
+  payload = req.json
+  status, rsp = _addFractionToDB(payload)
+  if status:
+    return make_response(rsp, 200)
+  else:
+    return make_response(rsp, 400)
+
+
+def addBulkFraction(req):
+  rawData = req.json
+  csvRawData = csv.reader(io.StringIO(rawData['fractionList']))
+  csvHeader = next(csvRawData)
+  fractionInfoList = []
+  row = next(csvRawData)
+  while row:
+    fractionInfoList.append({csvHeader[i]: row[i] for i in range(len(row))})
+    try:
+      row = next(csvRawData)
+    except StopIteration:
+      break
+  for fractionInfo in fractionInfoList:
+    status, rsp = _addFractionToDB(fractionInfo)
+    if not status:
+      return make_response(rsp, 400)
+
+  return make_response({"message": "Bulk fraction added successfully"}, 200)

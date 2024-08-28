@@ -304,6 +304,27 @@
         "text/csv"
       ]
     },
+    "surface_imaging": {
+     "path": "/{clinical_trial}/{test_centre}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "Surface Imaging",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    },
     "dicom_no_track_plan_path": {
       "path": "/{clinical_trial}/{test_centre}/Dose Reconstruction/DICOM/PAT{centre_patient_no}/",
       "display_name": "DICOM No Track Plan",
