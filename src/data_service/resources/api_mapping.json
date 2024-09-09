@@ -880,6 +880,15 @@
                 "type": "str"
             },
             {
+                "property" : "surface_imaging",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "surface_imaging"
+                },
+                "type": "str"
+            },
+            {
                 "property" : "spect_3d_attenuation_ct_path",
                 "description" : "",
                 "field" : {

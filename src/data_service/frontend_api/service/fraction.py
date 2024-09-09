@@ -152,6 +152,13 @@ def getUpdateFractionField(req):
   if missingFields == None:
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
   try:
+    rootDrivePath = req.args.get("rootDrivePath")
+    rootPath = config.DATA_FILESYSTEM_ROOT_PREFIX + rootDrivePath
+    if rootDrivePath and os.path.exists(rootPath):
+      rootPath = rootPath
+    else:
+      rootPath = config.DATA_FILESYSTEM_ROOT
+    print(rootPath)
     trialName = req.args.get("trialName")
     sqlStmt2 = f"SELECT trial_structure FROM trials WHERE trial_name='{trialName}'"
     fetchedRows2 = executeQuery(sqlStmt2, authDB=True)

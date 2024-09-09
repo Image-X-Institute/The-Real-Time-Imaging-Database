@@ -33,12 +33,14 @@ TOKEN_KEY=os.getenv("SECRET_KEY", "secret_key")
 TOKEN_ENCRYPTION_ALGO="HS256"
 ACCESS_LOG_FILENAME="accesslog.txt"
 DATA_FILESYSTEM_ROOT=localSettings["root_filesystem_path"]
+DATA_FILESYSTEM_ROOT_PREFIX=localSettings["root_filesystem_path_prefix"]
 LOGFILE_NAME="RealtimeImagingDB.txt"
 UPLOAD_FOLDER=localSettings["upload_folder_path"]
 TEMP_CACHE_PATH=localSettings["temp_cache_path"]
 JWT_SECRET_KEY=localSettings['JWT_SECRET']
 JWT_ALGORITHM=localSettings['JWT_ALGORITHM']
 CLOUD_DRIVE_FOLDER=localSettings['cloud_drive_folder']
+CLOUD_FOLDER_CONFIG_PATH=localSettings['cloud_folder_config_path']
 REGISTRATION_INVITE_CODE=localSettings['FRONTEND_USER_REGISTRATION_INVITATION_CODE']
 
 def setMailConfig(app: Flask):
