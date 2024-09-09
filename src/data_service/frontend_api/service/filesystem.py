@@ -53,3 +53,44 @@ def syncCloudDrive(req):
   #  Update the onedrive folder with the latest data from the filesystem
   subprocess.run(['onedrive', '--synchronize', '--download-only'], check=True, text=True)
   return make_response({"message": "ok"}, 200)
+
+def getBussinessFolderConfig(req):
+  try:
+    configPath = config.CLOUD_FOLDER_CONFIG_PATH
+    with open(configPath, 'r') as file:
+      folderList = file.readlines()
+    for i in range(len(folderList)):
+      folderList[i] = folderList[i].strip()
+    return make_response({"folderList": folderList}, 200)
+  except:
+    return make_response({"message": "Internal Server Error"}, 500)
+
+def addBussinessFolderConfig(req):
+  payload = req.json
+  newFolderName = payload["folderName"]
+  configPath = config.CLOUD_FOLDER_CONFIG_PATH
+  with open(configPath, 'a') as file:
+    file.write(newFolderName + "\n")
+  return make_response({"message": "ok"}, 200)
+
+
+def deleteBussinessFolderConfig(req):
+  payload = req.json
+  folderName = payload["folderName"]
+  configPath = config.CLOUD_FOLDER_CONFIG_PATH
+  with open(configPath, 'r') as file:
+    folderList = file.readlines()
+  with open(configPath, 'w') as file:
+    for folder in folderList:
+      if folder.strip() != folderName:
+        file.write(folder)
+  return make_response({"message": "ok"}, 200)
+
+
+def getAvailableRootDrive(req):
+  try:
+    rootPrefix = config.DATA_FILESYSTEM_ROOT_PREFIX
+    rootFolderList = os.listdir(rootPrefix)
+    return make_response({"rootFolderList": rootFolderList}, 200)
+  except:
+    return make_response({"message": "Internal Server Error"}, 500)

@@ -351,6 +351,13 @@
 			"field_type":"",
 			"level": "",
 			"allowed":[]
+		},
+		"surface_imaging": {
+			"path": "",
+			"display_name": "",
+			"field_type": "",
+			"level": "",
+			"allowed": []
 		}
 	}
 }
