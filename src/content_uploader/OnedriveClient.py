@@ -264,8 +264,8 @@ class OnedriveClient:
 
     
 def test_OnedriveClient():
-    client = getOndriveClientInstance(applicaionId="***REMOVED***", 
-                        clientSecret="***REMOVED***")
+    client = getOndriveClientInstance(applicaionId=***REMOVED***, 
+                        clientSecret=***REMOVED***)
     client.authenticateWithServer()
 
 
