@@ -71,6 +71,8 @@ def addBussinessFolderConfig(req):
   configPath = config.CLOUD_FOLDER_CONFIG_PATH
   with open(configPath, 'a') as file:
     file.write(newFolderName + "\n")
+
+  subprocess.run(['onedrive', '--resync', '--synchronize'], check=True, text=True, capture_output=True, input='Y\n')
   return make_response({"message": "ok"}, 200)
 
 
