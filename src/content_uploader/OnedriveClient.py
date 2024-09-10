@@ -263,11 +263,4 @@ class OnedriveClient:
             self.uploadFile(fileForUpload, "/data_transfer") 
 
     
-def test_OnedriveClient():
-    client = getOndriveClientInstance(applicaionId=***REMOVED***, 
-                        clientSecret=***REMOVED***)
-    client.authenticateWithServer()
 
-
-if __name__ == "__main__":
-    test_OnedriveClient()
