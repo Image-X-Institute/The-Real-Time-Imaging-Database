@@ -158,12 +158,10 @@ def getUpdateFractionField(req):
       rootPath = rootPath
     else:
       rootPath = config.DATA_FILESYSTEM_ROOT
-    print(rootPath)
     trialName = req.args.get("trialName")
     sqlStmt2 = f"SELECT trial_structure FROM trials WHERE trial_name='{trialName}'"
     fetchedRows2 = executeQuery(sqlStmt2, authDB=True)
     trialStructure = fetchedRows2[0][0]['fraction']
-    rootPath = config.DATA_FILESYSTEM_ROOT
     returnPack = []
     for field in missingFields:
       patientPack = {
@@ -180,11 +178,9 @@ def getUpdateFractionField(req):
           pathWithFractionName = pathWithFraction + '/' + field['fraction_name']
           if os.path.exists(rootPath + formatedPath + field['fraction_name']):
             pathWithFractionName = formatedPath + field['fraction_name']
-          
           KV_pattern = r"kv"
           MV_pattern = r"mv"
           surface_pattern = r"surface"
-
           # The logic here is to check if the path with fraction name exists, if not, check if the path with fraction exists.
           if os.path.exists(rootPath + pathWithFractionName):
             # If the key is KV or MV, we need to check if the folder name is different from the expected one.

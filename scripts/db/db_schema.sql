@@ -52,7 +52,7 @@ CREATE TABLE patient
 	clinical_trial VARCHAR NOT NULL,    -- the name/code of the clinical trial
 	test_centre VARCHAR NOT NULL,       -- test centre where the patient recieved treatment
 	centre_patient_no INTEGER NOT NULL, -- the patient's number within a centre	
-	number_of_markers INTEGER NOT NULL, -- the number of gold markers implanted at tumour site
+	number_of_markers INTEGER, -- the number of gold markers implanted at tumour site
 	--v2: respiratory_mc BOOLEAN,   -- respiratory motion control: is the patient holding breath or free breathing?
 	avg_treatment_time INTERVAL,
 	--v2: kim_result BOOLEAN,
