@@ -2,6 +2,39 @@
 import os
 import json
 import csv
+import re
+
+
+def checkPattern(itemName, path):
+  mri_pattern = r'mri_intra'
+  cbct_pattern = r'cbct'
+  kv_pattern = r'kv'
+  mv_pattern = r'mv'
+  surface_pattern = r'surface'
+  pet_pattern = r'pet'
+
+  if re.search(mri_pattern, itemName):
+    os.makedirs(path + "/MRI_intra")
+
+  if re.search(cbct_pattern, itemName):
+    os.makedirs(path + "/CBCT")
+    os.makedirs(path + "/CBCT/CBCT1")
+    os.makedirs(path + "/CBCT/CBCT2")
+    os.makedirs(path + "/CBCT/CBCT3")
+
+  if re.search(kv_pattern, itemName):
+    os.makedirs(path + "/KIM-KV")
+
+  if re.search(mv_pattern, itemName):
+    os.makedirs(path + "/KIM-MV")
+
+  if re.search(surface_pattern, itemName):
+    os.makedirs(path + "/Surface")
+
+  if re.search(pet_pattern, itemName):
+    os.makedirs(path + "/PET_intra")
+
+
 
 def createFolderTemplate(clinicalTrial, centerName, templatePath, samplePatient):
   if not os.path.exists(templatePath):
@@ -51,8 +84,13 @@ def createFolderTemplate(clinicalTrial, centerName, templatePath, samplePatient)
         if fraction["subfraction"]:
           for subfraction in fraction["subfraction"]:
             subfractionPath = fractionPath + "/" + subfraction
+            checkPattern(itemName, os.getcwd() + subfractionPath)
             if not os.path.exists(os.getcwd() + subfractionPath):
               os.makedirs(os.getcwd() + subfractionPath)
+        else:
+          checkPattern(itemName, os.getcwd() + fractionPath)
+
+
 
   # Create patient info for importing into the database
   title = "patient_trial_id,clinical_trial,test_centre,centre_patient_no,age,gender,tumour_site,avg_treatment_time,clinical_diag,kim_accuracy,linac_type,number_of_markers,patient_note"
@@ -89,10 +127,10 @@ def createFolderTemplate(clinicalTrial, centerName, templatePath, samplePatient)
           writer.writerow([f'{clinicalTrial}_{centerName}_{patientId.zfill(2)}', fraction["fraction_name"], fractionNumber, '', '', '', '', '', '', ''])
 if __name__ == "__main__":
   clinicalTrial = "LEARN_test"
-  centerName = "Nepean"
+  centerName = "RNSH"
   templatePath = os.getcwd() + "/../../docs/trial_folder_structure/"
   samplePatient = {
-    "patient_id": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+    "patient_id": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "100","345", "789", "1000", "523453"],
     "tumour_site": {
       "1": "Brain",
       "2": "Lung",
@@ -105,7 +143,12 @@ if __name__ == "__main__":
       "9": "Spine",
       "10": "H&N",
       "11": "Kidney",
-      "12": "Cardicac radioablation"
+      "12": "Cardicac radioablation",
+      "100": "Brain",
+      "345": "Brain",
+      "789": "Brain",
+      "1000": "Brain",
+      "523453": "Brain"
     },
     "fraction":{
       "1": [
@@ -247,7 +290,66 @@ if __name__ == "__main__":
           "fraction_name": "Fx2",
           "subfraction": ["Fx2-a", "Fx2-b"]
         }
+      ],
+      "100": [
+        {
+        "fraction_name": "Fx1",
+        "subfraction": ["Fx1-a", "Fx1-b", "Fx1-c"]
+        },
+        {
+          "fraction_name": "Fx2",
+          "subfraction": []
+        },
+        {
+          "fraction_name": "Fx3",
+          "subfraction": []
+        }
+      ],
+      "345": [
+        {
+        "fraction_name": "Fx1",
+        "subfraction": ["Fx1-a", "Fx1-b"]
+        },
+        {
+          "fraction_name": "Fx2",
+          "subfraction": []
+        },
+        {
+          "fraction_name": "Fx3",
+          "subfraction": ["Fx3-a", "Fx3-b"]
+        }
+      ],
+      "789": [
+        {
+        "fraction_name": "Fx1",
+        "subfraction": ["Fx1-a", "Fx1-b", "Fx1-c"]
+        },
+        {
+          "fraction_name": "Fx2",
+          "subfraction": []
+        }
+      ],
+      "1000": [
+        {
+        "fraction_name": "Fx1",
+        "subfraction": ["Fx1-a", "Fx1-b"]
+        },
+        {
+          "fraction_name": "Fx2",
+          "subfraction": []
+        }
+      ],
+      "523453": [
+        {
+        "fraction_name": "Fx1",
+        "subfraction": ["Fx1-a", "Fx1-b", "Fx1-c"]
+        },
+        {
+          "fraction_name": "Fx2",
+          "subfraction": []
+        }
       ]
+
     }
   }
 

@@ -889,6 +889,33 @@
                 "type": "str"
             },
             {
+                "property" : "ecg_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "ecg_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "abc_path",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "abc_path"
+                },
+                "type": "str"
+            },
+            {
+                "property" : "mri_intra",
+                "description" : "",
+                "field" : {
+                    "table": "images", 
+                    "column": "mri_intra"
+                },
+                "type": "str"
+            },
+            {
                 "property" : "spect_3d_attenuation_ct_path",
                 "description" : "",
                 "field" : {

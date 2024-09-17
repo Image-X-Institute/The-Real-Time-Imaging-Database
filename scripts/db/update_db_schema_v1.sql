@@ -132,3 +132,13 @@ ALTER TABLE images
 
 ALTER TABLE images
   ADD COLUMN surface_imaging VARCHAR;
+
+ALTER TABLE images
+  ADD COLUMN abc_path VARCHAR;
+
+ALTER TABLE images
+  ADD COLUMN ecg_path VARCHAR;
+
+ALTER TABLE images
+  ADD COLUMN mri_intra VARCHAR;
+

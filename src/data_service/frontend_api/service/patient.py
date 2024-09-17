@@ -4,7 +4,7 @@ import sys
 import csv
 import io
 
-def getPatientList(req):
+def getPatientIdList(req):
   trialName = req.args.get("trialName")
   siteName = req.args.get("siteName")
   sqlStmt = f"SELECT patient_trial_id FROM patient WHERE clinical_trial='{trialName}' AND test_centre='{siteName}'"
@@ -169,3 +169,72 @@ def addBulkPatient(req):
     return make_response({"message": "All patients added successfully", "successPatients": resultList}, 200)
   else:
     return make_response({"message": "All patients failed to add", "failedPatients": failedList}, 400)
+  
+def getPatientDetailList(req):
+  trialName = req.args.get("trialName")
+  sqlStmt = f"SELECT * FROM patient WHERE patient.clinical_trial='{trialName}'"
+  fetchedRows = executeQuery(sqlStmt, withDictCursor=True)
+  if fetchedRows is None:
+    return make_response("No patients found", 400)
+  
+  exportPack = []
+  for patient in fetchedRows:
+    patientInfo = {
+      "patient_trial_id": patient["patient_trial_id"],
+      "clinical_trial": patient["clinical_trial"],
+      "test_centre": patient["test_centre"],
+      "centre_patient_no": patient["centre_patient_no"],
+      "tumour_site": patient["tumour_site"]
+    }
+    exportPack.append(patientInfo)
+  rsp = make_response({"patients": exportPack}, 200)
+  return rsp
+
+def deleteOnePatient(req):
+  payload = req.json
+  patientId = payload['patientId']
+  message = ""
+  sqlGetPrescriptionId = f"SELECT prescription_id FROM prescription WHERE patient_id=(SELECT id FROM patient WHERE patient_trial_id='{patientId}');"
+  fetchedRows = executeQuery(sqlGetPrescriptionId)
+  message = "Patient not found"
+  if not fetchedRows:
+    return make_response({"message": message}, 400)
+  prescriptionId = fetchedRows[0][0]
+  sqlGetFractionIdList = f"SELECT fraction_id FROM fraction WHERE prescription_id='{prescriptionId}';"
+  fetchedRows = executeQuery(sqlGetFractionIdList)
+  message = "error while deleting from images table"
+  try:
+    fractionIdList = [row[0] for row in fetchedRows]
+    for fractionId in fractionIdList:
+      sqlDeleteImage = f"DELETE FROM images WHERE fraction_id='{fractionId}';"
+      executeQuery(sqlDeleteImage)
+  except Exception as err:
+    print(err, file=sys.stderr)
+    return make_response({"message": message}, 400)
+  
+  message = "error while deleting from fraction table"
+  try:
+    sqlDeleteFraction = f"DELETE FROM fraction WHERE prescription_id='{prescriptionId}';"
+    executeQuery(sqlDeleteFraction)
+  except Exception as err:
+    print(err, file=sys.stderr)
+    return make_response({"message": message}, 400)
+  
+  message = "error while deleting from prescription table"
+  try:
+    sqlDeletePrescription = f"DELETE FROM prescription WHERE prescription_id='{prescriptionId}';"
+    executeQuery(sqlDeletePrescription)
+  except Exception as err:
+    print(err, file=sys.stderr)
+    return make_response({"message": message}, 400)
+  
+  message = "error while deleting from patient table"
+  try:
+    sqlDeletePatient = f"DELETE FROM patient WHERE patient_trial_id='{patientId}';"
+    executeQuery(sqlDeletePatient)
+  except Exception as err:
+    print(err, file=sys.stderr)
+    return make_response({"message": message}, 400)
+  
+  message = "Patient deleted successfully"
+  return make_response({"message": message}, 200)

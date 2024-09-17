@@ -124,13 +124,16 @@ def getMissingFractionFieldCheck(req):
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
   return make_response(missingFields)
 
-def _tryToFindKVorMVFolder(rootPath, mainPath, case):
+def _tryToFindImageFolder(rootPath, mainPath, case):
   # For many of the trials, the name of the KV folder could be different, so we need to check all the possible names. 
   # If the folder name is neither KIM-KV nor kV, we can't do anything, but return the path to fraction folder level. 
 
   possibleKVFolderNames = ['KIM-KV', 'KIM-kV', 'kV', 'KV', 'kv']
   possibleMVFolderNames = ['KIM-MV', 'MV', 'mv']
   possibleSurfaceFolderNames = ['surface', 'Surface', 'surface_imaging', 'Surface_Imaging', 'Surface_imaging', 'Surface Imaging', 'surface_images', 'Surface Images', 'surface_images', 'Surface_Images']
+  possibleCBCTFolderNames = ['CBCT', 'cbct', 'CBCT_Images', 'CBCT Images', 'cbct_images', 'CBCT_images']
+  possibleMRIFolderNames = ['MRI', 'mri_images', 'MRI_images', 'MRI_intra', 'MRI_Intra', 'mri_intra']
+  possiblePETFolderNames = ['PET', 'pet_images', 'PET_images', 'PET_Intra', 'PET_intra', 'pet_intra']
 
   if case == "KV":
     for folderName in possibleKVFolderNames:
@@ -140,12 +143,74 @@ def _tryToFindKVorMVFolder(rootPath, mainPath, case):
     for folderName in possibleMVFolderNames:
       if os.path.exists(rootPath + mainPath + '/' + folderName):
         return mainPath + '/' + folderName
+      
+  elif case == "cbct":
+    for folderName in possibleCBCTFolderNames:
+      if os.path.exists(rootPath + mainPath + '/' + folderName):
+        return mainPath + '/' + folderName
+  elif case == "mri":
+    for folderName in possibleMRIFolderNames:
+      if os.path.exists(rootPath + mainPath + '/' + folderName):
+        return mainPath + '/' + folderName
+  elif case == "pet":
+    for folderName in possiblePETFolderNames:
+      if os.path.exists(rootPath + mainPath + '/' + folderName):
+        return mainPath + '/' + folderName
   else:
     for folderName in possibleSurfaceFolderNames:
       if os.path.exists(rootPath + mainPath + '/' + folderName):
         return mainPath + '/' + folderName
       
   return mainPath
+
+def _checkImageFolderItems(rootPath, pathWithFractionName, key):
+  mri_pattern = r'mri_intra'
+  cbct_pattern = r'cbct'
+  kv_pattern = r'kv'
+  mv_pattern = r'mv'
+  surface_pattern = r'surface'
+  pet_pattern = r'pet'
+
+  # If the key is KV or MV, we need to check if the folder name is different from the expected one.
+  if re.search(kv_pattern, key):
+    # If the key is KV, we need to add the KV folder name to the path.
+    pathWithFractionName = _tryToFindImageFolder(rootPath, pathWithFractionName, 'KV')
+    # The function will return the path with KV folder name if it exists, otherwise, it will return the path with fraction name.
+    # The below step is to check if the path contains KV, if it does, we will add it to the updateFields.
+    if re.search(kv_pattern, pathWithFractionName, re.IGNORECASE):
+      print(pathWithFractionName)
+      return pathWithFractionName
+  # The same logic as above, but for MV.
+  elif re.search(mv_pattern, key):
+    pathWithFractionName = _tryToFindImageFolder(rootPath, pathWithFractionName, 'MV')
+    # The function will return the path with MV folder name if it exists, otherwise, it will return the path with fraction name.
+    # The below step is to check if the path contains MV, if it does, we will add it to the updateFields.
+    if re.search(mv_pattern, pathWithFractionName, re.IGNORECASE):
+      return pathWithFractionName
+  # The same logic as above, but for surface.
+  elif re.search(surface_pattern, key):
+    pathWithFractionName = _tryToFindImageFolder(rootPath, pathWithFractionName, 'surface')
+    if re.search(surface_pattern, pathWithFractionName, re.IGNORECASE):
+      return pathWithFractionName
+  # The same logic as above, but for pet.
+  elif re.search(pet_pattern, key):
+    pathWithFractionName = _tryToFindImageFolder(rootPath, pathWithFractionName, 'pet')
+    if re.search(pet_pattern, pathWithFractionName, re.IGNORECASE):
+      return pathWithFractionName
+  # The same logic as above, but for cbct.
+  elif re.search(cbct_pattern, key):
+    pathWithFractionName = _tryToFindImageFolder(rootPath, pathWithFractionName, 'cbct')
+    if re.search(cbct_pattern, pathWithFractionName, re.IGNORECASE):
+      return pathWithFractionName
+  # The same logic as above, but for mri.
+  elif re.search(mri_pattern, key):
+    pathWithFractionName = _tryToFindImageFolder(rootPath, pathWithFractionName, 'mri')
+    if re.search(mri_pattern, pathWithFractionName, re.IGNORECASE):
+      return pathWithFractionName
+  else:
+    return pathWithFractionName
+  
+  return 0
   
 def getUpdateFractionField(req):
   missingFields = _getMissingFractionFieldCheck(req)
@@ -158,12 +223,10 @@ def getUpdateFractionField(req):
       rootPath = rootPath
     else:
       rootPath = config.DATA_FILESYSTEM_ROOT
-    print(rootPath)
     trialName = req.args.get("trialName")
     sqlStmt2 = f"SELECT trial_structure FROM trials WHERE trial_name='{trialName}'"
     fetchedRows2 = executeQuery(sqlStmt2, authDB=True)
     trialStructure = fetchedRows2[0][0]['fraction']
-    rootPath = config.DATA_FILESYSTEM_ROOT
     returnPack = []
     for field in missingFields:
       patientPack = {
@@ -180,46 +243,16 @@ def getUpdateFractionField(req):
           pathWithFractionName = pathWithFraction + '/' + field['fraction_name']
           if os.path.exists(rootPath + formatedPath + field['fraction_name']):
             pathWithFractionName = formatedPath + field['fraction_name']
-          
-          KV_pattern = r"kv"
-          MV_pattern = r"mv"
-          surface_pattern = r"surface"
 
           # The logic here is to check if the path with fraction name exists, if not, check if the path with fraction exists.
           if os.path.exists(rootPath + pathWithFractionName):
-            # If the key is KV or MV, we need to check if the folder name is different from the expected one.
-            if re.search(KV_pattern, key):
-              # If the key is KV, we need to add the KV folder name to the path.
-              pathWithFractionName = _tryToFindKVorMVFolder(rootPath, pathWithFractionName, 'KV')
-              # The function will return the path with KV folder name if it exists, otherwise, it will return the path with fraction name.
-              # The below step is to check if the path contains KV, if it does, we will add it to the updateFields.
-              if re.search(KV_pattern, pathWithFractionName):
-                patientPack['updateFields'][key] = pathWithFractionName
-            # The same logic as above, but for MV.
-            elif re.search(MV_pattern, key):
-              pathWithFractionName = _tryToFindKVorMVFolder(rootPath, pathWithFractionName, 'MV')
-              # The function will return the path with MV folder name if it exists, otherwise, it will return the path with fraction name.
-              # The below step is to check if the path contains MV, if it does, we will add it to the updateFields.
-              if re.search(MV_pattern, pathWithFractionName):
-                patientPack['updateFields'][key] = pathWithFractionName
-            # The same logic as above, but for surface.
-            elif re.search(surface_pattern, key):
-              pathWithFractionName = _tryToFindKVorMVFolder(rootPath, pathWithFractionName, 'surface')
-              if re.search(surface_pattern, pathWithFractionName):
-                patientPack['updateFields'][key] = pathWithFractionName
-            else:
+            pathWithFractionName = _checkImageFolderItems(rootPath, pathWithFractionName, key)
+            if pathWithFractionName:
               patientPack['updateFields'][key] = pathWithFractionName
           # If the path with fraction name does not exist, we will check if the path with fraction exists.
           elif os.path.exists(rootPath + pathWithFraction):
-            if re.search(KV_pattern, key):
-              pathWithFraction = _tryToFindKVorMVFolder(rootPath, pathWithFraction, 'KV')
-              if re.search(KV_pattern, pathWithFraction):
-                patientPack['updateFields'][key] = pathWithFraction
-            elif re.search(MV_pattern, key):
-              pathWithFraction = _tryToFindKVorMVFolder(rootPath, pathWithFraction, 'MV')
-              if re.search(MV_pattern, pathWithFraction):
-                patientPack['updateFields'][key] = pathWithFraction
-            else:
+            pathWithFraction = _checkImageFolderItems(rootPath, pathWithFraction, key)
+            if pathWithFraction:
               patientPack['updateFields'][key] = pathWithFraction
       if patientPack['updateFields']:
         returnPack.append(patientPack)

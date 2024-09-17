@@ -50,7 +50,6 @@ def getUpdatePrescriptionField(req):
     sqlStmt2 = f"SELECT trial_structure FROM trials WHERE trial_name='{trialName}'"
     fetchedRows2 = executeQuery(sqlStmt2, authDB=True)
     trialStructure = fetchedRows2[0][0]['prescription']
-    rootPath = config.DATA_FILESYSTEM_ROOT
     returnPack = []
     for field in missingFields:
       patientPack = {

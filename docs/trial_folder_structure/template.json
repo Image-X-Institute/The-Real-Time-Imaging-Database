@@ -351,6 +351,34 @@
 			"field_type":"",
 			"level": "",
 			"allowed":[]
+		},
+		"surface_imaging": {
+			"path": "",
+			"display_name": "",
+			"field_type": "",
+			"level": "",
+			"allowed": []
+		},
+		"abc_path": {
+			"path": "",
+			"display_name": "",
+			"field_type": "",
+			"level": "",
+			"allowed": []
+		},
+		"ecg_path": {
+			"path": "",
+			"display_name": "",
+			"field_type": "",
+			"level": "",
+			"allowed": []
+		},
+		"mri_intra_path": {
+			"path": "",
+			"display_name": "",
+			"field_type": "",
+			"level": "",
+			"allowed": []
 		}
 	}
 }
