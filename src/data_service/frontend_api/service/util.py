@@ -49,3 +49,28 @@ def getCenterList(req):
   sites = {"sites": [site.name for site in sites]}
   rsp = make_response(sites)
   return rsp
+
+def getCenterDetailList(req):
+  sqlStmt = "SELECT * FROM treatment_sites"
+  fetchedRows = executeQuery(sqlStmt, withDictCursor=True, authDB=True)
+  returnPack = []
+  for row in fetchedRows:
+    sitePack = {
+      "siteName": row['site_name'],
+      "siteFullName": row['site_full_name'],
+      "siteLocation": row['site_location'],
+    }
+    returnPack.append(sitePack)
+  return make_response({"sites": returnPack}, 200)
+
+def deleteCentre(req):
+  siteName = req.json['siteName']
+  if not siteName:
+    return make_response({'message': 'siteName is required.'}, 400)
+  try:
+    sqlStmt = f"DELETE FROM treatment_sites WHERE site_name='{siteName}'"
+    executeQuery(sqlStmt, authDB=True)
+    return make_response({'message': 'Site deleted successfully.'}, 200)
+  except Exception as err:
+    print(err, file=sys.stderr)
+    return make_response({'message': 'An error occurred while deleting site.'}, 400)
