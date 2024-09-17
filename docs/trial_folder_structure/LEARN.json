@@ -283,16 +283,6 @@
         "application/dicom"
       ]
     },
-     "RPM_path": {
-      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Surface Signal/PAT{centre_patient_no}/",
-      "display_name": "Surface Signal",
-      "field_type": "folder",
-      "level": "fraction",
-      "allowed": [
-        "application/dicom",
-        "text/plain"
-      ]
-    },
     "dicom_no_track_plan_path": {
       "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Dose Reconstruction/DICOM/PAT{centre_patient_no}/",
       "display_name": "DICOM No Track Plan",
@@ -300,6 +290,120 @@
       "level": "fraction",
       "allowed": [
         "application/dicom"
+      ]
+    },
+    "RPM_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/RPM/PAT{centre_patient_no}/",
+      "display_name": "RPM",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom",
+        "text/plain"
+      ]
+    },
+    "abc_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/ABC/PAT{centre_patient_no}/",
+      "display_name": "ABC",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom",
+        "text/plain"
+      ]
+    },
+    "ecg_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/ECG/PAT{centre_patient_no}/",
+      "display_name": "ECG",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom",
+        "text/plain"
+      ]
+    },    
+    "mri_intra": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "MRI Intra",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    },
+    "cbct_images_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "CBCT Images",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    },
+    "pet_image_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "PET Images",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    },
+    "surface_imaging": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "Surface Imaging",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
       ]
     }
   }
