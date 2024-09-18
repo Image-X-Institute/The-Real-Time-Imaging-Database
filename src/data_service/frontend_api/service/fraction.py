@@ -307,9 +307,18 @@ def addBulkFraction(req):
       row = next(csvRawData)
     except StopIteration:
       break
+  resultList = []
+  failedList = []
   for fractionInfo in fractionInfoList:
     status, rsp = _addFractionToDB(fractionInfo)
     if not status:
-      return make_response(rsp, 400)
-
-  return make_response({"message": "Bulk fraction added successfully"}, 200)
+      failedList.append(fractionInfo['patientId'])
+    else:
+      resultList.append(fractionInfo['patientId'])
+    
+  if failedList and resultList:
+    return make_response({"message": "Some fractions failed to add", "failedList": failedList, "successList": resultList}, 200)
+  elif resultList:
+    return make_response({"message": "Bulk fraction added successfully", "successList": resultList}, 200)
+  else:
+    return make_response({"message": "Failed to add any fraction", "failedList": failedList}, 400)

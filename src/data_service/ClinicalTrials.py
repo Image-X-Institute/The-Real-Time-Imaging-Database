@@ -180,7 +180,6 @@ class ClinicalTrials:
                     strQuery += currentTable["table"] + "." + joinedwith["joined_using"] \
                                 + " = " + joinedwith["table"] + "." \
                                 + joinedwith["column"]
-
         firstParam = True
         for param in paramsOfInterest:
             if param in requestParams:

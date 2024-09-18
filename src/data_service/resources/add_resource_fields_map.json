@@ -102,7 +102,23 @@
                 "marker_width": {
                     "type": "float",
                     "required": false
-                }           
+                },
+                "marker_type": {
+                    "type": "str",
+                    "required": false
+                },  
+                "imaging_kv": {
+                    "type": "float",
+                    "required": false
+                },
+                "imaging_ma": {
+                    "type": "float",
+                    "required": false
+                },
+                "imaging_ms": {
+                    "type": "float",
+                    "required": false
+                },
             }
         }
     }

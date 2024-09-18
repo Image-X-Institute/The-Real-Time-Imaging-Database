@@ -49,6 +49,18 @@ ALTER TABLE fraction
 ALTER TABLE fraction
   ADD COLUMN marker_width FLOAT DEFAULT 0.0;
 
+ALTER TABLE fraction
+  ADD COLUMN imaging_kv FLOAT DEFAULT 0.0;
+
+ALTER TABLE fraction
+  ADD COLUMN imaging_ma FLOAT DEFAULT 0.0;
+
+ALTER TABLE fraction
+  ADD COLUMN imaging_ms FLOAT DEFAULT 0.0;
+
+ALTER TABLE fraction
+  ADD COLUMN marker_type VARCHAR;
+
 ALTER TABLE images
   ADD COLUMN rt_ct_fraction VARCHAR;
 

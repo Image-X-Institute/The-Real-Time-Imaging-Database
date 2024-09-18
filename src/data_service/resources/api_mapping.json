@@ -31,6 +31,12 @@
                 "column": "clinical_trial",
                 "description": "Search by clinical trial",
                 "example": "SPARK"
+            }, 
+            "num_markers": {
+                "table": "patient",
+                "column": "number_of_markers",
+                "description": "Search by the number of markers implanted in the treatment region",
+                "example": "3"
             }
         },
         "required_fields": [],
@@ -140,6 +146,12 @@
                 "column": "clinical_trial",
                 "description": "Search by clinical trial",
                 "example": "SPARK"
+            },
+            "linac_type": {
+                "table": "prescription",
+                "column": "linac_type",
+                "description": "Search by specifying the Manufacturer and model of the LINAC used",
+                "example": "Varian Truebeam"
             }
         },
         "required_fields":[
@@ -383,6 +395,72 @@
                 "column": "clinical_trial",
                 "description": "Search by clinical trial",
                 "example": "SPARK"
+            },
+            "fraction_name": {
+                "table": "fraction",
+                "column": "fraction_name",
+                "description": "Search by specifying the folder name of the fraction",
+                "example": "F1"
+            },
+            "mvsdd": {
+                "table": "fraction",
+                "column": "mvsdd",
+                "description": "Search by specifying the detector distance value (in meters) for the MV beam",
+                "example": "1.5"
+            },
+            "kvsdd": {
+                "table": "fraction",
+                "column": "kvsdd",
+                "description": "Search by specifying the detector distance value (in meters) for the kV beam",
+                "example": "1.5"
+            },
+            "kv_pixel_size": {
+                "table": "fraction",
+                "column": "kv_pixel_size",
+                "description": "Search by specifying the pixel size of the kV images",
+                "example": "0.5"
+            },
+            "mv_pixel_size": {
+                "table": "fraction",
+                "column": "mv_pixel_size",
+                "description": "Search by specifying the pixel size of the MV images",
+                "example": "0.5"
+            },
+            "marker_length": {
+                "table": "fraction",
+                "column": "marker_length",
+                "description": "Search by specifying the length of the marker in millimeters",
+                "example": "10"
+            },
+            "marker_width": {
+                "table": "fraction",
+                "column": "marker_width",
+                "description": "Search by specifying the width of the marker in millimeters",
+                "example": "10"
+            },
+            "marker_type": {
+                "table": "fraction",
+                "column": "marker_type",
+                "description": "Search by specifying the type of the marker",
+                "example": "gold"
+            },
+            "imaging_kv": {
+                "table": "fraction",
+                "column": "imaging_kv",
+                "description": "Search by specifying the imaging modality for kV",
+                "example": "CBCT"
+            },
+            "imaging_ms": {
+                "table": "fraction",
+                "column": "imaging_ms",
+                "description": "Search by specifying the imaging modality for MV",
+                "example": "CBCT"
+            },
+            "imaging_ma": {
+                "table": "fraction",
+                "column": "imaging_ma",
+                "description": "Search by specifying the imaging modality for MV",
+                "example": "CBCT"
             }
         },
         "required_fields":[
@@ -497,6 +575,38 @@
                 "field" : {
                     "table": "fraction", 
                     "column": "marker_width"
+                }
+            },
+            {
+                "property" : "marker_type",
+                "description" : "The type of the marker",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "marker_type"
+                }
+            },
+            {
+                "property" : "imaging_kv",
+                "description" : "The imaging modality for kV",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "imaging_kv"
+                }
+            },
+            {
+                "property" : "imaging_ms",
+                "description" : "The imaging modality for MV",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "imaging_ms"
+                }
+            },
+            {
+                "property" : "imaging_ma",
+                "description" : "The imaging modality for MV",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "imaging_ma"
                 }
             }
         ],
@@ -990,6 +1100,38 @@
                 "field" : {
                     "table": "fraction", 
                     "column": "marker_width"
+                }
+            },
+            {
+                "property" : "marker_type",
+                "description" : "The type of the marker",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "marker_type"
+                }
+            },
+            {
+                "property" : "imaging_kv",
+                "description" : "The imaging modality for kV",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "imaging_kv"
+                }
+            },
+            {
+                "property" : "imaging_ms",
+                "description" : "The imaging modality for MV",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "imaging_ms"
+                }
+            },
+            {
+                "property" : "imaging_ma",
+                "description" : "The imaging modality for MV",
+                "field" : {
+                    "table": "fraction", 
+                    "column": "imaging_ma"
                 }
             }
         ],
