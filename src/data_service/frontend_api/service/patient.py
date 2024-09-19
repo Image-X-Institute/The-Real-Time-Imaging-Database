@@ -117,16 +117,20 @@ def _addPatientToDB(rawData):
       continue
     if rawData[itemName]:
       patientInfo[key] = rawData[itemName]
-  checkPatientStmt = f"SELECT * FROM patient WHERE patient_trial_id='{patientInfo['patient_trial_id']}';"
-  fetchedRows = executeQuery(checkPatientStmt)
-  if fetchedRows:
-    return False, {"message":f"Patient already exists, patient_trial_id: {patientInfo['patient_trial_id']}"}
+  try:
+    checkPatientStmt = f"SELECT * FROM patient WHERE patient_trial_id='{patientInfo['patient_trial_id']}';"
+    fetchedRows = executeQuery(checkPatientStmt)
+    if fetchedRows:
+      return False, {"message":f"Patient already exists, patient_trial_id: {patientInfo['patient_trial_id']}"}
 
-  sqlStmt = "INSERT INTO patient ("
-  sqlStmt += ', '.join([key for key in patientInfo])
-  sqlStmt += ") VALUES ("
-  sqlStmt += ', '.join([f"'{patientInfo[key]}'" for key in patientInfo])
-  sqlStmt += ");"
+    sqlStmt = "INSERT INTO patient ("
+    sqlStmt += ', '.join([key for key in patientInfo])
+    sqlStmt += ") VALUES ("
+    sqlStmt += ', '.join([f"'{patientInfo[key]}'" for key in patientInfo])
+    sqlStmt += ");"
+  except Exception as err:
+    print(err, file=sys.stderr)
+    return False, {"message": "Failed to add patient, The sell value is empty or invalid"}
   try:
     executeQuery(sqlStmt)
   except Exception as err:
