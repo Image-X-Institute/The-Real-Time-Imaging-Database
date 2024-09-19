@@ -1,2 +1,2 @@
-patientId,fractionNumber,fractionName,fractionDate,mvsdd,kvsdd,kvPixelSize,mvPixelSize,markerLength,markerWidth
+patientId(*),fractionNumber(*),fractionName(*),fractionDate,mvsdd,kvsdd,kvPixelSize,mvPixelSize,markerLength,markerWidth,markerType,imagingKV,imagingMA,imagingMS
 

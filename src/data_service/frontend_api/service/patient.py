@@ -88,9 +88,22 @@ def getPatientTrialStats(req):
 
 def _addPatientToDB(rawData):
 
+  formNameToTableName = {
+    "patient_trial_id(*)": "patient_trial_id",
+    "clinical_trial(*)": "clinical_trial",
+    "test_centre(*)": "test_centre",
+    "centre_patient_no(*)": "centre_patient_no",
+    "tumour_site(*)": "tumour_site",
+    "linac_type(*)": "linac_type",
+  }
+
   patientInfo = {}
   linacType = ''
-  for key in rawData.keys():
+  for itemName in rawData.keys():
+    if itemName in formNameToTableName.keys():
+      key = formNameToTableName[itemName]
+    else:
+      key = itemName
     if key == 'linac_type':
       linacType = rawData[key]
       continue

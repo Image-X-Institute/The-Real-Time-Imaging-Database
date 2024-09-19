@@ -15,10 +15,16 @@ fractionTableItemList = [
     "kv_pixel_size",
     "mv_pixel_size",
     "marker_length",
-    "marker_width"
+    "marker_width",
+    "marker_type",
+    "imaging_kv",
+    "imaging_ms",
+    "imaging_ma"
   ]
 
 fractionTableNameDict = {
+  "fractionNumber(*)": "fraction_number",
+  "fractionName(*)": "fraction_name",
   "fractionNumber": "fraction_number",
   "fractionName": "fraction_name",
   "fractionDate": "fraction_date",
@@ -27,7 +33,11 @@ fractionTableNameDict = {
   "kvPixelSize": "kv_pixel_size",
   "mvPixelSize": "mv_pixel_size",
   "markerLength": "marker_length",
-  "markerWidth": "marker_width"
+  "markerWidth": "marker_width",
+  "markerType": "marker_type",
+  "imagingKV": "imaging_kv",
+  "imagingMS": "imaging_ms",
+  "imagingMA": "imaging_ma"
 }
 
 
@@ -261,8 +271,7 @@ def getUpdateFractionField(req):
     print(err, file=sys.stderr)
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
 
-def _addFractionToDB(rawData):
-  patientId = rawData["patientId"]
+def _addFractionToDB(rawData, patientId):
   fractionName = rawData["fractionName"]
   # check if fraction name exists
   sqlStmt = f"SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}')"
@@ -288,7 +297,8 @@ def _addFractionToDB(rawData):
 
 def addNewFraction(req):
   payload = req.json
-  status, rsp = _addFractionToDB(payload)
+  patientId = payload["patientId"]
+  status, rsp = _addFractionToDB(payload, patientId)
   if status:
     return make_response(rsp, 200)
   else:
@@ -310,11 +320,13 @@ def addBulkFraction(req):
   resultList = []
   failedList = []
   for fractionInfo in fractionInfoList:
-    status, rsp = _addFractionToDB(fractionInfo)
+    patientId = fractionInfo['patientId(*)']
+
+    status, rsp = _addFractionToDB(fractionInfo, patientId)
     if not status:
-      failedList.append(fractionInfo['patientId'])
+      failedList.append(patientId)
     else:
-      resultList.append(fractionInfo['patientId'])
+      resultList.append(patientId)
     
   if failedList and resultList:
     return make_response({"message": "Some fractions failed to add", "failedList": failedList, "successList": resultList}, 200)
