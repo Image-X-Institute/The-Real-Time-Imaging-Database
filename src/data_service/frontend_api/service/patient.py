@@ -105,7 +105,7 @@ def _addPatientToDB(rawData):
     else:
       key = itemName
     if key == 'linac_type':
-      linacType = rawData[key]
+      linacType = rawData[itemName]
       continue
     if key == 'gender':
       if rawData['gender'] == 'Male':
@@ -115,9 +115,8 @@ def _addPatientToDB(rawData):
       else:
         patientInfo['gender'] = 'O'
       continue
-    if rawData[key]:
-      patientInfo[key] = rawData[key]
-
+    if rawData[itemName]:
+      patientInfo[key] = rawData[itemName]
   checkPatientStmt = f"SELECT * FROM patient WHERE patient_trial_id='{patientInfo['patient_trial_id']}';"
   fetchedRows = executeQuery(checkPatientStmt)
   if fetchedRows:
@@ -171,11 +170,12 @@ def addBulkPatient(req):
   resultList = []
   failedList = []
   for patientInfo in patientInfoList:
+    patientId = patientInfo['patient_trial_id(*)']
     status, rsp = _addPatientToDB(patientInfo)
     if not status:
-      failedList.append(patientInfo['patient_trial_id'])
+      failedList.append(patientId)
     else:
-      resultList.append(patientInfo['patient_trial_id'])
+      resultList.append(patientId)
   if failedList and resultList:
     return make_response({"message": "Some patients failed to add", "failedPatients": failedList, "successPatients": resultList}, 200)
   elif resultList:
