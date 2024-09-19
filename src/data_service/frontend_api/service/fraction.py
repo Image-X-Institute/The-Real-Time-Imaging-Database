@@ -272,7 +272,9 @@ def getUpdateFractionField(req):
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
 
 def _addFractionToDB(rawData, patientId):
-  fractionName = rawData["fractionName"]
+  formatedPack = {fractionTableNameDict[key]: rawData[key] for key in rawData if key in fractionTableNameDict and rawData[key]}
+  fractionName = formatedPack["fraction_name"]
+  
   # check if fraction name exists
   sqlStmt = f"SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}')"
   result = executeQuery(sqlStmt)
