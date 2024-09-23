@@ -60,6 +60,25 @@ def getFractionDetailByPatientId(req):
 
   return make_response(fractionPack)
 
+def getFractionListByPatientId(req):
+  patientId = req.args.get("patientId")
+  sqlStmt = f"Select fraction_id, fraction_name, fraction_number, fraction_date from patient, prescription, fraction where patient.id = prescription.patient_id and prescription.prescription_id=fraction.prescription_id and patient.patient_trial_id='{patientId}'"
+  result = executeQuery(sqlStmt, withDictCursor=True)
+  if result is None:
+    return make_response("No fraction found", 400)
+  return make_response({"fractionList": result}, 200)
+
+def deleteFraction(req):
+  fractionId = req.json["fractionId"]
+  sqlStmt1 = f"DELETE FROM images WHERE fraction_id='{fractionId}';"
+  sqlStmt2 = f"DELETE FROM fraction WHERE fraction_id='{fractionId}';"
+  try:
+    executeQuery(sqlStmt1)
+    executeQuery(sqlStmt2)
+    return make_response({"message": "Fraction deleted successfully"}, 200)
+  except Exception as err:
+    print(err, file=sys.stderr)
+    return make_response({"message": "Failed to delete fraction"}, 400)
 
 def updateFractionInfo(req):
   payload = req.json

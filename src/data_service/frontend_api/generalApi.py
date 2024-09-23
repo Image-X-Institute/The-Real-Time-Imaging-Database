@@ -1,5 +1,5 @@
 from flask import request, Blueprint
-from .service.util import getTrialList, getCenterList, getCenterDetailList, deleteCentre
+from .service.util import getTrialList, getCenterList, getCenterDetailList, deleteCentre, deleteTrial
 from .service.patient import getPatientTrialStats
 from .service.general import addCentre, addTrial, getTrialStructure, getPatientInfoTemplate, getFractionInfoTemplate
 
@@ -8,6 +8,10 @@ generalApi_blueprint = Blueprint('generalApi', __name__)
 @generalApi_blueprint.route('/api/getTrialList', methods=['GET'])
 def getTrialListFunction():
   return getTrialList(request)
+
+@generalApi_blueprint.route('/api/deleteTrial', methods=['DELETE'])
+def deleteTrialFunction():
+  return deleteTrial(request)
 
 @generalApi_blueprint.route('/api/getCenterList', methods=['GET'])
 def getCenterListFunction():

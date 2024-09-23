@@ -1,11 +1,18 @@
 from flask import request, Blueprint
-from .service.fraction import getFractionDetailByPatientId, updateFractionInfo, getMissingFractionFieldCheck, getUpdateFractionField, updateFractionField, addNewFraction, addBulkFraction
+from .service.fraction import getFractionDetailByPatientId, updateFractionInfo, \
+  getMissingFractionFieldCheck, getUpdateFractionField, \
+    updateFractionField, addNewFraction, addBulkFraction \
+  , getFractionListByPatientId, deleteFraction
 
 fractionInfo_blueprint = Blueprint('fractionInfo', __name__)
 
 @fractionInfo_blueprint.route('/api/fraction/getFractionDetailByPatientId', methods=['GET'])
 def getFractionDetailByPatientIdFunction():
   return getFractionDetailByPatientId(request)
+
+@fractionInfo_blueprint.route('/api/fraction/getFractionListByPatientId', methods=['GET'])
+def getFractionListByPatientIdFunction():
+  return getFractionListByPatientId(request)
 
 @fractionInfo_blueprint.route('/api/fraction/updateFractionInfo', methods=['PATCH'])
 def updateFractionInfoFunction():
@@ -30,3 +37,7 @@ def addNewFractionFunction():
 @fractionInfo_blueprint.route('/api/fraction/addBulkFraction', methods=['POST'])
 def addBulkFractionFunction():
   return addBulkFraction(request)
+
+@fractionInfo_blueprint.route('/api/fraction/deleteFraction', methods=['DELETE'])
+def deleteFractionFunction():
+  return deleteFraction(request)
