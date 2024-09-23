@@ -152,6 +152,13 @@
                 "column": "linac_type",
                 "description": "Search by specifying the Manufacturer and model of the LINAC used",
                 "example": "Varian Truebeam"
+            },
+            "or_condition": {
+                "table":"",
+                "column":"",
+                "description": "Search parameters with or condition by using '-or-' keyword, Example: tumour_stie=liver-or-Liver",
+                "example":"",
+                "or_condition": "trial=LARK&tumour_site=liver-or-Liver"
             }
         },
         "required_fields":[
@@ -461,6 +468,19 @@
                 "column": "imaging_ma",
                 "description": "Search by specifying the imaging modality for MV",
                 "example": "CBCT"
+            },
+            "tumour_site": {
+                "table": "patient",
+                "column": "tumour_site",
+                "description": "Search by affected organ or anatomical region",
+                "example": "prostate"
+            },
+            "or_condition": {
+                "table":"",
+                "column":"",
+                "description": "Search parameters with or condition by using '-or-' keyword, Example: tumour_stie=liver-or-Liver",
+                "example":"",
+                "or_condition": "trial=LARK&tumour_site=liver-or-Liver"
             }
         },
         "required_fields":[
@@ -607,6 +627,14 @@
                 "field" : {
                     "table": "fraction", 
                     "column": "imaging_ma"
+                }
+            },
+            {
+                "property": "tumour_site",
+                "description": "The organ/region of the tumour being treated",
+                "field": {
+                    "table": "patient",
+                    "column": "tumour_site"
                 }
             }
         ],

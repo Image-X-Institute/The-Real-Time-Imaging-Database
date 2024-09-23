@@ -9,6 +9,7 @@ import datetime as dt
 from AccessManager import accessManagerInstance, AccessType
 from sys import stderr
 import psycopg2.extras
+import re
 
 
 class ClinicalTrials:
@@ -183,6 +184,11 @@ class ClinicalTrials:
         firstParam = True
         for param in paramsOfInterest:
             if param in requestParams:
+                calculationSign = '='
+                paramValue = requestParams[param]
+                if re.search(r'[<>]', requestParams[param]):
+                    calculationSign = re.search(r'[<>]', requestParams[param]).group()
+                    paramValue = re.sub(r'[<>]', '', requestParams[param])
                 if len(dbRelations) == 1 and firstParam:
                     strQuery += " WHERE "
                 else:
@@ -190,10 +196,24 @@ class ClinicalTrials:
 
                 if firstParam:
                     firstParam = False
-
-                strQuery += paramsOfInterest[param]["table"] + "." \
-                            + paramsOfInterest[param]["column"] + " = " \
-                            + "'" + requestParams[param] + "'"
+                # add or condition here, the keyword is -or-
+                if re.search(r'-or-', paramValue):
+                    paramValueList = paramValue.split('-or-')
+                    strQuery += "("
+                    firstValue = True
+                    for value in paramValueList:
+                        if not firstValue:
+                            strQuery += " OR "
+                        else:
+                            firstValue = False
+                        strQuery += dbRelations[0]["table"] + "." \
+                            + paramsOfInterest[param]["column"] + calculationSign \
+                            + "'" + value + "'" 
+                    strQuery += ")"
+                else:
+                    strQuery += paramsOfInterest[param]["table"] + "." \
+                                + paramsOfInterest[param]["column"] + calculationSign \
+                                + "'" + paramValue + "'"
         strQuery += ";\n"
 
         if config.APP_DEBUG_MODE:
