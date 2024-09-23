@@ -194,6 +194,18 @@
         ],
         "object_fields": [
             {
+                "property" : "test_column",
+                "description" : "test_column adding",
+                "field" : {
+                    "table": "prescription", 
+                    "column": "test_column"
+                },
+                "type": "str"
+            },
+
+
+            
+            {
                 "property" : "patient_trial_id",
                 "description" : "The TROG provided patient ID (not the hospital one)",
                 "field" : {
