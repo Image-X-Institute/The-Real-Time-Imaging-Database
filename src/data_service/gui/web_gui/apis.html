@@ -142,8 +142,12 @@
                                         </tr>
                                         {% for param in apis[endpoint]['query_params'] %}
                                         <tr class="field"><td><strong>{{param}}</strong>: {{apis[endpoint]['query_params'][param]['description']}}</td></tr>
-                                        {% set exampleUrl = endpoint+'?'+param+'='+apis[endpoint]['query_params'][param]['example'] %}
-                                        <tr class="param-example"><td><em>Example: <a href="{{exampleUrl}}">{{exampleUrl}}</a></em> </td></tr>
+                                        {% if apis[endpoint]['query_params'][param]['example'] == '' %}
+                                            {% set exampleUrl = endpoint+'?'+apis[endpoint]['query_params'][param]['or_condition'] %}
+                                        {% else %}
+                                            {% set exampleUrl = endpoint+'?'+param+'='+apis[endpoint]['query_params'][param]['example'] %}
+                                        {% endif %}
+                                            <tr class="param-example"><td><em>Example: <a href="{{exampleUrl}}">{{exampleUrl}}</a></em> </td></tr>
                                         {% endfor %}
                                         <tr>
                                             <td>

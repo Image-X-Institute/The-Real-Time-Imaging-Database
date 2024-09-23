@@ -14,7 +14,7 @@
 ![Flask](https://img.shields.io/badge/Flask-2.3.x-orange)
 
 <p>
-This project aims to create a secure and easy-to-use mechanism for managing the already acquired and to-be-generated clinical trial data into a central searchable service, which can be used to analyse clinical data and create deep-learning models for predicting various features of interest. The learning system provides a RESTful API and token-based authentication for ease of integration with existing and new applications that produce or require access to the de-identified patient data to researchers, clinicians, and other health professionals who want to use the available clinical data.
+This project aims to create a secure and easy-to-use mechanism for managing the already acquired and to-be-generated clinical trial data into a central searchable service, which can be used to analyse clinical data and create deep-learning models for predicting various features of interest. The learning system provides a RESTful API for ease of integration with existing and new applications that produce or require access to the de-identified patient data to researchers, clinicians, and other health professionals who want to use the available clinical data.
 </p>
 
 <p align="center">
@@ -38,16 +38,22 @@ This project aims to create a secure and easy-to-use mechanism for managing the 
 ![Architecture](docs/deployment_guide/images/architecture.png)
 
 ## Installation
-The project contains three main components:
+The project contains two main components:
 * The database server ([data_service](src/data_service))   
   - The main flask application that hosts the database server.
-* The web application ([admin_console](src/admin_console))   
+* The database front application ([Learndb_manager](https://github.com/Image-X-Institute/learndb-manager))  
+  - The database management application based on Reactjs.
+
+
+
+The fowllowing components are not in use anymore, but still be able to run:
+* The web application ([admin_console](src/admin_console)) - Archive   
   - The web application for admin to manage the import data.
-* The content uploader application ([content_uploader](src/content_uploader))   
+* The content uploader application ([content_uploader](src/content_uploader)) - Archive   
   - The application for users to import data into the database.   
   
 The documentation for the project can be found here:  
-* The user guide for general users can be found in the [docs](docs/User_Guide_Data_import.pdf) folder.
+* The user guide for general users can be found in the [docs](docs/Docs_for_importing_new_patient_data.pdf) folder.
 * The documentation for the project can be found in the [docsrc](docs/deployment_guide) folder.
 
 The file structure of the project is as follows:
