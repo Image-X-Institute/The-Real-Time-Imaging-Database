@@ -54,7 +54,7 @@ The fowllowing components are not in use anymore, but still be able to run:
   
 The documentation for the project can be found here:  
 * The user guide for general users can be found in the [docs](docs/Docs_for_importing_new_patient_data.pdf) folder.
-* The documentation for the project can be found in the [docsrc](docs/deployment_guide) folder.
+* The documentation for the project can be found in the [doc](docs/deployment_guide) folder.
 
 The file structure of the project is as follows:
 ```
@@ -78,7 +78,7 @@ In order to setup the project in a new environment, the prerequisites are:
 * PostgreSQL 14
 * Conda 4.10
 
-After installing the prerequisites, the database server can be setup by following the documentation in the [LEARN DB Deployment Guide](docsrc/Local_Deployment_Guide.md) folder.
+After installing the prerequisites, the database server can be setup by following the documentation in the [LEARN DB Deployment Guide](docs/deployment_guide/Local_Deployment_Guide.md) folder.
 
 The web application is a flask application with simple Jinja templates. The application can be setup by following the documentation in the [Admin Console Deployment Guide](admin_console/readme.md).
 
