@@ -54,7 +54,7 @@ The fowllowing components are not in use anymore, but still be able to run:
   
 The documentation for the project can be found here:  
 * The user guide for general users can be found in the [docs](docs/Docs_for_importing_new_patient_data.pdf) folder.
-* The documentation for the project can be found in the [doc](docs/deployment_guide) folder.
+* The documentation for the project can be found in the [deployment_guide](docs/deployment_guide) folder.
 
 The file structure of the project is as follows:
 ```
