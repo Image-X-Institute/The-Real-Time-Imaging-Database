@@ -80,7 +80,7 @@ In order to setup the project in a new environment, the prerequisites are:
 
 After installing the prerequisites, the database server can be setup by following the documentation in the [LEARN DB Deployment Guide](docs/deployment_guide/Local_Deployment_Guide.md) folder.
 
-The web application is a flask application with simple Jinja templates. The application can be setup by following the documentation in the [Admin Console Deployment Guide](admin_console/readme.md).
+The web application is a flask application with simple Jinja templates. The application can be setup by following the documentation in the [Admin Console Deployment Guide](src/admin_console/readme.md).
 
 
 ## License
