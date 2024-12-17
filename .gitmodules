@@ -1,0 +1,3 @@
+[submodule "learndb-manager"]
+	path = learndb-manager
+	url = https://github.com/Image-X-Institute/learndb-manager.git
