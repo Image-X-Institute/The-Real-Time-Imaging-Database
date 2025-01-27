@@ -1,3 +1,6 @@
 [submodule "learndb-manager"]
 	path = learndb-manager
 	url = https://github.com/Image-X-Institute/learndb-manager.git
+[submodule "image_db_client_library"]
+	path = image_db_client_library
+	url = https://github.com/Image-X-Institute/image_db_client_library
