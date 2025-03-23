@@ -1,0 +1,410 @@
+{
+  "prescription": {
+    "rt_ct_pres": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Plans/PAT{centre_patient_no}/CT/",
+      "display_name": "RT CT (prescription level)",
+      "field_type": "folder",
+      "level": "prescription",
+      "allowed": [
+        "application/dicom"
+      ]
+    },
+    "rt_dose_pres": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Plans/PAT{centre_patient_no}/Dose/",
+      "display_name": "RT Dose (prescription level)",
+      "field_type": "folder",
+      "level": "prescription",
+      "allowed": [
+        "application/dicom"
+      ],
+      "file_name": []
+    },
+    "rt_mri_pres": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Plans/PAT{centre_patient_no}/MRI/",
+      "display_name": "RT MRI",
+      "field_type": "folder",
+      "level": "prescription",
+      "allowed": [
+        "application/dicom"
+      ]
+    },
+    "rt_plan_pres": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Plans/PAT{centre_patient_no}/Plan/",
+      "display_name": "RT Plan (prescription level)",
+      "field_type": "folder",
+      "level": "prescription",
+      "allowed": [
+        "application/dicom"
+      ],
+      "file_name": []
+    },
+    "rt_structure_pres": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Plans/PAT{centre_patient_no}/Structure set/",
+      "display_name": "RT Structure (prescription level)",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom"
+      ]
+    },
+    "planned_dvh_pres": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Dose Reconstruction/DVH/PAT{centre_patient_no}/",
+      "display_name": "Planned DVH (prescription level)",
+      "field_type": "folder",
+      "level": "prescription",
+      "allowed": [
+        "text/plain",
+        "text/rtf",
+        "text/csv"
+      ]
+    },
+    "planned_dicom_pres": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Dose Reconstruction/DICOM/PAT{centre_patient_no}/",
+      "display_name": "Planned DICOM (prescription level)",
+      "field_type": "folder",
+      "level": "prescription",
+      "allowed": ["application/dicom"]
+    },
+    "centroid_pres": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Files/PAT{centre_patient_no}/",
+      "display_name": "Centroid (prescription level)",
+      "field_type": "folder",
+      "level": "prescription",
+      "allowed": [
+        "text/plain",
+        "text/rtf"
+      ],
+      "file_name": []
+    }
+  },
+  "fraction": {
+    "rt_ct_fraction": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Plans/PAT{centre_patient_no}/CT/",
+      "display_name": "RT CT (fraction level)",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom"
+      ]
+    },
+    "rt_dose_fraction": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Plans/PAT{centre_patient_no}/Dose/",
+      "display_name": "RT Dose (fraction level)",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom"
+      ],
+      "file_name": []
+    },
+    "rt_plan_fraction": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Plans/PAT{centre_patient_no}/Plan/",
+      "display_name": "RT Dose (fraction level)",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom"
+      ],
+      "file_name": []
+    },
+    "rt_structure_fraction": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Plans/PAT{centre_patient_no}/Structure set/",
+      "display_name": "RT Structure (fraction level)",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom"
+      ],
+      "file_name": []
+    },
+    "centroid_fraction": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Files/PAT{centre_patient_no}/",
+      "display_name": "Centroid (fraction level)",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "text/plain",
+        "text/rtf",
+        "text/csv",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.oasis.opendocument.spreadsheet"
+      ],
+      "file_name": [
+        "Centroid"
+      ]
+    },
+    "kim_threshold": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Files/PAT{centre_patient_no}/",
+      "display_name": "KIM threshold (fraction level)",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": ["text/plain"]
+    },
+    "kim_logs_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Measured Motions/PAT{centre_patient_no}/",
+      "display_name": "KIM Logs",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "text/plain",
+        "text/rtf",
+        "text/csv"
+      ]
+    },
+    "kv_images_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "KV Images",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    },
+    "mv_images_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "MV Images",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    },
+    "metrics_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Triangulations/PAT{centre_patient_no}/",
+      "display_name": "Metrics",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "text/plain",
+        "text/rtf",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.oasis.opendocument.spreadsheet",
+        "text/csv"
+      ]
+    },
+    "triangulation_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Triangulations/PAT{centre_patient_no}/",
+      "display_name": "Triangulation Files",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "text/plain",
+        "text/rtf",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.oasis.opendocument.spreadsheet",
+        "text/csv"
+      ]
+    },
+    "trajectory_logs_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Trajectory Logs/PAT{centre_patient_no}/",
+      "display_name": "Trajectory Logs Files",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/octet-stream",
+        "application/zip",
+        "application/x-7z-compressed",
+        "application/gzip",
+        "application/x-bzip2",
+        "application/x-bzip"
+      ]
+    },
+    "dvh_track_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Dose Reconstruction/DVH/PAT{centre_patient_no}/",
+      "display_name": "DVH Track",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "text/plain",
+        "text/rtf",
+        "text/rtf",
+        "text/csv"
+      ]
+    },
+    "dvh_no_track_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Dose Reconstruction/DVH/PAT{centre_patient_no}/",
+      "display_name": "DVH No Track",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "text/plain",
+        "text/rtf",
+        "text/csv"
+      ]
+    },
+    "planned_dvh_fraction": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Dose Reconstruction/DVH/PAT{centre_patient_no}/",
+      "display_name": "Planned DVH (fraction level)",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "text/plain",
+        "text/rtf",
+        "text/csv"
+      ]
+    },
+    "planned_dicom_fraction": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Dose Reconstruction/DICOM/PAT{centre_patient_no}/",
+      "display_name": "Planned DICOM (fraction level)",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": ["application/dicom"]
+    },
+    "dicom_track_plan_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Dose Reconstruction/DICOM/PAT{centre_patient_no}/",
+      "display_name": "DICOM Track Plan",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom"
+      ]
+    },
+    "dicom_no_track_plan_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Dose Reconstruction/DICOM/PAT{centre_patient_no}/",
+      "display_name": "DICOM No Track Plan",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom"
+      ]
+    },
+    "RPM_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/RPM/PAT{centre_patient_no}/",
+      "display_name": "RPM",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom",
+        "text/plain"
+      ]
+    },
+    "abc_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/ABC/PAT{centre_patient_no}/",
+      "display_name": "ABC",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom",
+        "text/plain"
+      ]
+    },
+    "ecg_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/ECG/PAT{centre_patient_no}/",
+      "display_name": "ECG",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "application/dicom",
+        "text/plain"
+      ]
+    },    
+    "mri_intra": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "MRI Intra",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    },
+    "cbct_images_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "CBCT Images",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    },
+    "pet_image_path": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "PET Images",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    },
+    "surface_imaging": {
+      "path": "/{clinical_trial}/{test_centre}/{tumour_site}/Patient Images/PAT{centre_patient_no}/",
+      "display_name": "Surface Imaging",
+      "field_type": "folder",
+      "level": "fraction",
+      "allowed": [
+        "image/tiff",
+        "image/hnd",
+        "image/hnc",
+        "image/his",
+        "image/jpg",
+        "image/png",
+        "application/dicom",
+        "application/octet-stream",
+        "text/plain",
+        "text/rtf",
+        "text/xml",
+        "text/csv",
+        "application/xml"
+      ]
+    }
+  }
+}
