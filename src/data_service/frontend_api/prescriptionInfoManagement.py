@@ -1,5 +1,6 @@
 from flask import request, Blueprint
-from .service.prescription import getMissingPrescriptionFieldCheck, getUpdatePrescriptionField, updatePrescriptionField
+from .service.prescription import getMissingPrescriptionFieldCheck, getUpdatePrescriptionField, \
+  updatePrescriptionField, exportPrescriptionCsv, syncPrescriptionCsv
 from .service.patient import updatePatientInfo
 
 prescriptionInfo_blueprint = Blueprint('prescriptionInfo', __name__)
@@ -20,3 +21,11 @@ def getUpdatePrescriptionFieldFunction():
 @prescriptionInfo_blueprint.route('/api/prescription/updatePrescriptionField', methods=['PATCH'])
 def updatePrescriptionFieldFunction():
   return updatePrescriptionField(request)
+
+@prescriptionInfo_blueprint.route('/api/prescription/exportPrescriptionCsv', methods=['GET'])
+def exportPrescriptionCsvFunction():
+  return exportPrescriptionCsv(request)
+
+@prescriptionInfo_blueprint.route('/api/prescription/syncPrescriptionCsv', methods=['POST'])
+def syncPrescriptionCsvFunction():
+  return syncPrescriptionCsv(request)

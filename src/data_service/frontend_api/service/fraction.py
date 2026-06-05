@@ -1,11 +1,15 @@
 from flask import make_response
 from .util import executeQuery
+from dbconnector import DBConnector
 import sys
 import config
 import os
 import re
 import csv
 import io
+import datetime as dt
+import psycopg2 as pg
+import psycopg2.extras
 
 fractionTableItemList = [
     "fraction_number",
@@ -39,6 +43,31 @@ fractionTableNameDict = {
   "imagingMS": "imaging_ms",
   "imagingMA": "imaging_ma"
 }
+
+fractionSyncCsvFieldDict = {
+  "fractionNumber(*)": "fraction_number",
+  "fractionName(*)": "fraction_name",
+  "fractionNumber": "fraction_number",
+  "fractionName": "fraction_name",
+  "fractionDate": "fraction_date",
+  "mvsdd": "mvsdd",
+  "kvsdd": "kvsdd",
+  "kvPixelSize": "kv_pixel_size",
+  "mvPixelSize": "mv_pixel_size",
+  "markerLength": "marker_length",
+  "markerWidth": "marker_width",
+  "markerType": "marker_type",
+  "imagingKV": "imaging_kv",
+  "imagingMS": "imaging_ms",
+  "imagingMA": "imaging_ma"
+}
+
+fractionSyncPatientIdFields = ["patientId(*)", "patientId", "patient_trial_id"]
+fractionSyncNumericColumns = {
+  "mvsdd", "kvsdd", "kv_pixel_size", "mv_pixel_size",
+  "marker_length", "marker_width", "imaging_kv", "imaging_ma", "imaging_ms"
+}
+fractionSyncIntegerColumns = {"fraction_number"}
 
 
 def getFractionDetailByPatientId(req):
@@ -79,6 +108,423 @@ def deleteFraction(req):
   except Exception as err:
     print(err, file=sys.stderr)
     return make_response({"message": "Failed to delete fraction"}, 400)
+
+def _getCsvPatientId(row):
+  for fieldName in fractionSyncPatientIdFields:
+    if fieldName in row and row[fieldName].strip():
+      return row[fieldName].strip()
+  return None
+
+def _getCsvFractionName(row):
+  for fieldName in ["fractionName(*)", "fractionName", "fraction_name"]:
+    if fieldName in row and row[fieldName].strip():
+      return row[fieldName].strip()
+  return None
+
+def _normaliseCsvValue(columnName, rawValue):
+  if rawValue is None:
+    return None
+
+  value = rawValue.strip()
+  if value == "":
+    return None
+
+  if columnName == "fraction_date":
+    return dt.date.fromisoformat(value)
+
+  if columnName in fractionSyncIntegerColumns:
+    return int(float(value))
+
+  if columnName in fractionSyncNumericColumns:
+    return float(value)
+
+  return value
+
+def _normaliseDbValue(value):
+  if isinstance(value, dt.datetime):
+    return value.date()
+  return value
+
+def _jsonSafeValue(value):
+  if isinstance(value, (dt.date, dt.datetime)):
+    return value.isoformat()
+  return value
+
+def _valuesAreDifferent(dbValue, csvValue):
+  dbValue = _normaliseDbValue(dbValue)
+  if isinstance(dbValue, float) and isinstance(csvValue, float):
+    return abs(dbValue - csvValue) > 1e-9
+  return dbValue != csvValue
+
+def _connectToImagingDb():
+  connector = DBConnector(config.DB_NAME,
+                          config.DB_USER,
+                          config.DB_PASSWORD,
+                          config.DB_HOST,
+                          config.DB_PORT)
+  connector.connect()
+  conn = connector.getConnection()
+  if conn is None:
+    raise RuntimeError("Could not connect to imaging database.")
+  return connector, conn
+
+def _readFractionCsv(reader, clearEmptyFields=False):
+  csvRecords = {}
+  skippedRows = []
+  requiredHeaders = ["patientId(*)", "fractionName(*)"]
+
+  if not reader.fieldnames:
+    raise ValueError("CSV file is empty or missing a header row.")
+
+  missingHeaders = [header for header in requiredHeaders if header not in reader.fieldnames]
+  if missingHeaders:
+    raise ValueError(f"CSV missing required columns: {', '.join(missingHeaders)}")
+
+  for rowNumber, row in enumerate(reader, start=2):
+    if not any(value and value.strip() for value in row.values()):
+      continue
+
+    patientId = _getCsvPatientId(row)
+    fractionName = _getCsvFractionName(row)
+
+    if not patientId or not fractionName:
+      skippedRows.append({
+        "rowNumber": rowNumber,
+        "reason": "Missing patientId or fractionName"
+      })
+      continue
+
+    key = (patientId, fractionName)
+    if key in csvRecords:
+      skippedRows.append({
+        "rowNumber": rowNumber,
+        "patientId": patientId,
+        "fractionName": fractionName,
+        "reason": "Duplicate patientId/fractionName in CSV"
+      })
+      continue
+
+    dbValues = {}
+    try:
+      for csvColumn, dbColumn in fractionSyncCsvFieldDict.items():
+        if csvColumn not in row:
+          continue
+        if row[csvColumn] is None or row[csvColumn].strip() == "":
+          if clearEmptyFields:
+            dbValues[dbColumn] = None
+          continue
+        dbValues[dbColumn] = _normaliseCsvValue(dbColumn, row[csvColumn])
+    except ValueError as err:
+      skippedRows.append({
+        "rowNumber": rowNumber,
+        "patientId": patientId,
+        "fractionName": fractionName,
+        "reason": f"Invalid value: {err}"
+      })
+      continue
+
+    dbValues["fraction_name"] = fractionName
+    csvRecords[key] = {
+      "patientId": patientId,
+      "fractionName": fractionName,
+      "values": dbValues
+    }
+
+  return csvRecords, skippedRows
+
+def _loadFractionCsv(filePath, clearEmptyFields=False):
+  with open(filePath, newline='', encoding='utf-8-sig') as csvFile:
+    return _readFractionCsv(csv.DictReader(csvFile), clearEmptyFields)
+
+def _loadFractionCsvContent(csvContent, clearEmptyFields=False):
+  return _readFractionCsv(csv.DictReader(io.StringIO(csvContent)), clearEmptyFields)
+
+def _fetchExistingFractions(cur, patientIds, trialName=None):
+  if not patientIds:
+    return {}
+
+  columns = sorted(set(fractionSyncCsvFieldDict.values()))
+  query = f"""
+    SELECT
+      patient.patient_trial_id,
+      fraction.fraction_id,
+      {', '.join([f'fraction.{column}' for column in columns])}
+    FROM patient
+    JOIN prescription ON patient.id = prescription.patient_id
+    JOIN fraction ON prescription.prescription_id = fraction.prescription_id
+    WHERE patient.patient_trial_id = ANY(%s)
+  """
+  params = [patientIds]
+  if trialName:
+    query += " AND patient.clinical_trial = %s"
+    params.append(trialName)
+
+  cur.execute(query, params)
+  rows = cur.fetchall()
+  return {(row["patient_trial_id"], row["fraction_name"]): row for row in rows}
+
+def _fetchPatientPrescriptions(cur, patientIds, trialName=None):
+  if not patientIds:
+    return {}
+
+  query = """
+    SELECT patient.patient_trial_id, prescription.prescription_id
+    FROM patient
+    JOIN prescription ON patient.id = prescription.patient_id
+    WHERE patient.patient_trial_id = ANY(%s)
+  """
+  params = [patientIds]
+  if trialName:
+    query += " AND patient.clinical_trial = %s"
+    params.append(trialName)
+
+  cur.execute(query, params)
+  return {row["patient_trial_id"]: row["prescription_id"] for row in cur.fetchall()}
+
+def _insertFraction(cur, prescriptionId, values):
+  columns = [column for column in values.keys() if column in fractionSyncCsvFieldDict.values()]
+  placeholders = ', '.join(['%s'] * len(columns))
+  query = f"""
+    INSERT INTO fraction (prescription_id, {', '.join(columns)})
+    VALUES (%s, {placeholders})
+    RETURNING fraction_id
+  """
+  params = [prescriptionId] + [values[column] for column in columns]
+  cur.execute(query, params)
+  fractionId = cur.fetchone()["fraction_id"]
+  cur.execute("INSERT INTO images (fraction_id) VALUES (%s)", (fractionId,))
+  return fractionId
+
+def _updateFraction(cur, fractionId, changedFields):
+  setClause = ', '.join([f"{column} = %s" for column in changedFields.keys()])
+  params = list(changedFields.values()) + [fractionId]
+  cur.execute(f"UPDATE fraction SET {setClause} WHERE fraction_id = %s", params)
+
+def _formatCsvOutputValue(value):
+  if value is None:
+    return ""
+  if isinstance(value, (dt.date, dt.datetime)):
+    return value.isoformat()
+  return value
+
+def exportFractionCsv(req):
+  trialName = req.args.get("trialName")
+  siteName = req.args.get("siteName")
+  patientId = req.args.get("patientId")
+
+  if not trialName:
+    return make_response({"message": "trialName is required."}, 400)
+
+  connector = None
+  conn = None
+  try:
+    connector, conn = _connectToImagingDb()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    query = """
+      SELECT
+        patient.patient_trial_id,
+        fraction.fraction_number,
+        fraction.fraction_name,
+        fraction.fraction_date,
+        fraction.mvsdd,
+        fraction.kvsdd,
+        fraction.kv_pixel_size,
+        fraction.mv_pixel_size,
+        fraction.marker_length,
+        fraction.marker_width,
+        fraction.marker_type,
+        fraction.imaging_kv,
+        fraction.imaging_ma,
+        fraction.imaging_ms
+      FROM patient
+      JOIN prescription ON patient.id = prescription.patient_id
+      JOIN fraction ON prescription.prescription_id = fraction.prescription_id
+      WHERE patient.clinical_trial = %s
+    """
+    params = [trialName]
+
+    if siteName:
+      query += " AND patient.test_centre = %s"
+      params.append(siteName)
+
+    if patientId:
+      query += " AND patient.patient_trial_id = %s"
+      params.append(patientId)
+
+    query += " ORDER BY patient.patient_trial_id, fraction.fraction_number, fraction.fraction_name"
+    cur.execute(query, params)
+    rows = cur.fetchall()
+
+    output = io.StringIO()
+    writer = csv.writer(output, lineterminator='\n')
+    writer.writerow([
+      "patientId(*)", "fractionNumber(*)", "fractionName(*)", "fractionDate",
+      "mvsdd", "kvsdd", "kvPixelSize", "mvPixelSize", "markerLength",
+      "markerWidth", "markerType", "imagingKV", "imagingMA", "imagingMS"
+    ])
+    for row in rows:
+      writer.writerow([
+        _formatCsvOutputValue(row["patient_trial_id"]),
+        _formatCsvOutputValue(row["fraction_number"]),
+        _formatCsvOutputValue(row["fraction_name"]),
+        _formatCsvOutputValue(row["fraction_date"]),
+        _formatCsvOutputValue(row["mvsdd"]),
+        _formatCsvOutputValue(row["kvsdd"]),
+        _formatCsvOutputValue(row["kv_pixel_size"]),
+        _formatCsvOutputValue(row["mv_pixel_size"]),
+        _formatCsvOutputValue(row["marker_length"]),
+        _formatCsvOutputValue(row["marker_width"]),
+        _formatCsvOutputValue(row["marker_type"]),
+        _formatCsvOutputValue(row["imaging_kv"]),
+        _formatCsvOutputValue(row["imaging_ma"]),
+        _formatCsvOutputValue(row["imaging_ms"])
+      ])
+
+    cur.close()
+    conn.close()
+    connector.connection = None
+
+    return make_response({
+      "fractionCsv": output.getvalue(),
+      "rowCount": len(rows),
+      "trialName": trialName,
+      "siteName": siteName,
+      "patientId": patientId
+    }, 200)
+  except (Exception, pg.DatabaseError) as err:
+    print(err, file=sys.stderr)
+    try:
+      if conn:
+        conn.close()
+      if connector:
+        connector.connection = None
+    except:
+      pass
+    return make_response({"message": "Failed to export fraction CSV.", "error": str(err)}, 400)
+
+def syncFractionCsv(req):
+  payload = req.json
+  if not payload or ("filePath" not in payload and "csvContent" not in payload):
+    return make_response({"message": "filePath or csvContent is required."}, 400)
+
+  filePath = payload.get("filePath")
+  csvContent = payload.get("csvContent")
+  fileName = payload.get("fileName")
+  trialName = payload.get("trialName")
+  dryRun = bool(payload.get("dryRun", False))
+  deleteMissing = bool(payload.get("deleteMissing", False))
+  clearEmptyFields = bool(payload.get("clearEmptyFields", False))
+
+  if filePath and not os.path.isfile(filePath):
+    return make_response({"message": f"CSV file not found: {filePath}"}, 400)
+
+  try:
+    if csvContent is not None:
+      csvRecords, skippedRows = _loadFractionCsvContent(csvContent, clearEmptyFields)
+    else:
+      csvRecords, skippedRows = _loadFractionCsv(filePath, clearEmptyFields)
+    patientIds = sorted({record["patientId"] for record in csvRecords.values()})
+
+    connector, conn = _connectToImagingDb()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    existingFractions = _fetchExistingFractions(cur, patientIds, trialName)
+    patientPrescriptions = _fetchPatientPrescriptions(cur, patientIds, trialName)
+
+    inserted = []
+    updated = []
+    deleted = []
+    missingPatients = []
+    unchangedCount = 0
+
+    for key, csvRecord in csvRecords.items():
+      patientId, fractionName = key
+      existingRow = existingFractions.get(key)
+
+      if existingRow is None:
+        prescriptionId = patientPrescriptions.get(patientId)
+        if prescriptionId is None:
+          missingPatients.append(patientId)
+          continue
+
+        if not dryRun:
+          _insertFraction(cur, prescriptionId, csvRecord["values"])
+        inserted.append({
+          "patientId": patientId,
+          "fractionName": fractionName,
+          "fields": sorted(csvRecord["values"].keys())
+        })
+        continue
+
+      changedFields = {}
+      for columnName, csvValue in csvRecord["values"].items():
+        if columnName not in existingRow:
+          continue
+        if _valuesAreDifferent(existingRow[columnName], csvValue):
+          changedFields[columnName] = csvValue
+
+      if changedFields:
+        if not dryRun:
+          _updateFraction(cur, existingRow["fraction_id"], changedFields)
+        updated.append({
+          "patientId": patientId,
+          "fractionName": fractionName,
+          "fields": {key: _jsonSafeValue(value) for key, value in changedFields.items()}
+        })
+      else:
+        unchangedCount += 1
+
+    if deleteMissing:
+      csvKeys = set(csvRecords.keys())
+      for key, existingRow in existingFractions.items():
+        if key in csvKeys:
+          continue
+        if not dryRun:
+          cur.execute("DELETE FROM images WHERE fraction_id = %s", (existingRow["fraction_id"],))
+          cur.execute("DELETE FROM fraction WHERE fraction_id = %s", (existingRow["fraction_id"],))
+        deleted.append({
+          "patientId": key[0],
+          "fractionName": key[1]
+        })
+
+    if dryRun:
+      conn.rollback()
+    else:
+      conn.commit()
+    cur.close()
+    conn.close()
+    connector.connection = None
+
+    return make_response({
+      "message": "Fraction CSV sync completed.",
+      "dryRun": dryRun,
+      "filePath": filePath,
+      "fileName": fileName,
+      "trialName": trialName,
+      "deleteMissing": deleteMissing,
+      "clearEmptyFields": clearEmptyFields,
+      "totalCsvRows": len(csvRecords) + len(skippedRows),
+      "validCsvRows": len(csvRecords),
+      "insertedCount": len(inserted),
+      "updatedCount": len(updated),
+      "deletedCount": len(deleted),
+      "unchangedCount": unchangedCount,
+      "missingPatients": sorted(set(missingPatients)),
+      "skippedRows": skippedRows,
+      "inserted": inserted,
+      "updated": updated,
+      "deleted": deleted
+    }, 200)
+  except (Exception, pg.DatabaseError) as err:
+    print(err, file=sys.stderr)
+    try:
+      conn.rollback()
+      conn.close()
+      connector.connection = None
+    except:
+      pass
+    return make_response({"message": "Failed to sync fraction CSV.", "error": str(err)}, 400)
 
 def updateFractionInfo(req):
   payload = req.json

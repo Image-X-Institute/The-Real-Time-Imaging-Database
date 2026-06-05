@@ -1,4 +1,3 @@
-from lib2to3.pgen2 import token
 from werkzeug.datastructures import ImmutableMultiDict
 import config
 from dbconnector import DBConnector
@@ -17,12 +16,14 @@ class ClinicalTrials:
         self.connector = DBConnector(config.DB_NAME, 
                                 config.DB_USER, 
                                 config.DB_PASSWORD,
-                                config.DB_HOST)
+                                config.DB_HOST,
+                                config.DB_PORT)
         self.connector.connect()
         self.authConnector = DBConnector(config.AUTH_DB_NAME, 
                                 config.AUTH_DB_USER, 
                                 config.AUTH_DB_PASSWORD,
-                                config.AUTH_DB_HOST)
+                                config.AUTH_DB_HOST,
+                                config.AUTH_DB_PORT)
         self.authConnector.connect()
         self.apiMapping = ClinicalTrials.getAPIFieldMapping()
 

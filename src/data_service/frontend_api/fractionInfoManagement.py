@@ -2,7 +2,7 @@ from flask import request, Blueprint
 from .service.fraction import getFractionDetailByPatientId, updateFractionInfo, \
   getMissingFractionFieldCheck, getUpdateFractionField, \
     updateFractionField, addNewFraction, addBulkFraction \
-  , getFractionListByPatientId, deleteFraction
+  , getFractionListByPatientId, deleteFraction, syncFractionCsv, exportFractionCsv
 
 fractionInfo_blueprint = Blueprint('fractionInfo', __name__)
 
@@ -41,3 +41,11 @@ def addBulkFractionFunction():
 @fractionInfo_blueprint.route('/api/fraction/deleteFraction', methods=['DELETE'])
 def deleteFractionFunction():
   return deleteFraction(request)
+
+@fractionInfo_blueprint.route('/api/fraction/syncFractionCsv', methods=['POST'])
+def syncFractionCsvFunction():
+  return syncFractionCsv(request)
+
+@fractionInfo_blueprint.route('/api/fraction/exportFractionCsv', methods=['GET'])
+def exportFractionCsvFunction():
+  return exportFractionCsv(request)

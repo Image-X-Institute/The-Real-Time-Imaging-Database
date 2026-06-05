@@ -9,7 +9,9 @@ class ServiceStatusAgent:
     def __init__(self) -> None:
         self.connector = DBConnector(config.DB_NAME, 
                                 config.DB_USER, 
-                                config.DB_PASSWORD)
+                                config.DB_PASSWORD,
+                                config.DB_HOST,
+                                config.DB_PORT)
         self.connector.connect()
 
     def getMissingData(self, level: str, 

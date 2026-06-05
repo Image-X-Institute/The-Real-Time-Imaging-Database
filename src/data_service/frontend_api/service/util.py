@@ -11,12 +11,14 @@ def executeQuery(queryStmt:str, withDictCursor:bool=False, authDB=False):
     connector = DBConnector(config.AUTH_DB_NAME, 
                             config.AUTH_DB_USER, 
                             config.AUTH_DB_PASSWORD,
-                            config.AUTH_DB_HOST)
+                            config.AUTH_DB_HOST,
+                            config.AUTH_DB_PORT)
   else:
     connector = DBConnector(config.DB_NAME, 
                             config.DB_USER, 
                             config.DB_PASSWORD,
-                            config.DB_HOST)
+                            config.DB_HOST,
+                            config.DB_PORT)
   connector.connect()
   conn = connector.getConnection()
 

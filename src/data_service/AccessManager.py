@@ -64,10 +64,11 @@ class AccessManager:
         self.sessionTokens = []
 
     def _connectToAuthDB(self):
-        self.connector = DBConnector(config.AUTH_DB_NAME, 
-                                config.AUTH_DB_USER, 
+        self.connector = DBConnector(config.AUTH_DB_NAME,
+                                config.AUTH_DB_USER,
                                 config.AUTH_DB_PASSWORD,
-                                config.AUTH_DB_HOST)
+                                config.AUTH_DB_HOST,
+                                config.AUTH_DB_PORT)
         self.connector.connect()
 
     def _decodeToken(self, token:str) -> Tuple[Boolean,Dict,str]:
@@ -303,7 +304,8 @@ def processTokenRequestApplication(applicationData: Dict[str, str]) -> Tuple[Dic
         connector = DBConnector(config.AUTH_DB_NAME, 
                                 config.AUTH_DB_USER, 
                                 config.AUTH_DB_PASSWORD,
-                                config.AUTH_DB_HOST)
+                                config.AUTH_DB_HOST,
+                                config.AUTH_DB_PORT)
         connector.connect()
 
         try:
@@ -398,7 +400,8 @@ def getSitesAndTrials() -> SitesAndTrials:
     connector = DBConnector(config.AUTH_DB_NAME, 
                             config.AUTH_DB_USER, 
                             config.AUTH_DB_PASSWORD,
-                            config.AUTH_DB_HOST)
+                            config.AUTH_DB_HOST,
+                            config.AUTH_DB_PORT)
     connector.connect()
 
     trials = []
@@ -430,7 +433,8 @@ def _executeQuery(queryStmt:str) -> List[Tuple]:
     connector = DBConnector(config.AUTH_DB_NAME, 
                             config.AUTH_DB_USER, 
                             config.AUTH_DB_PASSWORD,
-                            config.AUTH_DB_HOST)
+                            config.AUTH_DB_HOST,
+                            config.AUTH_DB_PORT)
     connector.connect()
     conn = connector.getConnection()
 
@@ -475,7 +479,8 @@ def addSiteTrial(newDetails: Dict[str, str]) -> Tuple[bool, str]:
     connector = DBConnector(config.AUTH_DB_NAME,
                             config.AUTH_DB_USER,
                             config.AUTH_DB_PASSWORD,
-                            config.AUTH_DB_HOST)
+                            config.AUTH_DB_HOST,
+                            config.AUTH_DB_PORT)
     connector.connect()
     conn = connector.getConnection()
     try:
@@ -537,7 +542,8 @@ def addTrialStructure(trialPack:Dict) -> Tuple[bool, str]:
     connector = DBConnector(config.AUTH_DB_NAME,
                             config.AUTH_DB_USER,
                             config.AUTH_DB_PASSWORD,
-                            config.AUTH_DB_HOST)
+                            config.AUTH_DB_HOST,
+                            config.AUTH_DB_PORT)
     connector.connect()
     conn = connector.getConnection()
     if len(rows) > 0:

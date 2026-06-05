@@ -8,6 +8,7 @@ class DBConnector:
                         port:int=5432) -> None:
         self.conn_params = {}
         self.conn_params["host"] = host
+        self.conn_params["port"] = port
         self.conn_params["database"] = database
         self.conn_params["user"] = user
         self.conn_params["password"] = password
@@ -18,7 +19,8 @@ class DBConnector:
             self.connection = pg.connect(database=self.conn_params["database"], 
                                     user=self.conn_params["user"], 
                                     password=self.conn_params["password"],
-                                    host=self.conn_params["host"])
+                                    host=self.conn_params["host"],
+                                    port=self.conn_params["port"])
 
             cur = self.connection.cursor()
             print("Connected to PostgreSQL version:", end=" ")
