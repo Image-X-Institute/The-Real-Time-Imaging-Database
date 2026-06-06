@@ -86,7 +86,8 @@ CREATE TABLE prescription
 	RT_dose_path VARCHAR,  -- NOT NULL
 	RT_MRI_path VARCHAR,
 	RT_DVH_original_path VARCHAR,
-	centroid_path VARCHAR
+	centroid_path VARCHAR,
+	extended_data JSONB NOT NULL DEFAULT '{}'::jsonb
 	--v2: beam_model VARCHAR
 );
 
@@ -115,7 +116,8 @@ CREATE TABLE fraction
 	--v2: breathing_technique VARCHAR,
 	--v2: kim_threshold JSON,
 	mvsdd FLOAT DEFAULT 0.0,
-	kvsdd FLOAT DEFAULT 0.0
+	kvsdd FLOAT DEFAULT 0.0,
+	extended_data JSONB NOT NULL DEFAULT '{}'::jsonb
 	--v2: kv_field_size FLOAT,
 	--v2: dose_rate FLOAT,
 	--v2: kim_starting_angle INTEGER,
@@ -160,7 +162,8 @@ CREATE TABLE images
 	DICOM_track_plan_path VARCHAR,
 	DICOM_no_track_plan_path VARCHAR,
 	respiratory_files_path VARCHAR,
-	notes_path VARCHAR
+	notes_path VARCHAR,
+	extended_data JSONB NOT NULL DEFAULT '{}'::jsonb
 	--v2: image_kv FLOAT NOT NULL,
 	--v2: image_ma FLOAT NOT NULL,
 	--v2: image_freq INTEGER NOT NULL

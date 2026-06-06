@@ -32,6 +32,7 @@ CREATE TABLE trials
     trial_name VARCHAR NOT NULL UNIQUE,
     trial_full_name VARCHAR,
     trial_structure JSONB,
+    rds_path VARCHAR
 );
 
 CREATE TABLE treatment_sites
