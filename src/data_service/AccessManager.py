@@ -11,6 +11,7 @@ import random
 import string
 from dbconnector import DBConnector
 import psycopg2 as pg
+import psycopg2.extras
 import sys
 import os
 from ProfileCreator import createProfile
@@ -390,6 +391,7 @@ class SiteDetails(NamedTuple):
 class TrialDetails(NamedTuple):
     name: str
     fullName: str
+    rdsPath: str
 
 class SitesAndTrials(NamedTuple):
     sites: List[SiteDetails]
@@ -410,10 +412,10 @@ def getSitesAndTrials() -> SitesAndTrials:
     try:
         conn = connector.getConnection() 
         cur = conn.cursor()
-        cur.execute("SELECT trial_name, trial_full_name FROM trials")
+        cur.execute("SELECT trial_name, trial_full_name, rds_path FROM trials")
         trialRows = cur.fetchall()
         for trial in trialRows:
-            trials.append(TrialDetails(name=trial[0], fullName=trial[1]))
+            trials.append(TrialDetails(name=trial[0], fullName=trial[1], rdsPath=trial[2]))
         cur.close()
 
         cur = conn.cursor()
@@ -458,10 +460,10 @@ def getSites() -> List[SiteDetails]:
 
 
 def getTrials() -> List[TrialDetails]:
-    rows = _executeQuery("SELECT trial_name, trial_full_name FROM trials")
+    rows = _executeQuery("SELECT trial_name, trial_full_name, rds_path FROM trials")
     trials = []
     for trialRow in rows:
-        trials.append(SiteDetails(name=trialRow[0], fullName=trialRow[1]))
+        trials.append(TrialDetails(name=trialRow[0], fullName=trialRow[1], rdsPath=trialRow[2]))
     return trials
 
 def addSiteTrial(newDetails: Dict[str, str]) -> Tuple[bool, str]:
@@ -537,6 +539,9 @@ def getContentUploaderTrial(trialName:str) ->Dict:
 def addTrialStructure(trialPack:Dict) -> Tuple[bool, str]:
     trialDetail = trialPack["trialDetails"]
     trialStructure = trialPack["fileStructure"]
+    if "trialFullName" not in trialDetail.keys() or not trialDetail["trialFullName"]:
+        trialDetail["trialFullName"] = trialDetail["trialName"]
+    rdsPath = trialDetail.get("rdsPath")
     checkQuery = f"SELECT trial_structure FROM trials WHERE trial_name = \'{trialDetail['trialName']}\'"
     rows = _executeQuery(checkQuery)
     connector = DBConnector(config.AUTH_DB_NAME,
@@ -547,11 +552,23 @@ def addTrialStructure(trialPack:Dict) -> Tuple[bool, str]:
     connector.connect()
     conn = connector.getConnection()
     if len(rows) > 0:
-        updateQuery = f"UPDATE trials SET trial_structure = \'{json.dumps(trialStructure)}\' " \
-                    + f"WHERE trial_name = \'{trialDetail['trialName']}\'"
         try:
             cur = conn.cursor()
-            cur.execute(updateQuery)
+            cur.execute(
+                """
+                UPDATE trials
+                SET trial_full_name = %s,
+                    trial_structure = %s,
+                    rds_path = %s
+                WHERE trial_name = %s
+                """,
+                (
+                    trialDetail["trialFullName"],
+                    psycopg2.extras.Json(trialStructure),
+                    rdsPath,
+                    trialDetail["trialName"],
+                )
+            )
             conn.commit()
             cur.close()
         except (Exception, pg.DatabaseError) as err:
@@ -559,13 +576,20 @@ def addTrialStructure(trialPack:Dict) -> Tuple[bool, str]:
             return False, str(err)
 
     else:
-        if "trialFullName" not in trialDetail.keys():
-            trialDetail["trialFullName"] = trialDetail["trialName"]
-        insertQuery = f"INSERT INTO trials (trial_name, trial_full_name, trial_structure) " \
-                    + f"VALUES (\'{trialDetail['trialName']}\', \'{trialDetail['trialFullName']}\', \'{json.dumps(trialStructure)}\');"
         try:
             cur = conn.cursor()
-            cur.execute(insertQuery)
+            cur.execute(
+                """
+                INSERT INTO trials (trial_name, trial_full_name, trial_structure, rds_path)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (
+                    trialDetail["trialName"],
+                    trialDetail["trialFullName"],
+                    psycopg2.extras.Json(trialStructure),
+                    rdsPath,
+                )
+            )
             conn.commit()
             cur.close()
         except (Exception, pg.DatabaseError) as err:

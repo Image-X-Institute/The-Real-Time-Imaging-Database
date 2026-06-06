@@ -39,11 +39,15 @@ def getTrialStructure(request):
     return make_response({'trialStructure': trialStructure}, 200)
 
   
-  sqlStmt = f"SELECT trial_structure FROM trials WHERE trial_name='{trialName}'"
+  sqlStmt = f"SELECT trial_structure, trial_full_name, rds_path FROM trials WHERE trial_name='{trialName}'"
   result = executeQuery(sqlStmt, authDB=True)
   if not result:
     return make_response({'message': 'Trial structure not found.'}, 404)
-  return make_response({'trialStructure': result[0][0]}, 200)
+  return make_response({
+    'trialStructure': result[0][0],
+    'trialFullName': result[0][1],
+    'rdsPath': result[0][2],
+  }, 200)
 
 
 def getPatientInfoTemplate(request):

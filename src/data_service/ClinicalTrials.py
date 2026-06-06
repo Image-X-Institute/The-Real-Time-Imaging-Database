@@ -9,6 +9,14 @@ from AccessManager import accessManagerInstance, AccessType
 from sys import stderr
 import psycopg2.extras
 import re
+from trial_storage import (
+    build_extended_data,
+    get_field_table,
+    get_trial_fields,
+    is_jsonb_field,
+    jsonb_select_expression,
+    split_values_by_storage,
+)
 
 
 class ClinicalTrials:
@@ -116,10 +124,23 @@ class ClinicalTrials:
         dbRelations = self.apiMapping[endpoint]["db_relations"]
         requiredField = self.apiMapping[endpoint]["required_fields"]
 
+        trialStructure = None
+        jsonbTrialFields = []
+        endpointTrialSection = None
         if 'trial' in requestParams.keys():
             trialStructure = self._getTrialField(requestParams['trial'])
             trialField = list(trialStructure['prescription'].keys()) + list(trialStructure['fraction'].keys())
             trialField = [field.lower() for field in trialField]
+            if endpoint == "prescriptions":
+                endpointTrialSection = "prescription"
+            elif endpoint == "fractions":
+                endpointTrialSection = "fraction"
+            if endpointTrialSection:
+                jsonbTrialFields = get_trial_fields(
+                    trialStructure,
+                    endpointTrialSection,
+                    storage="jsonb"
+                )
         else:
             trialField = None
         if config.VALIDATE_TOKEN:
@@ -130,31 +151,58 @@ class ClinicalTrials:
                                                         AccessType.READ)
         strQuery = "SELECT "
         firstfield = True
+        selectedFieldAliases = set()
+
+        def addSelectExpression(expression):
+            nonlocal strQuery, firstfield
+            if firstfield:
+                firstfield = False
+            else:
+                strQuery += ", "
+            strQuery += expression
+
+        def fieldSelectExpression(fieldMapping):
+            tableName = fieldMapping["field"]["table"]
+            columnName = fieldMapping["field"]["column"]
+            columnKey = columnName.lower()
+            if endpointTrialSection and trialStructure and tableName == endpointTrialSection:
+                if is_jsonb_field(trialStructure, endpointTrialSection, columnKey):
+                    jsonbTableName = get_field_table(
+                        trialStructure,
+                        endpointTrialSection,
+                        columnKey,
+                    )
+                    return jsonb_select_expression(jsonbTableName, columnKey)
+            return tableName + "." + columnName
+
         if requiredField and trialField:
             for field in requiredField:
-                if firstfield:
-                    firstfield = False
-                else:
-                    strQuery += ", "
-                strQuery += field["field"]["table"] + "." \
-                    + field["field"]["column"]
+                addSelectExpression(
+                    field["field"]["table"] + "." + field["field"]["column"]
+                )
+                selectedFieldAliases.add(field["field"]["column"].lower())
 
             for field in objectFields:
                 if field["field"]["column"].lower() in trialField:
-                    if firstfield:
-                        firstfield = False
-                    else:
-                        strQuery += ", "
-                    strQuery += field["field"]["table"] + "." \
-                        + field["field"]["column"]
+                    addSelectExpression(fieldSelectExpression(field))
+                    selectedFieldAliases.add(field["field"]["column"].lower())
+
+            for fieldName in jsonbTrialFields:
+                if fieldName.lower() not in selectedFieldAliases:
+                    jsonbTableName = get_field_table(
+                        trialStructure,
+                        endpointTrialSection,
+                        fieldName,
+                    )
+                    addSelectExpression(
+                        jsonb_select_expression(jsonbTableName, fieldName)
+                    )
+                    selectedFieldAliases.add(fieldName.lower())
         else:
             for fieldMapping in objectFields:
-                if firstfield:
-                    firstfield = False
-                else:
-                    strQuery += ", "
-                strQuery += fieldMapping["field"]["table"] + "." \
-                            + fieldMapping["field"]["column"]
+                addSelectExpression(
+                    fieldMapping["field"]["table"] + "." + fieldMapping["field"]["column"]
+                )
 
         strQuery += " FROM " + dbRelations[0]["table"]
 
@@ -234,7 +282,7 @@ class ClinicalTrials:
                     for key in list(item.keys()):
                         if type(item[key]) == dt.datetime:
                             item[key] = item[key].isoformat()
-                        if key in trialField or key in [field["property"] for field in requiredField]:
+                        if key.lower() in trialField or key in [field["property"] for field in requiredField]:
                             data[key] = item[key]
                     queriedData[endpoint].append(data)
             else:
@@ -265,29 +313,41 @@ class ClinicalTrials:
 
     def _insertRows(self, params:Dict, reference:Dict) -> Tuple[bool, str]:
         patientUUID = ''
+        trialStructure = None
+        if "patient" in params and "clinical_trial" in params["patient"]:
+            try:
+                trialStructure = self._getTrialField(params["patient"]["clinical_trial"])
+            except Exception as error:
+                print("Unable to load trial structure:", error, file=stderr)
+
         for tableName in reference.keys():
+            tableParams = dict(params[tableName])
+            tableReference = dict(reference[tableName])
             if tableName == "prescription":
-                params["prescription"]["patient_id"] = patientUUID
-                reference["prescription"]["patient_id"] = {"type": "str"}
-            insertStmt = f"INSERT INTO {tableName} ("
-            insertValues = " VALUES ("
-            counter = -1
-            for fieldName in params[tableName]:
-                counter += 1
-                seperator = '' if counter == 0 else ','
-                encapsulator = "\'" \
-                    if reference[tableName][fieldName]["type"] == "str" else ""
-                insertStmt += f"{seperator} {fieldName}"
-                insertValues += f"{seperator} " \
-                            + f"{encapsulator}{params[tableName][fieldName]}{encapsulator}"
-            insertValues += ")"
-            insertStmt += f") {insertValues}"
+                tableParams["patient_id"] = patientUUID
+                tableReference["patient_id"] = {"type": "str"}
+                if trialStructure:
+                    columnValues, jsonbValues = split_values_by_storage(
+                        tableParams,
+                        trialStructure,
+                        "prescription",
+                    )
+                    tableParams = columnValues
+                    if jsonbValues:
+                        tableParams["extended_data"] = psycopg2.extras.Json(
+                            build_extended_data(jsonbValues)
+                        )
+                        tableReference["extended_data"] = {"type": "jsonb"}
+
+            columns = list(tableParams.keys())
+            placeholders = ", ".join(["%s"] * len(columns))
+            insertStmt = f"INSERT INTO {tableName} ({', '.join(columns)}) VALUES ({placeholders})"
             if config.APP_DEBUG_MODE:
                 print(insertStmt)
             
             try:
                 cur = self.connector.getConnection().cursor()
-                cur.execute(insertStmt)
+                cur.execute(insertStmt, [tableParams[fieldName] for fieldName in columns])
                 if config.APP_DEBUG_MODE:
                     print("Cursor Description after insert:", cur.description)
                 self.connector.getConnection().commit()

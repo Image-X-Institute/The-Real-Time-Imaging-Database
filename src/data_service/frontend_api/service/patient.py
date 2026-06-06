@@ -1,8 +1,33 @@
 from flask import make_response
 from .util import executeQuery
+from dbconnector import DBConnector
+import config
 import sys
 import csv
 import io
+import psycopg2 as pg
+import psycopg2.extras
+from trial_storage import get_stored_field_value, set_jsonb_fields, split_values_by_storage
+
+def _connectToImagingDb():
+  connector = DBConnector(config.DB_NAME,
+                          config.DB_USER,
+                          config.DB_PASSWORD,
+                          config.DB_HOST,
+                          config.DB_PORT)
+  connector.connect()
+  conn = connector.getConnection()
+  if conn is None:
+    raise RuntimeError("Could not connect to imaging database.")
+  return connector, conn
+
+def _getTrialPrescriptionStructure(trialName):
+  if not trialName:
+    return {}
+  rows = executeQuery(f"SELECT trial_structure FROM trials WHERE trial_name='{trialName}'", authDB=True)
+  if not rows:
+    return {}
+  return rows[0][0].get("prescription", {})
 
 def getPatientIdList(req):
   trialName = req.args.get("trialName")
@@ -18,14 +43,22 @@ def getPatientIdList(req):
 def getPatientInfo(req):
   try:
     patientId = req.args.get("patientId")
-    sqlStmt = f"SELECT * FROM patient, prescription WHERE patient_trial_id='{patientId}' AND patient.id = prescription.patient_id"
+    sqlStmt = f"SELECT patient.*, prescription.*, prescription.extended_data AS prescription_extended_data FROM patient, prescription WHERE patient_trial_id='{patientId}' AND patient.id = prescription.patient_id"
     fetchedRows = executeQuery(sqlStmt, withDictCursor=True)[0]
     trial = fetchedRows["clinical_trial"]
     sqlStmt2 = f"SELECT trial_structure FROM trials WHERE trial_name='{trial}'"
     fetchedRows2 = executeQuery(sqlStmt2, authDB=True)
     trialStructure = fetchedRows2[0][0]['prescription']
     requiredFields = list(trialStructure.keys()) + ["age", "avg_treatment_time", "centre_patient_no", "clinical_diag", "clinical_trial", "gender", "linac_type","number_of_markers", "patient_note", "patient_trial_id", "tumour_site", "test_centre"]
-    fetchedRows = {key: fetchedRows[key] for key in requiredFields}
+    fetchedRows = {
+      key: get_stored_field_value(
+        fetchedRows,
+        {"prescription": trialStructure},
+        "prescription",
+        key,
+      ) if key in trialStructure else fetchedRows.get(key)
+      for key in requiredFields
+    }
     if fetchedRows is None:
       return make_response("No patient found", 400)
     rsp = make_response(fetchedRows)
@@ -41,20 +74,70 @@ def updatePatientInfo(req):
   patientTableFields = ["age", "gender", "clinical_diag", "tumour_site", "patient_trial_id", "clinical_trial","test_centre", "centre_patient_no", "number_of_markers", "avg_treatment_time", "kim_accuracy", "patient_note"]
   changeInPatientTable = {key: changes[key] for key in patientTableFields if key in changes}
   changeInPrescriptionTable = {key: changes[key] for key in changes if key not in patientTableFields}
+  connector = None
+  conn = None
   try:
+    connector, conn = _connectToImagingDb()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute(
+      """
+      SELECT patient.clinical_trial, prescription.prescription_id
+      FROM patient
+      LEFT JOIN prescription ON patient.id = prescription.patient_id
+      WHERE patient.patient_trial_id = %s
+      """,
+      (patientId,),
+    )
+    row = cur.fetchone()
+    if not row:
+      cur.close()
+      conn.close()
+      connector.connection = None
+      return make_response({"message": "Failed to update patient info"}, 400)
+
     if changeInPatientTable:
-      columnString = ', '.join([f"{key}='{changeInPatientTable[key]}'" for key in changeInPatientTable])
-      patientUpdateStmt = f"UPDATE patient SET {columnString} WHERE patient_trial_id='{patientId}';"
-      executeQuery(patientUpdateStmt)
+      columnString = ', '.join([f"{key}=%s" for key in changeInPatientTable])
+      cur.execute(
+        f"UPDATE patient SET {columnString} WHERE patient_trial_id=%s",
+        list(changeInPatientTable.values()) + [patientId],
+      )
 
     if changeInPrescriptionTable:
-      columnString = ', '.join([f"{key}='{changeInPrescriptionTable[key]}'" for key in changeInPrescriptionTable])
-      prescriptionUpdateStmt = f"UPDATE prescription SET {columnString} WHERE patient_id=(SELECT id FROM patient WHERE patient_trial_id='{patientId}');"
-      executeQuery(prescriptionUpdateStmt)
+      trialStructure = _getTrialPrescriptionStructure(row["clinical_trial"])
+      columnFields, jsonbFields = split_values_by_storage(
+        changeInPrescriptionTable,
+        {"prescription": trialStructure},
+        "prescription",
+      )
+      if columnFields:
+        columnString = ', '.join([f"{key}=%s" for key in columnFields])
+        cur.execute(
+          f"UPDATE prescription SET {columnString} WHERE prescription_id=%s",
+          list(columnFields.values()) + [row["prescription_id"]],
+        )
+      set_jsonb_fields(
+        cur,
+        "prescription",
+        "prescription_id",
+        row["prescription_id"],
+        jsonbFields,
+      )
 
+    conn.commit()
+    cur.close()
+    conn.close()
+    connector.connection = None
     return make_response({"message": "Patient info updated successfully"}, 200)
-  except Exception as err:
+  except (Exception, pg.DatabaseError) as err:
     print(err, file=sys.stderr)
+    try:
+      if conn:
+        conn.rollback()
+        conn.close()
+      if connector:
+        connector.connection = None
+    except:
+      pass
     return make_response({"message": "Failed to update patient info"}, 400)
   
 def getPatientTrialStats(req):

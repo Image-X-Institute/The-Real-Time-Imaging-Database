@@ -9,6 +9,14 @@ import io
 import datetime as dt
 import psycopg2 as pg
 import psycopg2.extras
+from trial_storage import (
+  build_extended_data,
+  get_stored_field_value,
+  get_trial_fields,
+  jsonb_insert_value,
+  set_jsonb_fields,
+  split_values_by_storage,
+)
 
 prescriptionBaseCsvHeaders = [
   "patient_trial_id(*)",
@@ -155,23 +163,30 @@ def _valuesAreDifferent(dbValue, csvValue):
     return abs(dbValue - csvValue) > 1e-9
   return dbValue != csvValue
 
-def _getTrialPrescriptionFields(trialName):
+def _getTrialPrescriptionStructure(trialName):
   if not trialName:
-    return []
+    return {}
 
   try:
     rows = executeQuery(f"SELECT trial_structure FROM trials WHERE trial_name='{trialName}'", authDB=True)
     if not rows:
-      return []
-    prescriptionStructure = rows[0][0].get("prescription", {})
-    return [field for field in prescriptionStructure.keys() if field in prescriptionTableColumns]
+      return {}
+    return rows[0][0].get("prescription", {})
   except Exception as err:
     print(err, file=sys.stderr)
-    return []
+    return {}
 
-def _readPrescriptionCsv(reader, clearEmptyFields=False):
+def _getTrialPrescriptionFields(trialName, storage=None):
+  return get_trial_fields(
+    {"prescription": _getTrialPrescriptionStructure(trialName)},
+    "prescription",
+    storage=storage,
+  )
+
+def _readPrescriptionCsv(reader, trialPrescriptionFields=None, clearEmptyFields=False):
   records = {}
   skippedRows = []
+  trialPrescriptionFields = trialPrescriptionFields or []
 
   if not reader.fieldnames:
     raise ValueError("CSV file is empty or missing a header row.")
@@ -209,7 +224,11 @@ def _readPrescriptionCsv(reader, clearEmptyFields=False):
           continue
         patientValues[dbColumn] = _normaliseCsvValue(dbColumn, row[csvColumn])
 
-      for csvColumn, dbColumn in prescriptionCsvFieldDict.items():
+      dynamicPrescriptionFieldDict = dict(prescriptionCsvFieldDict)
+      for fieldName in trialPrescriptionFields:
+        dynamicPrescriptionFieldDict[fieldName] = fieldName
+
+      for csvColumn, dbColumn in dynamicPrescriptionFieldDict.items():
         if csvColumn not in row:
           continue
         if row[csvColumn] is None or row[csvColumn].strip() == "":
@@ -245,12 +264,20 @@ def _readPrescriptionCsv(reader, clearEmptyFields=False):
 
   return records, skippedRows
 
-def _loadPrescriptionCsvContent(csvContent, clearEmptyFields=False):
-  return _readPrescriptionCsv(csv.DictReader(io.StringIO(csvContent)), clearEmptyFields)
+def _loadPrescriptionCsvContent(csvContent, trialPrescriptionFields=None, clearEmptyFields=False):
+  return _readPrescriptionCsv(
+    csv.DictReader(io.StringIO(csvContent)),
+    trialPrescriptionFields,
+    clearEmptyFields,
+  )
 
-def _loadPrescriptionCsv(filePath, clearEmptyFields=False):
+def _loadPrescriptionCsv(filePath, trialPrescriptionFields=None, clearEmptyFields=False):
   with open(filePath, newline='', encoding='utf-8-sig') as csvFile:
-    return _readPrescriptionCsv(csv.DictReader(csvFile), clearEmptyFields)
+    return _readPrescriptionCsv(
+      csv.DictReader(csvFile),
+      trialPrescriptionFields,
+      clearEmptyFields,
+    )
 
 def _fetchExistingPrescriptionRows(cur, trialName, siteName=None, patientId=None, patientIds=None):
   query = """
@@ -284,7 +311,8 @@ def _fetchExistingPrescriptionRows(cur, trialName, siteName=None, patientId=None
       prescription.marker_offsets,
       prescription.cardiac_ct,
       prescription.fused_ct,
-      prescription.test1
+      prescription.test1,
+      prescription.extended_data AS prescription_extended_data
     FROM patient
     LEFT JOIN prescription ON patient.id = prescription.patient_id
     WHERE patient.clinical_trial = %s
@@ -308,7 +336,7 @@ def _fetchExistingPrescriptionRows(cur, trialName, siteName=None, patientId=None
   cur.execute(query, params)
   return {row["patient_trial_id"]: row for row in cur.fetchall()}
 
-def _insertPatientAndPrescription(cur, patientValues, prescriptionValues):
+def _insertPatientAndPrescription(cur, patientValues, prescriptionValues, trialStructure):
   patientColumns = list(patientValues.keys())
   patientPlaceholders = ', '.join(['%s'] * len(patientColumns))
   cur.execute(
@@ -317,24 +345,40 @@ def _insertPatientAndPrescription(cur, patientValues, prescriptionValues):
   )
   patientUuid = cur.fetchone()["id"]
 
-  prescriptionValues = dict(prescriptionValues)
-  prescriptionValues["patient_id"] = patientUuid
-  prescriptionColumns = list(prescriptionValues.keys())
+  prescriptionColumnValues, prescriptionJsonbValues = split_values_by_storage(
+    dict(prescriptionValues),
+    {"prescription": trialStructure},
+    "prescription",
+  )
+  prescriptionColumnValues["patient_id"] = patientUuid
+  if prescriptionJsonbValues:
+    prescriptionColumnValues["extended_data"] = jsonb_insert_value(
+      build_extended_data(prescriptionJsonbValues)
+    )
+  prescriptionColumns = list(prescriptionColumnValues.keys())
   prescriptionPlaceholders = ', '.join(['%s'] * len(prescriptionColumns))
   cur.execute(
     f"INSERT INTO prescription ({', '.join(prescriptionColumns)}) VALUES ({prescriptionPlaceholders}) RETURNING prescription_id",
-    [prescriptionValues[column] for column in prescriptionColumns]
+    [prescriptionColumnValues[column] for column in prescriptionColumns]
   )
   return patientUuid
 
-def _insertPrescription(cur, patientUuid, prescriptionValues):
-  prescriptionValues = dict(prescriptionValues)
-  prescriptionValues["patient_id"] = patientUuid
-  prescriptionColumns = list(prescriptionValues.keys())
+def _insertPrescription(cur, patientUuid, prescriptionValues, trialStructure):
+  prescriptionColumnValues, prescriptionJsonbValues = split_values_by_storage(
+    dict(prescriptionValues),
+    {"prescription": trialStructure},
+    "prescription",
+  )
+  prescriptionColumnValues["patient_id"] = patientUuid
+  if prescriptionJsonbValues:
+    prescriptionColumnValues["extended_data"] = jsonb_insert_value(
+      build_extended_data(prescriptionJsonbValues)
+    )
+  prescriptionColumns = list(prescriptionColumnValues.keys())
   prescriptionPlaceholders = ', '.join(['%s'] * len(prescriptionColumns))
   cur.execute(
     f"INSERT INTO prescription ({', '.join(prescriptionColumns)}) VALUES ({prescriptionPlaceholders}) RETURNING prescription_id",
-    [prescriptionValues[column] for column in prescriptionColumns]
+    [prescriptionColumnValues[column] for column in prescriptionColumns]
   )
   return cur.fetchone()["prescription_id"]
 
@@ -344,6 +388,17 @@ def _updateTable(cur, tableName, idColumn, idValue, changedFields):
   setClause = ', '.join([f"{column} = %s" for column in changedFields.keys()])
   params = list(changedFields.values()) + [idValue]
   cur.execute(f"UPDATE {tableName} SET {setClause} WHERE {idColumn} = %s", params)
+
+def _updatePrescription(cur, prescriptionId, changedFields, trialStructure):
+  if not changedFields:
+    return
+  columnFields, jsonbFields = split_values_by_storage(
+    changedFields,
+    {"prescription": trialStructure},
+    "prescription",
+  )
+  _updateTable(cur, "prescription", "prescription_id", prescriptionId, columnFields)
+  set_jsonb_fields(cur, "prescription", "prescription_id", prescriptionId, jsonbFields)
 
 def _deletePatientsWithRelations(cur, patientUuids):
   if not patientUuids:
@@ -377,7 +432,11 @@ def exportPrescriptionCsv(req):
   connector = None
   conn = None
   try:
-    extraPrescriptionFields = _getTrialPrescriptionFields(trialName)
+    trialStructure = _getTrialPrescriptionStructure(trialName)
+    extraPrescriptionFields = get_trial_fields(
+      {"prescription": trialStructure},
+      "prescription",
+    )
     headers = prescriptionBaseCsvHeaders + [
       field for field in extraPrescriptionFields if field not in ["linac_type"]
     ]
@@ -404,7 +463,17 @@ def exportPrescriptionCsv(req):
         _formatCsvOutputValue(row["linac_type"]),
         _formatCsvOutputValue(row["number_of_markers"]),
         _formatCsvOutputValue(row["patient_note"]),
-        *[_formatCsvOutputValue(row[field]) for field in headers[len(prescriptionBaseCsvHeaders):]]
+        *[
+          _formatCsvOutputValue(
+            get_stored_field_value(
+              row,
+              {"prescription": trialStructure},
+              "prescription",
+              field,
+            )
+          )
+          for field in headers[len(prescriptionBaseCsvHeaders):]
+        ]
       ])
 
     rowCount = len(rows)
@@ -452,10 +521,23 @@ def syncPrescriptionCsv(req):
   connector = None
   conn = None
   try:
+    trialStructure = _getTrialPrescriptionStructure(trialName)
+    trialPrescriptionFields = get_trial_fields(
+      {"prescription": trialStructure},
+      "prescription",
+    )
     if csvContent is not None:
-      records, skippedRows = _loadPrescriptionCsvContent(csvContent, clearEmptyFields)
+      records, skippedRows = _loadPrescriptionCsvContent(
+        csvContent,
+        trialPrescriptionFields,
+        clearEmptyFields,
+      )
     else:
-      records, skippedRows = _loadPrescriptionCsv(filePath, clearEmptyFields)
+      records, skippedRows = _loadPrescriptionCsv(
+        filePath,
+        trialPrescriptionFields,
+        clearEmptyFields,
+      )
 
     connector, conn = _connectToImagingDb()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -493,7 +575,7 @@ def syncPrescriptionCsv(req):
       existingRow = existingRows.get(recordPatientId)
       if existingRow is None:
         if not dryRun:
-          _insertPatientAndPrescription(cur, patientValues, prescriptionValues)
+          _insertPatientAndPrescription(cur, patientValues, prescriptionValues, trialStructure)
         inserted.append({
           "patientId": recordPatientId,
           "patientFields": sorted(patientValues.keys()),
@@ -510,16 +592,22 @@ def syncPrescriptionCsv(req):
 
       changedPrescriptionFields = {}
       for column, csvValue in prescriptionValues.items():
-        if _valuesAreDifferent(existingRow[column], csvValue):
+        existingValue = get_stored_field_value(
+          existingRow,
+          {"prescription": trialStructure},
+          "prescription",
+          column,
+        )
+        if _valuesAreDifferent(existingValue, csvValue):
           changedPrescriptionFields[column] = csvValue
 
       if changedPatientFields or changedPrescriptionFields:
         if not dryRun:
           _updateTable(cur, "patient", "id", existingRow["id"], changedPatientFields)
           if existingRow["prescription_id"]:
-            _updateTable(cur, "prescription", "prescription_id", existingRow["prescription_id"], changedPrescriptionFields)
+            _updatePrescription(cur, existingRow["prescription_id"], changedPrescriptionFields, trialStructure)
           else:
-            _insertPrescription(cur, existingRow["id"], prescriptionValues)
+            _insertPrescription(cur, existingRow["id"], prescriptionValues, trialStructure)
         updated.append({
           "patientId": recordPatientId,
           "patientFields": {key: _jsonSafeValue(value) for key, value in changedPatientFields.items()},
@@ -582,7 +670,7 @@ def syncPrescriptionCsv(req):
 def _getMissingPrescriptionFieldCheck(pack):
   try:
     trialName = pack.args.get("trialName")
-    sqlStmt = f"SELECT * FROM patient, prescription WHERE clinical_trial='{trialName}' AND patient.id = prescription.patient_id"
+    sqlStmt = f"SELECT patient.*, prescription.*, prescription.extended_data AS prescription_extended_data FROM patient, prescription WHERE clinical_trial='{trialName}' AND patient.id = prescription.patient_id"
     fetchedRows = executeQuery(sqlStmt, withDictCursor=True)
     sqlStmt2 = f"SELECT trial_structure FROM trials WHERE trial_name='{trialName}'"
     fetchedRows2 = executeQuery(sqlStmt2, authDB=True)
@@ -596,7 +684,19 @@ def _getMissingPrescriptionFieldCheck(pack):
       missedPack['test_centre'] = row['test_centre']
       missedPack['centre_patient_no'] = row['centre_patient_no']
       missedPack['tumour_site'] = row['tumour_site']
-      missedPack['missedFields'] = {key: row[key] for key in requiredFields if row[key] == None or row[key] == "not found" or row[key] == ""}
+      missedPack['missedFields'] = {}
+      for key in requiredFields:
+        if key in trialStructure:
+          value = get_stored_field_value(
+            row,
+            {"prescription": trialStructure},
+            "prescription",
+            key,
+          )
+        else:
+          value = row.get(key)
+        if value == None or value == "not found" or value == "":
+          missedPack['missedFields'][key] = value
       missingFields.append(missedPack)
     return missingFields
   except Exception as err:
@@ -633,7 +733,9 @@ def getUpdatePrescriptionField(req):
       }
       for key in field['missedFields']:
         if key in trialStructure.keys():
-          filePath = trialStructure[key]['path']
+          filePath = trialStructure[key].get('path', '')
+          if not filePath:
+            continue
           formatedPath = filePath.format(clinical_trial=trialName, tumour_site=field['tumour_site'], test_centre=field['test_centre'], centre_patient_no=str(field['centre_patient_no']).zfill(2))
           path = rootPath + formatedPath
           if os.path.exists(path):
@@ -651,14 +753,41 @@ def updatePrescriptionField(req):
   updatePack = req.json
   if updatePack == None:
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
+  connector = None
+  conn = None
   try:
+    connector, conn = _connectToImagingDb()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     for pack in updatePack:
       patientTrialId = pack['patient_trial_id']
       updateFields = pack['updateFields']
-      for key in updateFields.keys():
-        sqlStmt = f"UPDATE prescription SET {key}='{updateFields[key]}' WHERE prescription_id=(SELECT get_prescription_id_for_patient('{patientTrialId}'))"
-        executeQuery(sqlStmt)
+      cur.execute(
+        """
+        SELECT patient.clinical_trial, prescription.prescription_id
+        FROM patient
+        JOIN prescription ON patient.id = prescription.patient_id
+        WHERE patient.patient_trial_id = %s
+        """,
+        (patientTrialId,),
+      )
+      row = cur.fetchone()
+      if not row:
+        continue
+      trialStructure = _getTrialPrescriptionStructure(row["clinical_trial"])
+      _updatePrescription(cur, row["prescription_id"], updateFields, trialStructure)
+    conn.commit()
+    cur.close()
+    conn.close()
+    connector.connection = None
     return make_response({'message': 'Successfully updated prescription fields.'}, 200)
   except Exception as err:
     print(err, file=sys.stderr)
+    try:
+      if conn:
+        conn.rollback()
+        conn.close()
+      if connector:
+        connector.connection = None
+    except:
+      pass
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)

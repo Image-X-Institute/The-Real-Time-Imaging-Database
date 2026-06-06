@@ -10,6 +10,17 @@ import io
 import datetime as dt
 import psycopg2 as pg
 import psycopg2.extras
+from trial_storage import (
+  build_extended_data,
+  get_field_table,
+  get_stored_field_value,
+  get_trial_fields,
+  is_jsonb_field,
+  jsonb_insert_value,
+  set_jsonb_fields,
+  split_values_by_storage,
+  split_values_by_storage_table,
+)
 
 fractionTableItemList = [
     "fraction_number",
@@ -69,18 +80,57 @@ fractionSyncNumericColumns = {
 }
 fractionSyncIntegerColumns = {"fraction_number"}
 
+def _getTrialFractionStructure(trialName):
+  if not trialName:
+    return {}
+  rows = executeQuery(f"SELECT trial_structure FROM trials WHERE trial_name='{trialName}'", authDB=True)
+  if not rows:
+    return {}
+  return rows[0][0].get("fraction", {})
+
+def _getTrialFractionFields(trialName, storage=None):
+  return get_trial_fields(
+    {"fraction": _getTrialFractionStructure(trialName)},
+    "fraction",
+    storage=storage,
+  )
+
+def _getFractionJsonbFieldsByTable(trialStructure):
+  fieldsByTable = {"fraction": [], "images": []}
+  for fieldName in get_trial_fields({"fraction": trialStructure}, "fraction", storage="jsonb"):
+    tableName = get_field_table(
+      {"fraction": trialStructure},
+      "fraction",
+      fieldName,
+      fraction_table_fields=fractionTableItemList,
+    )
+    fieldsByTable.setdefault(tableName, []).append(fieldName)
+  return fieldsByTable
+
 
 def getFractionDetailByPatientId(req):
   patientId = req.args.get("patientId")
   trial = req.args.get("trialName")
-  sqlStmt = f"Select * from patient, prescription, fraction, images where patient.id = prescription.patient_id and prescription.prescription_id=fraction.prescription_id and images.fraction_id=fraction.fraction_id and patient.patient_trial_id='{patientId}'"
+  sqlStmt = f"Select patient.*, prescription.*, fraction.*, images.*, fraction.extended_data AS fraction_extended_data, images.extended_data AS images_extended_data from patient, prescription, fraction, images where patient.id = prescription.patient_id and prescription.prescription_id=fraction.prescription_id and images.fraction_id=fraction.fraction_id and patient.patient_trial_id='{patientId}'"
   result = executeQuery(sqlStmt, withDictCursor=True)
   if result is None:
     return make_response("No fraction found", 400)
 
   trialStructure = executeQuery(f"SELECT trial_structure FROM trials WHERE trial_name='{trial}'", authDB=True)[0][0]['fraction']
   requiredFields = list(trialStructure.keys()) + fractionTableItemList
-  result = [{key: row[key.lower()] for key in requiredFields} for row in result]
+  result = [
+    {
+      key: get_stored_field_value(
+        row,
+        {"fraction": trialStructure},
+        "fraction",
+        key,
+        fraction_table_fields=fractionTableItemList,
+      ) if key in trialStructure else row.get(key.lower())
+      for key in requiredFields
+    }
+    for row in result
+  ]
   fractionPack = {}
   for row in result:
     if row["fraction_number"] not in fractionPack.keys():
@@ -168,10 +218,11 @@ def _connectToImagingDb():
     raise RuntimeError("Could not connect to imaging database.")
   return connector, conn
 
-def _readFractionCsv(reader, clearEmptyFields=False):
+def _readFractionCsv(reader, dynamicFractionFields=None, clearEmptyFields=False):
   csvRecords = {}
   skippedRows = []
   requiredHeaders = ["patientId(*)", "fractionName(*)"]
+  dynamicFractionFields = dynamicFractionFields or []
 
   if not reader.fieldnames:
     raise ValueError("CSV file is empty or missing a header row.")
@@ -206,7 +257,11 @@ def _readFractionCsv(reader, clearEmptyFields=False):
 
     dbValues = {}
     try:
-      for csvColumn, dbColumn in fractionSyncCsvFieldDict.items():
+      dynamicFractionFieldDict = dict(fractionSyncCsvFieldDict)
+      for fieldName in dynamicFractionFields:
+        dynamicFractionFieldDict[fieldName] = fieldName
+
+      for csvColumn, dbColumn in dynamicFractionFieldDict.items():
         if csvColumn not in row:
           continue
         if row[csvColumn] is None or row[csvColumn].strip() == "":
@@ -232,12 +287,20 @@ def _readFractionCsv(reader, clearEmptyFields=False):
 
   return csvRecords, skippedRows
 
-def _loadFractionCsv(filePath, clearEmptyFields=False):
+def _loadFractionCsv(filePath, dynamicFractionFields=None, clearEmptyFields=False):
   with open(filePath, newline='', encoding='utf-8-sig') as csvFile:
-    return _readFractionCsv(csv.DictReader(csvFile), clearEmptyFields)
+    return _readFractionCsv(
+      csv.DictReader(csvFile),
+      dynamicFractionFields,
+      clearEmptyFields,
+    )
 
-def _loadFractionCsvContent(csvContent, clearEmptyFields=False):
-  return _readFractionCsv(csv.DictReader(io.StringIO(csvContent)), clearEmptyFields)
+def _loadFractionCsvContent(csvContent, dynamicFractionFields=None, clearEmptyFields=False):
+  return _readFractionCsv(
+    csv.DictReader(io.StringIO(csvContent)),
+    dynamicFractionFields,
+    clearEmptyFields,
+  )
 
 def _fetchExistingFractions(cur, patientIds, trialName=None):
   if not patientIds:
@@ -248,10 +311,13 @@ def _fetchExistingFractions(cur, patientIds, trialName=None):
     SELECT
       patient.patient_trial_id,
       fraction.fraction_id,
+      fraction.extended_data AS fraction_extended_data,
+      images.extended_data AS images_extended_data,
       {', '.join([f'fraction.{column}' for column in columns])}
     FROM patient
     JOIN prescription ON patient.id = prescription.patient_id
     JOIN fraction ON prescription.prescription_id = fraction.prescription_id
+    LEFT JOIN images ON fraction.fraction_id = images.fraction_id
     WHERE patient.patient_trial_id = ANY(%s)
   """
   params = [patientIds]
@@ -281,24 +347,99 @@ def _fetchPatientPrescriptions(cur, patientIds, trialName=None):
   cur.execute(query, params)
   return {row["patient_trial_id"]: row["prescription_id"] for row in cur.fetchall()}
 
-def _insertFraction(cur, prescriptionId, values):
-  columns = [column for column in values.keys() if column in fractionSyncCsvFieldDict.values()]
+def _insertFraction(cur, prescriptionId, values, trialStructure):
+  columnValues, jsonbValuesByTable = split_values_by_storage_table(
+    values,
+    {"fraction": trialStructure},
+    "fraction",
+    fraction_table_fields=fractionTableItemList,
+  )
+  columns = [
+    column for column in columnValues.keys()
+    if column in fractionSyncCsvFieldDict.values()
+  ]
+  fractionJsonbValues = jsonbValuesByTable.get("fraction", {})
+  imageJsonbValues = jsonbValuesByTable.get("images", {})
+  if fractionJsonbValues:
+    columnValues["extended_data"] = jsonb_insert_value(build_extended_data(fractionJsonbValues))
+    columns.append("extended_data")
   placeholders = ', '.join(['%s'] * len(columns))
   query = f"""
     INSERT INTO fraction (prescription_id, {', '.join(columns)})
     VALUES (%s, {placeholders})
     RETURNING fraction_id
   """
-  params = [prescriptionId] + [values[column] for column in columns]
+  params = [prescriptionId] + [columnValues[column] for column in columns]
   cur.execute(query, params)
   fractionId = cur.fetchone()["fraction_id"]
-  cur.execute("INSERT INTO images (fraction_id) VALUES (%s)", (fractionId,))
+  if imageJsonbValues:
+    cur.execute(
+      "INSERT INTO images (fraction_id, extended_data) VALUES (%s, %s)",
+      (fractionId, jsonb_insert_value(build_extended_data(imageJsonbValues))),
+    )
+  else:
+    cur.execute("INSERT INTO images (fraction_id) VALUES (%s)", (fractionId,))
   return fractionId
 
-def _updateFraction(cur, fractionId, changedFields):
-  setClause = ', '.join([f"{column} = %s" for column in changedFields.keys()])
-  params = list(changedFields.values()) + [fractionId]
-  cur.execute(f"UPDATE fraction SET {setClause} WHERE fraction_id = %s", params)
+def _updateFraction(cur, fractionId, changedFields, trialStructure):
+  columnFields, jsonbValuesByTable = split_values_by_storage_table(
+    changedFields,
+    {"fraction": trialStructure},
+    "fraction",
+    fraction_table_fields=fractionTableItemList,
+  )
+  if columnFields:
+    setClause = ', '.join([f"{column} = %s" for column in columnFields.keys()])
+    params = list(columnFields.values()) + [fractionId]
+    cur.execute(f"UPDATE fraction SET {setClause} WHERE fraction_id = %s", params)
+  set_jsonb_fields(cur, "fraction", "fraction_id", fractionId, jsonbValuesByTable.get("fraction", {}))
+  imageJsonbFields = jsonbValuesByTable.get("images", {})
+  if imageJsonbFields:
+    _ensureImageRow(cur, fractionId)
+    set_jsonb_fields(cur, "images", "fraction_id", fractionId, imageJsonbFields)
+
+def _ensureImageRow(cur, fractionId):
+  cur.execute("SELECT image_id FROM images WHERE fraction_id = %s LIMIT 1", (fractionId,))
+  if cur.fetchone():
+    return
+  cur.execute("INSERT INTO images (fraction_id) VALUES (%s)", (fractionId,))
+
+def _fetchFractionUpdateContext(cur, patientId, fractionName):
+  cur.execute(
+    """
+    SELECT patient.clinical_trial, fraction.fraction_id
+    FROM patient
+    JOIN prescription ON patient.id = prescription.patient_id
+    JOIN fraction ON prescription.prescription_id = fraction.prescription_id
+    WHERE patient.patient_trial_id = %s
+      AND fraction.fraction_name = %s
+    """,
+    (patientId, fractionName),
+  )
+  return cur.fetchone()
+
+def _updateFractionOrImageField(cur, fractionId, trialStructure, key, value):
+  if key in trialStructure and is_jsonb_field(
+    {"fraction": trialStructure},
+    "fraction",
+    key,
+  ):
+    tableName = get_field_table(
+      {"fraction": trialStructure},
+      "fraction",
+      key,
+      fraction_table_fields=fractionTableItemList,
+    )
+    if tableName == "images":
+      _ensureImageRow(cur, fractionId)
+    set_jsonb_fields(cur, tableName, "fraction_id", fractionId, {key: value})
+    return
+
+  if key in fractionTableItemList:
+    cur.execute(f"UPDATE fraction SET {key} = %s WHERE fraction_id = %s", (value, fractionId))
+  else:
+    _ensureImageRow(cur, fractionId)
+    cur.execute(f"UPDATE images SET {key} = %s WHERE fraction_id = %s", (value, fractionId))
 
 def _formatCsvOutputValue(value):
   if value is None:
@@ -318,6 +459,9 @@ def exportFractionCsv(req):
   connector = None
   conn = None
   try:
+    trialStructure = _getTrialFractionStructure(trialName)
+    jsonbFieldsByTable = _getFractionJsonbFieldsByTable(trialStructure)
+    jsonbFractionFields = jsonbFieldsByTable.get("fraction", []) + jsonbFieldsByTable.get("images", [])
     connector, conn = _connectToImagingDb()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -336,10 +480,13 @@ def exportFractionCsv(req):
         fraction.marker_type,
         fraction.imaging_kv,
         fraction.imaging_ma,
-        fraction.imaging_ms
+        fraction.imaging_ms,
+        fraction.extended_data AS fraction_extended_data,
+        images.extended_data AS images_extended_data
       FROM patient
       JOIN prescription ON patient.id = prescription.patient_id
       JOIN fraction ON prescription.prescription_id = fraction.prescription_id
+      LEFT JOIN images ON fraction.fraction_id = images.fraction_id
       WHERE patient.clinical_trial = %s
     """
     params = [trialName]
@@ -358,11 +505,12 @@ def exportFractionCsv(req):
 
     output = io.StringIO()
     writer = csv.writer(output, lineterminator='\n')
-    writer.writerow([
+    headers = [
       "patientId(*)", "fractionNumber(*)", "fractionName(*)", "fractionDate",
       "mvsdd", "kvsdd", "kvPixelSize", "mvPixelSize", "markerLength",
       "markerWidth", "markerType", "imagingKV", "imagingMA", "imagingMS"
-    ])
+    ] + jsonbFractionFields
+    writer.writerow(headers)
     for row in rows:
       writer.writerow([
         _formatCsvOutputValue(row["patient_trial_id"]),
@@ -378,7 +526,19 @@ def exportFractionCsv(req):
         _formatCsvOutputValue(row["marker_type"]),
         _formatCsvOutputValue(row["imaging_kv"]),
         _formatCsvOutputValue(row["imaging_ma"]),
-        _formatCsvOutputValue(row["imaging_ms"])
+        _formatCsvOutputValue(row["imaging_ms"]),
+        *[
+          _formatCsvOutputValue(
+            get_stored_field_value(
+              row,
+              {"fraction": trialStructure},
+              "fraction",
+              field,
+              fraction_table_fields=fractionTableItemList,
+            )
+          )
+          for field in jsonbFractionFields
+        ]
       ])
 
     cur.close()
@@ -420,10 +580,24 @@ def syncFractionCsv(req):
     return make_response({"message": f"CSV file not found: {filePath}"}, 400)
 
   try:
+    trialStructure = _getTrialFractionStructure(trialName)
+    dynamicFractionFields = get_trial_fields(
+      {"fraction": trialStructure},
+      "fraction",
+      storage="jsonb",
+    )
     if csvContent is not None:
-      csvRecords, skippedRows = _loadFractionCsvContent(csvContent, clearEmptyFields)
+      csvRecords, skippedRows = _loadFractionCsvContent(
+        csvContent,
+        dynamicFractionFields,
+        clearEmptyFields,
+      )
     else:
-      csvRecords, skippedRows = _loadFractionCsv(filePath, clearEmptyFields)
+      csvRecords, skippedRows = _loadFractionCsv(
+        filePath,
+        dynamicFractionFields,
+        clearEmptyFields,
+      )
     patientIds = sorted({record["patientId"] for record in csvRecords.values()})
 
     connector, conn = _connectToImagingDb()
@@ -449,7 +623,7 @@ def syncFractionCsv(req):
           continue
 
         if not dryRun:
-          _insertFraction(cur, prescriptionId, csvRecord["values"])
+          _insertFraction(cur, prescriptionId, csvRecord["values"], trialStructure)
         inserted.append({
           "patientId": patientId,
           "fractionName": fractionName,
@@ -459,14 +633,21 @@ def syncFractionCsv(req):
 
       changedFields = {}
       for columnName, csvValue in csvRecord["values"].items():
-        if columnName not in existingRow:
+        if columnName not in existingRow and columnName not in dynamicFractionFields:
           continue
-        if _valuesAreDifferent(existingRow[columnName], csvValue):
+        existingValue = get_stored_field_value(
+          existingRow,
+          {"fraction": trialStructure},
+          "fraction",
+          columnName,
+          fraction_table_fields=fractionTableItemList,
+        )
+        if _valuesAreDifferent(existingValue, csvValue):
           changedFields[columnName] = csvValue
 
       if changedFields:
         if not dryRun:
-          _updateFraction(cur, existingRow["fraction_id"], changedFields)
+          _updateFraction(cur, existingRow["fraction_id"], changedFields, trialStructure)
         updated.append({
           "patientId": patientId,
           "fractionName": fractionName,
@@ -531,18 +712,42 @@ def updateFractionInfo(req):
   patientId = payload["patientId"]
   fractionName = payload["fractionName"]
 
-  for key in payload:
-    if key not in ['patientId', 'fractionName']:
-      try:
-        if key in fractionTableItemList:
-          sqlStmt = f"UPDATE fraction SET {key}='{payload[key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
-          executeQuery(sqlStmt)
-        else:
-          sqlStmt = f"UPDATE images SET {key}='{payload[key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
-          executeQuery(sqlStmt)
-      except Exception as err:
-        print(err, file=sys.stderr)
-        return make_response({"message": "Failed to update patient info"}, 400)
+  connector = None
+  conn = None
+  try:
+    connector, conn = _connectToImagingDb()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    context = _fetchFractionUpdateContext(cur, patientId, fractionName)
+    if not context:
+      cur.close()
+      conn.close()
+      connector.connection = None
+      return make_response({"message": "Failed to update patient info"}, 400)
+    trialStructure = _getTrialFractionStructure(context["clinical_trial"])
+    for key in payload:
+      if key not in ['patientId', 'fractionName']:
+        _updateFractionOrImageField(
+          cur,
+          context["fraction_id"],
+          trialStructure,
+          key,
+          payload[key],
+        )
+    conn.commit()
+    cur.close()
+    conn.close()
+    connector.connection = None
+  except Exception as err:
+    print(err, file=sys.stderr)
+    try:
+      if conn:
+        conn.rollback()
+        conn.close()
+      if connector:
+        connector.connection = None
+    except:
+      pass
+    return make_response({"message": "Failed to update patient info"}, 400)
   
   return make_response({"message": "Fraction info updated successfully"}, 200)
   
@@ -550,27 +755,48 @@ def updateFractionField(req):
   updatePack = req.json
   if updatePack == None:
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
-  for update in updatePack:
-    patientId = update["patient_trial_id"]
-    fractionName = update["fraction_name"]
-    for key in update["updateFields"]:
-      try:
-        if key in fractionTableItemList:
-          sqlStmt = f"UPDATE fraction SET {key}='{update['updateFields'][key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
-          executeQuery(sqlStmt)
-        else:
-          sqlStmt = f"UPDATE images SET {key}='{update['updateFields'][key]}' WHERE fraction_id=(SELECT get_fraction_id_for_patient ('{patientId}', '{fractionName}'));"
-          executeQuery(sqlStmt)
-      except Exception as err:
-        print(err, file=sys.stderr)
-        return make_response({"message": "Failed to update patient info"}, 400)
+  connector = None
+  conn = None
+  try:
+    connector, conn = _connectToImagingDb()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    for update in updatePack:
+      patientId = update["patient_trial_id"]
+      fractionName = update["fraction_name"]
+      context = _fetchFractionUpdateContext(cur, patientId, fractionName)
+      if not context:
+        continue
+      trialStructure = _getTrialFractionStructure(context["clinical_trial"])
+      for key in update["updateFields"]:
+        _updateFractionOrImageField(
+          cur,
+          context["fraction_id"],
+          trialStructure,
+          key,
+          update['updateFields'][key],
+        )
+    conn.commit()
+    cur.close()
+    conn.close()
+    connector.connection = None
+  except Exception as err:
+    print(err, file=sys.stderr)
+    try:
+      if conn:
+        conn.rollback()
+        conn.close()
+      if connector:
+        connector.connection = None
+    except:
+      pass
+    return make_response({"message": "Failed to update patient info"}, 400)
 
   return make_response({"message": "Fraction info updated successfully"}, 200)
   
 def _getMissingFractionFieldCheck(req):
   try:
     trialName = req.args.get("trialName")
-    sqlStmt = f"SELECT * FROM patient, prescription, fraction, images WHERE clinical_trial='{trialName}' AND patient.id = prescription.patient_id AND prescription.prescription_id=fraction.prescription_id and fraction.fraction_id=images.fraction_id"
+    sqlStmt = f"SELECT patient.*, prescription.*, fraction.*, images.*, fraction.extended_data AS fraction_extended_data, images.extended_data AS images_extended_data FROM patient JOIN prescription ON patient.id = prescription.patient_id JOIN fraction ON prescription.prescription_id=fraction.prescription_id LEFT JOIN images ON fraction.fraction_id=images.fraction_id WHERE clinical_trial='{trialName}'"
     fetchedRows = executeQuery(sqlStmt, withDictCursor=True)
     sqlStmt2 = f"SELECT trial_structure FROM trials WHERE trial_name='{trialName}'"
     fetchedRows2 = executeQuery(sqlStmt2, authDB=True)
@@ -586,7 +812,20 @@ def _getMissingFractionFieldCheck(req):
       missedPack['fraction_number'] = row['fraction_number']
       missedPack['fraction_name'] = row['fraction_name']
       missedPack['tumour_site'] = row['tumour_site']
-      missedPack['missedFields'] = {key: row[key.lower()] for key in requiredFields if row[key.lower()] == None or row[key.lower()] == "not found" or row[key.lower()] == ""}
+      missedPack['missedFields'] = {}
+      for key in requiredFields:
+        if key in trialStructure:
+          value = get_stored_field_value(
+            row,
+            {"fraction": trialStructure},
+            "fraction",
+            key,
+            fraction_table_fields=fractionTableItemList,
+          )
+        else:
+          value = row.get(key.lower())
+        if value == None or value == "not found" or value == "":
+          missedPack['missedFields'][key] = value
       missingFields.append(missedPack)
     return missingFields
   except Exception as err:
@@ -712,7 +951,9 @@ def getUpdateFractionField(req):
       }
       for key in field['missedFields']:
         if key in trialStructure.keys():
-          filePath = trialStructure[key]['path']
+          filePath = trialStructure[key].get('path', '')
+          if not filePath:
+            continue
           formatedPath = filePath.format(clinical_trial=trialName, tumour_site=field['tumour_site'], test_centre=field['test_centre'], centre_patient_no=str(field['centre_patient_no']).zfill(2))
           pathWithFraction = formatedPath + f'Fx{field["fraction_number"]}'
           pathWithFractionName = pathWithFraction + '/' + field['fraction_name']
