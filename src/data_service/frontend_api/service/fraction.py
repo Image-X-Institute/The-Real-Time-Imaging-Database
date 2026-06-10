@@ -839,6 +839,7 @@ def getMissingFractionFieldCheck(req):
   return make_response(missingFields)
 
 _FRACTION_PATH_PLACEHOLDER_RE = re.compile(r"\{([^}:]+)(?::[^}]+)?\}")
+_CENTRE_PATIENT_NO_PLACEHOLDER_RE = re.compile(r"\{centre_patient_no(?::[^}]+)?\}")
 
 def _normalizeFractionPath(path):
   if not path:
@@ -852,12 +853,106 @@ def _pathHasFractionPlaceholder(filePath):
   placeholders = _FRACTION_PATH_PLACEHOLDER_RE.findall(filePath)
   return any(name in ("fraction_name", "fraction_number") for name in placeholders)
 
-def _getFractionPathFormatKwargs(field, trialName):
+def _getCentrePatientNoInt(field):
   centrePatientNo = field.get("centre_patient_no")
   if centrePatientNo is not None and str(centrePatientNo).strip() != "":
-    centrePatientNoValue = int(centrePatientNo)
-  else:
-    centrePatientNoValue = 0
+    return int(centrePatientNo)
+  return 0
+
+def _getCentrePatientNoFormatVariants(centrePatientNoValue):
+  variants = [
+    str(centrePatientNoValue),
+    str(centrePatientNoValue).zfill(2),
+    str(centrePatientNoValue).zfill(3),
+  ]
+  seen = set()
+  uniqueVariants = []
+  for variant in variants:
+    if variant not in seen:
+      seen.add(variant)
+      uniqueVariants.append(variant)
+  return uniqueVariants
+
+def _folderMatchesCentrePatientNo(folderName, centrePatientNoValue):
+  if not folderName:
+    return False
+
+  normalizedFolderName = folderName.strip()
+  upperFolderName = normalizedFolderName.upper()
+
+  if upperFolderName.startswith("PAT"):
+    suffix = normalizedFolderName[3:]
+    if suffix.isdigit() and int(suffix) == centrePatientNoValue:
+      return True
+
+  patientPrefixMatch = re.match(r"^Patient\s*(\d+)$", normalizedFolderName, re.IGNORECASE)
+  if patientPrefixMatch and int(patientPrefixMatch.group(1)) == centrePatientNoValue:
+    return True
+
+  patPrefixMatch = re.match(r"^Pat(\d+)$", normalizedFolderName, re.IGNORECASE)
+  if patPrefixMatch and int(patPrefixMatch.group(1)) == centrePatientNoValue:
+    return True
+
+  if normalizedFolderName.isdigit() and int(normalizedFolderName) == centrePatientNoValue:
+    return True
+
+  return False
+
+def _dedupeFractionPaths(paths):
+  seen = set()
+  uniquePaths = []
+  for path in paths:
+    normalizedPath = _normalizeFractionPath(path)
+    if normalizedPath not in seen:
+      seen.add(normalizedPath)
+      uniquePaths.append(normalizedPath)
+  return uniquePaths
+
+def _pathUsesCentrePatientNo(filePath):
+  return "{centre_patient_no" in filePath
+
+def _discoverCentrePatientNoPathCandidates(filePath, kwargs, rootPath, centrePatientNoValue, field):
+  if not rootPath:
+    return []
+
+  centrePatientMatch = _CENTRE_PATIENT_NO_PLACEHOLDER_RE.search(filePath)
+  if not centrePatientMatch:
+    return []
+
+  prefix = filePath[:centrePatientMatch.start()]
+  suffix = filePath[centrePatientMatch.end():]
+  prefixPaths = _resolveFractionPathTemplate(prefix, kwargs, rootPath) if prefix else [""]
+  discoveredPaths = []
+
+  for prefixPath in prefixPaths:
+    normalizedPrefix = _normalizeFractionPath(prefixPath) if prefixPath else ""
+    parentRelativePath = os.path.dirname(normalizedPrefix.rstrip("/"))
+    parentAbsolutePath = rootPath + parentRelativePath if parentRelativePath else rootPath
+
+    if not os.path.isdir(parentAbsolutePath):
+      continue
+
+    for folderName in sorted(os.listdir(parentAbsolutePath)):
+      if folderName.startswith("."):
+        continue
+      if not _folderMatchesCentrePatientNo(folderName, centrePatientNoValue):
+        continue
+
+      patientFolderPath = parentRelativePath.rstrip("/") + "/" + folderName
+      discoveredPaths.extend(
+        _buildFractionPathCandidatesWithKwargs(
+          patientFolderPath + suffix,
+          kwargs,
+          field,
+          rootPath,
+          expandCentrePatientNo=False,
+        )
+      )
+
+  return discoveredPaths
+
+def _getFractionPathFormatKwargs(field, trialName):
+  centrePatientNoValue = _getCentrePatientNoInt(field)
 
   fractionNumber = field.get("fraction_number")
   if fractionNumber is not None and str(fractionNumber).strip() != "":
@@ -952,9 +1047,13 @@ def _buildLegacyFractionPathCandidates(formatedPath, field):
       uniqueCandidates.append(normalizedCandidate)
   return uniqueCandidates
 
-def _buildFractionPathCandidates(filePath, field, trialName, rootPath=None):
-  kwargs = _getFractionPathFormatKwargs(field, trialName)
-
+def _buildFractionPathCandidatesWithKwargs(
+  filePath,
+  kwargs,
+  field,
+  rootPath=None,
+  expandCentrePatientNo=True,
+):
   if not _pathHasFractionPlaceholder(filePath):
     formatedPath = _formatFractionPathTemplate(filePath, kwargs)
     return _buildLegacyFractionPathCandidates(formatedPath, field)
@@ -972,6 +1071,45 @@ def _buildFractionPathCandidates(filePath, field, trialName, rootPath=None):
     return _resolveFractionPathTemplate(filePath, kwargs, rootPath)
 
   return [_normalizeFractionPath(_formatFractionPathTemplate(filePath, kwargs))]
+
+def _buildFractionPathCandidates(filePath, field, trialName, rootPath=None):
+  kwargs = _getFractionPathFormatKwargs(field, trialName)
+  centrePatientNoValue = _getCentrePatientNoInt(field)
+
+  if not _pathUsesCentrePatientNo(filePath):
+    return _buildFractionPathCandidatesWithKwargs(
+      filePath,
+      kwargs,
+      field,
+      rootPath,
+      expandCentrePatientNo=False,
+    )
+
+  candidates = []
+  for centrePatientVariant in _getCentrePatientNoFormatVariants(centrePatientNoValue):
+    variantKwargs = dict(kwargs)
+    variantKwargs["centre_patient_no"] = centrePatientVariant
+    candidates.extend(
+      _buildFractionPathCandidatesWithKwargs(
+        filePath,
+        variantKwargs,
+        field,
+        rootPath,
+        expandCentrePatientNo=False,
+      )
+    )
+
+  candidates.extend(
+    _discoverCentrePatientNoPathCandidates(
+      filePath,
+      kwargs,
+      rootPath,
+      centrePatientNoValue,
+      field,
+    )
+  )
+
+  return _dedupeFractionPaths(candidates)
 
 def _resolveFractionFieldPath(rootPath, filePath, field, trialName, key):
   for candidatePath in _buildFractionPathCandidates(filePath, field, trialName, rootPath):
