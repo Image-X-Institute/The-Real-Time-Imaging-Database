@@ -838,6 +838,150 @@ def getMissingFractionFieldCheck(req):
     return make_response({'message': 'An error occurred while fetching missing fields.'}, 400)
   return make_response(missingFields)
 
+_FRACTION_PATH_PLACEHOLDER_RE = re.compile(r"\{([^}:]+)(?::[^}]+)?\}")
+
+def _normalizeFractionPath(path):
+  if not path:
+    return "/"
+  normalized = path.replace("\\", "/")
+  if not normalized.startswith("/"):
+    normalized = "/" + normalized
+  return normalized
+
+def _pathHasFractionPlaceholder(filePath):
+  placeholders = _FRACTION_PATH_PLACEHOLDER_RE.findall(filePath)
+  return any(name in ("fraction_name", "fraction_number") for name in placeholders)
+
+def _getFractionPathFormatKwargs(field, trialName):
+  centrePatientNo = field.get("centre_patient_no")
+  if centrePatientNo is not None and str(centrePatientNo).strip() != "":
+    centrePatientNoValue = int(centrePatientNo)
+  else:
+    centrePatientNoValue = 0
+
+  fractionNumber = field.get("fraction_number")
+  if fractionNumber is not None and str(fractionNumber).strip() != "":
+    fractionNumberValue = int(fractionNumber)
+  else:
+    fractionNumberValue = 0
+
+  kwargs = {
+    "clinical_trial": trialName,
+    "tumour_site": field.get("tumour_site", ""),
+    "test_centre": field.get("test_centre", ""),
+    "centre_patient_no": str(centrePatientNoValue).zfill(2),
+    "fraction_name": field.get("fraction_name", ""),
+    "fraction_number": fractionNumberValue,
+    "patient_trial_id": field.get("patient_trial_id", ""),
+  }
+
+  for key, value in field.items():
+    if value is None or key in kwargs:
+      continue
+    if isinstance(value, (str, int, float)):
+      kwargs[key] = value
+
+  return kwargs
+
+def _formatFractionPathTemplate(filePath, kwargs):
+  try:
+    return filePath.format(**kwargs)
+  except ValueError:
+    kwargs = dict(kwargs)
+    kwargs["centre_patient_no"] = int(kwargs["centre_patient_no"])
+    return filePath.format(**kwargs)
+
+def _resolveFractionPathTemplate(filePath, kwargs, rootPath=None):
+  match = _FRACTION_PATH_PLACEHOLDER_RE.search(filePath)
+  if not match:
+    return [_normalizeFractionPath(filePath)]
+
+  placeholderName = match.group(1)
+  before = filePath[:match.start()]
+  after = filePath[match.end():]
+
+  if placeholderName in kwargs:
+    resolvedValue = str(kwargs[placeholderName])
+    return _resolveFractionPathTemplate(before + resolvedValue + after, kwargs, rootPath)
+
+  prefixCandidates = _resolveFractionPathTemplate(before, kwargs, rootPath) if before else [""]
+  expandedPaths = []
+  for prefix in prefixCandidates:
+    normalizedPrefix = _normalizeFractionPath(prefix) if prefix else ""
+    if rootPath and normalizedPrefix:
+      absolutePrefix = rootPath + normalizedPrefix
+      if not os.path.isdir(absolutePrefix):
+        continue
+      childNames = sorted(
+        entry for entry in os.listdir(absolutePrefix)
+        if not entry.startswith(".")
+      )
+    elif rootPath:
+      childNames = sorted(
+        entry for entry in os.listdir(rootPath)
+        if not entry.startswith(".")
+      )
+      normalizedPrefix = ""
+    else:
+      continue
+
+    for childName in childNames:
+      childPrefix = normalizedPrefix.rstrip("/") + "/" + childName
+      expandedPaths.extend(
+        _resolveFractionPathTemplate(childPrefix + after, kwargs, rootPath)
+      )
+
+  return expandedPaths
+
+def _buildLegacyFractionPathCandidates(formatedPath, field):
+  fractionName = field.get("fraction_name", "")
+  fractionNumber = field.get("fraction_number")
+  pathWithFraction = formatedPath + f"Fx{fractionNumber}"
+  candidates = [
+    pathWithFraction + "/" + fractionName,
+    formatedPath + fractionName,
+    pathWithFraction,
+    formatedPath,
+  ]
+  seen = set()
+  uniqueCandidates = []
+  for candidate in candidates:
+    normalizedCandidate = _normalizeFractionPath(candidate)
+    if normalizedCandidate not in seen:
+      seen.add(normalizedCandidate)
+      uniqueCandidates.append(normalizedCandidate)
+  return uniqueCandidates
+
+def _buildFractionPathCandidates(filePath, field, trialName, rootPath=None):
+  kwargs = _getFractionPathFormatKwargs(field, trialName)
+
+  if not _pathHasFractionPlaceholder(filePath):
+    formatedPath = _formatFractionPathTemplate(filePath, kwargs)
+    return _buildLegacyFractionPathCandidates(formatedPath, field)
+
+  placeholders = _FRACTION_PATH_PLACEHOLDER_RE.findall(filePath)
+  unknownPlaceholders = [name for name in placeholders if name not in kwargs]
+
+  if not unknownPlaceholders:
+    try:
+      return [_normalizeFractionPath(_formatFractionPathTemplate(filePath, kwargs))]
+    except KeyError:
+      unknownPlaceholders = placeholders
+
+  if unknownPlaceholders:
+    return _resolveFractionPathTemplate(filePath, kwargs, rootPath)
+
+  return [_normalizeFractionPath(_formatFractionPathTemplate(filePath, kwargs))]
+
+def _resolveFractionFieldPath(rootPath, filePath, field, trialName, key):
+  for candidatePath in _buildFractionPathCandidates(filePath, field, trialName, rootPath):
+    if not os.path.exists(rootPath + candidatePath):
+      continue
+    resolvedPath = _checkImageFolderItems(rootPath, candidatePath, key)
+    if resolvedPath:
+      return resolvedPath
+  return None
+
 def _tryToFindImageFolder(rootPath, mainPath, case):
   # For many of the trials, the name of the KV folder could be different, so we need to check all the possible names. 
   # If the folder name is neither KIM-KV nor kV, we can't do anything, but return the path to fraction folder level. 
@@ -954,22 +1098,9 @@ def getUpdateFractionField(req):
           filePath = trialStructure[key].get('path', '')
           if not filePath:
             continue
-          formatedPath = filePath.format(clinical_trial=trialName, tumour_site=field['tumour_site'], test_centre=field['test_centre'], centre_patient_no=str(field['centre_patient_no']).zfill(2))
-          pathWithFraction = formatedPath + f'Fx{field["fraction_number"]}'
-          pathWithFractionName = pathWithFraction + '/' + field['fraction_name']
-          if os.path.exists(rootPath + formatedPath + field['fraction_name']):
-            pathWithFractionName = formatedPath + field['fraction_name']
-
-          # The logic here is to check if the path with fraction name exists, if not, check if the path with fraction exists.
-          if os.path.exists(rootPath + pathWithFractionName):
-            pathWithFractionName = _checkImageFolderItems(rootPath, pathWithFractionName, key)
-            if pathWithFractionName:
-              patientPack['updateFields'][key] = pathWithFractionName
-          # If the path with fraction name does not exist, we will check if the path with fraction exists.
-          elif os.path.exists(rootPath + pathWithFraction):
-            pathWithFraction = _checkImageFolderItems(rootPath, pathWithFraction, key)
-            if pathWithFraction:
-              patientPack['updateFields'][key] = pathWithFraction
+          resolvedPath = _resolveFractionFieldPath(rootPath, filePath, field, trialName, key)
+          if resolvedPath:
+            patientPack['updateFields'][key] = resolvedPath
       if patientPack['updateFields']:
         returnPack.append(patientPack)
     return make_response(returnPack)
@@ -1042,3 +1173,4 @@ def addBulkFraction(req):
     return make_response({"message": "Bulk fraction added successfully", "successList": resultList}, 200)
   else:
     return make_response({"message": "Failed to add any fraction", "failedList": failedList}, 400)
+
