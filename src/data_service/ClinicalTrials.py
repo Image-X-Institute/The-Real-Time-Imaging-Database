@@ -11,6 +11,7 @@ import psycopg2.extras
 import re
 from trial_storage import (
     build_extended_data,
+    get_field_config,
     get_field_table,
     get_trial_fields,
     is_jsonb_field,
@@ -110,6 +111,39 @@ class ClinicalTrials:
         trialStructure = cur.fetchone()
         cur.close()
         return trialStructure[0]
+
+    def _formatLegacyTrialValue(self, trialStructure, section, fieldName, value):
+        if value is None or not trialStructure or not section:
+            return value
+
+        fieldConfig = get_field_config(trialStructure, section, fieldName)
+        if not fieldConfig.get("multiple"):
+            return value
+
+        parsedValue = value
+        if isinstance(value, str):
+            try:
+                parsedValue = json.loads(value)
+            except ValueError:
+                return value
+
+        if isinstance(parsedValue, dict):
+            def naturalSortKey(key):
+                return [
+                    int(part) if part.isdigit() else part.lower()
+                    for part in re.split(r"(\d+)", str(key))
+                ]
+
+            return ";".join(
+                str(parsedValue[key])
+                for key in sorted(parsedValue.keys(), key=naturalSortKey)
+                if parsedValue[key] not in (None, "")
+            )
+
+        if isinstance(parsedValue, list):
+            return ";".join(str(item) for item in parsedValue if item not in (None, ""))
+
+        return value
         
 
     def getEndpointData(self, endpoint:str, 
@@ -165,14 +199,15 @@ class ClinicalTrials:
             tableName = fieldMapping["field"]["table"]
             columnName = fieldMapping["field"]["column"]
             columnKey = columnName.lower()
-            if endpointTrialSection and trialStructure and tableName == endpointTrialSection:
+            if endpointTrialSection and trialStructure:
                 if is_jsonb_field(trialStructure, endpointTrialSection, columnKey):
                     jsonbTableName = get_field_table(
                         trialStructure,
                         endpointTrialSection,
                         columnKey,
                     )
-                    return jsonb_select_expression(jsonbTableName, columnKey)
+                    if tableName in (endpointTrialSection, jsonbTableName):
+                        return jsonb_select_expression(jsonbTableName, columnKey)
             return tableName + "." + columnName
 
         if requiredField and trialField:
@@ -283,7 +318,12 @@ class ClinicalTrials:
                         if type(item[key]) == dt.datetime:
                             item[key] = item[key].isoformat()
                         if key.lower() in trialField or key in [field["property"] for field in requiredField]:
-                            data[key] = item[key]
+                            data[key] = self._formatLegacyTrialValue(
+                                trialStructure,
+                                endpointTrialSection,
+                                key,
+                                item[key],
+                            )
                     queriedData[endpoint].append(data)
             else:
                 for item in fetchedRows:

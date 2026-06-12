@@ -824,7 +824,7 @@ def _getMissingFractionFieldCheck(req):
           )
         else:
           value = row.get(key.lower())
-        if value == None or value == "not found" or value == "":
+        if value == None or value == "not found" or value == "" or value == {}:
           missedPack['missedFields'][key] = value
       missingFields.append(missedPack)
     return missingFields
@@ -1120,6 +1120,56 @@ def _resolveFractionFieldPath(rootPath, filePath, field, trialName, key):
       return resolvedPath
   return None
 
+def _isMultipleCbctField(fieldConfig):
+  if not isinstance(fieldConfig, dict):
+    return False
+  return fieldConfig.get("multiple") == True and fieldConfig.get("branch_variable") == "cbct_branch"
+
+def _extractBranchValueFromPath(filePath, resolvedPath, branchVariable):
+  template = _normalizeFractionPath(filePath)
+  normalizedResolvedPath = _normalizeFractionPath(resolvedPath)
+  patternParts = []
+  position = 0
+
+  for match in _FRACTION_PATH_PLACEHOLDER_RE.finditer(template):
+    patternParts.append(re.escape(template[position:match.start()]))
+    placeholderName = match.group(1)
+    if placeholderName == branchVariable:
+      patternParts.append(r"(?P<branch>[^/]+)")
+    else:
+      patternParts.append(r"[^/]+")
+    position = match.end()
+
+  patternParts.append(re.escape(template[position:]))
+  branchMatch = re.fullmatch("".join(patternParts), normalizedResolvedPath)
+  if branchMatch and "branch" in branchMatch.groupdict():
+    return branchMatch.group("branch")
+
+  for segment in normalizedResolvedPath.split("/"):
+    if re.fullmatch(r"CBCT[^/]*", segment, re.IGNORECASE) and segment.lower() != "cbct":
+      return segment
+
+  return None
+
+def _resolveMultipleFractionFieldPaths(rootPath, filePath, field, trialName, key, fieldConfig):
+  branchVariable = fieldConfig.get("branch_variable", "cbct_branch")
+  resolvedPaths = {}
+
+  for candidatePath in _buildFractionPathCandidates(filePath, field, trialName, rootPath):
+    if not os.path.exists(rootPath + candidatePath):
+      continue
+    resolvedPath = _checkImageFolderItems(rootPath, candidatePath, key)
+    if not resolvedPath:
+      continue
+
+    branchValue = _extractBranchValueFromPath(filePath, resolvedPath, branchVariable)
+    if not branchValue:
+      branchValue = f"match_{len(resolvedPaths) + 1}"
+    if branchValue not in resolvedPaths:
+      resolvedPaths[branchValue] = resolvedPath
+
+  return resolvedPaths
+
 def _tryToFindImageFolder(rootPath, mainPath, case):
   # For many of the trials, the name of the KV folder could be different, so we need to check all the possible names. 
   # If the folder name is neither KIM-KV nor kV, we can't do anything, but return the path to fraction folder level. 
@@ -1233,12 +1283,18 @@ def getUpdateFractionField(req):
       }
       for key in field['missedFields']:
         if key in trialStructure.keys():
-          filePath = trialStructure[key].get('path', '')
+          fieldConfig = trialStructure[key]
+          filePath = fieldConfig.get('path', '')
           if not filePath:
             continue
-          resolvedPath = _resolveFractionFieldPath(rootPath, filePath, field, trialName, key)
-          if resolvedPath:
-            patientPack['updateFields'][key] = resolvedPath
+          if _isMultipleCbctField(fieldConfig):
+            resolvedPaths = _resolveMultipleFractionFieldPaths(rootPath, filePath, field, trialName, key, fieldConfig)
+            if resolvedPaths:
+              patientPack['updateFields'][key] = resolvedPaths
+          else:
+            resolvedPath = _resolveFractionFieldPath(rootPath, filePath, field, trialName, key)
+            if resolvedPath:
+              patientPack['updateFields'][key] = resolvedPath
       if patientPack['updateFields']:
         returnPack.append(patientPack)
     return make_response(returnPack)
