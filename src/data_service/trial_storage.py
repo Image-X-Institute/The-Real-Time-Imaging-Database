@@ -1,5 +1,6 @@
 import datetime as dt
 import json
+import re
 
 import psycopg2.extras
 
@@ -129,6 +130,57 @@ def get_stored_field_value(
         )
         return get_extended_data(row, table_name).get(field_name)
     return row.get(field_name.lower(), row.get(field_name))
+
+
+def format_legacy_trial_value(trial_structure, section, field_name, value):
+    if value is None or not trial_structure or not section:
+        return value
+
+    field_config = get_field_config(trial_structure, section, field_name)
+    if not field_config.get("multiple"):
+        return value
+
+    parsed_value = value
+    if isinstance(value, str):
+        try:
+            parsed_value = json.loads(value)
+        except ValueError:
+            return value
+
+    if isinstance(parsed_value, dict):
+        def natural_sort_key(key):
+            return [
+                int(part) if part.isdigit() else part.lower()
+                for part in re.split(r"(\d+)", str(key))
+            ]
+
+        return ";".join(
+            str(parsed_value[key])
+            for key in sorted(parsed_value.keys(), key=natural_sort_key)
+            if parsed_value[key] not in (None, "")
+        )
+
+    if isinstance(parsed_value, list):
+        return ";".join(str(item) for item in parsed_value if item not in (None, ""))
+
+    return value
+
+
+def get_display_field_value(
+    row,
+    trial_structure,
+    section,
+    field_name,
+    fraction_table_fields=None,
+):
+    value = get_stored_field_value(
+        row,
+        trial_structure,
+        section,
+        field_name,
+        fraction_table_fields=fraction_table_fields,
+    )
+    return format_legacy_trial_value(trial_structure, section, field_name, value)
 
 
 def split_values_by_storage(values, trial_structure, section):

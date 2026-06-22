@@ -11,6 +11,7 @@ import psycopg2.extras
 import re
 from trial_storage import (
     build_extended_data,
+    format_legacy_trial_value,
     get_field_config,
     get_field_table,
     get_trial_fields,
@@ -112,38 +113,25 @@ class ClinicalTrials:
         cur.close()
         return trialStructure[0]
 
+    def _getTrialForPatient(self, patientTrialId):
+        strQuery = "SELECT clinical_trial FROM patient WHERE patient_trial_id = %s LIMIT 1;"
+        cur = self.connector.getConnection().cursor()
+        cur.execute(strQuery, (patientTrialId,))
+        patientTrial = cur.fetchone()
+        cur.close()
+        return patientTrial[0] if patientTrial else None
+
+    def _getEndpointTrialName(self, endpoint, requestParams):
+        if endpoint not in ["prescriptions", "fractions"]:
+            return None
+        if "trial" in requestParams:
+            return requestParams.get("trial")
+        if "patient_trial_id" in requestParams:
+            return self._getTrialForPatient(requestParams.get("patient_trial_id"))
+        return None
+
     def _formatLegacyTrialValue(self, trialStructure, section, fieldName, value):
-        if value is None or not trialStructure or not section:
-            return value
-
-        fieldConfig = get_field_config(trialStructure, section, fieldName)
-        if not fieldConfig.get("multiple"):
-            return value
-
-        parsedValue = value
-        if isinstance(value, str):
-            try:
-                parsedValue = json.loads(value)
-            except ValueError:
-                return value
-
-        if isinstance(parsedValue, dict):
-            def naturalSortKey(key):
-                return [
-                    int(part) if part.isdigit() else part.lower()
-                    for part in re.split(r"(\d+)", str(key))
-                ]
-
-            return ";".join(
-                str(parsedValue[key])
-                for key in sorted(parsedValue.keys(), key=naturalSortKey)
-                if parsedValue[key] not in (None, "")
-            )
-
-        if isinstance(parsedValue, list):
-            return ";".join(str(item) for item in parsedValue if item not in (None, ""))
-
-        return value
+        return format_legacy_trial_value(trialStructure, section, fieldName, value)
         
 
     def getEndpointData(self, endpoint:str, 
@@ -161,8 +149,9 @@ class ClinicalTrials:
         trialStructure = None
         jsonbTrialFields = []
         endpointTrialSection = None
-        if 'trial' in requestParams.keys():
-            trialStructure = self._getTrialField(requestParams['trial'])
+        trialName = self._getEndpointTrialName(endpoint, requestParams)
+        if trialName:
+            trialStructure = self._getTrialField(trialName)
             trialField = list(trialStructure['prescription'].keys()) + list(trialStructure['fraction'].keys())
             trialField = [field.lower() for field in trialField]
             if endpoint == "prescriptions":

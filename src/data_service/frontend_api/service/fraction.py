@@ -12,6 +12,8 @@ import psycopg2 as pg
 import psycopg2.extras
 from trial_storage import (
   build_extended_data,
+  format_legacy_trial_value,
+  get_display_field_value,
   get_field_table,
   get_stored_field_value,
   get_trial_fields,
@@ -120,7 +122,7 @@ def getFractionDetailByPatientId(req):
   requiredFields = list(trialStructure.keys()) + fractionTableItemList
   result = [
     {
-      key: get_stored_field_value(
+      key: get_display_field_value(
         row,
         {"fraction": trialStructure},
         "fraction",
@@ -446,6 +448,8 @@ def _formatCsvOutputValue(value):
     return ""
   if isinstance(value, (dt.date, dt.datetime)):
     return value.isoformat()
+  if isinstance(value, dict):
+    return ";".join(str(item) for item in value.values() if item not in (None, ""))
   return value
 
 def exportFractionCsv(req):
@@ -529,12 +533,17 @@ def exportFractionCsv(req):
         _formatCsvOutputValue(row["imaging_ms"]),
         *[
           _formatCsvOutputValue(
-            get_stored_field_value(
-              row,
+            format_legacy_trial_value(
               {"fraction": trialStructure},
               "fraction",
               field,
-              fraction_table_fields=fractionTableItemList,
+              get_stored_field_value(
+                row,
+                {"fraction": trialStructure},
+                "fraction",
+                field,
+                fraction_table_fields=fractionTableItemList,
+              ),
             )
           )
           for field in jsonbFractionFields
