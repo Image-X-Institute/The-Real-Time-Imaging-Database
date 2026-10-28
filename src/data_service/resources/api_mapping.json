@@ -484,10 +484,7 @@
                 "description": "Search parameters with or condition by using '-or-' keyword, Example: tumour_stie=liver-or-Liver",
                 "example":"",
                 "or_condition": "trial=LARK&tumour_site=liver-or-Liver"
-            },
-            "num_gating_events": {"table": "fraction", "column": "num_gating_events", "description": "The number of gating events that took place during the fraction", "example": "1"},
-            "num_gating_events_min": {"table": "fraction", "column": "num_gating_events", "description": "Strict lower bound for num_gating_events; prefix the value with >.", "example": ">1"},
-            "num_gating_events_max": {"table": "fraction", "column": "num_gating_events", "description": "Strict upper bound for num_gating_events; prefix the value with <.", "example": "<1"}
+            }
         },
         "required_fields":[
             {
@@ -1755,4 +1752,3 @@
         ]
     }
 }
-
