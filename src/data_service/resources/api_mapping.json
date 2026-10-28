@@ -37,7 +37,10 @@
                 "column": "number_of_markers",
                 "description": "Search by the number of markers implanted in the treatment region",
                 "example": "3"
-            }
+            },
+            "age": {"table": "patient", "column": "age", "description": "Age of the patient at the time of the treatment", "example": "65"},
+            "age_min": {"table": "patient", "column": "age", "description": "Strict lower bound for age; prefix the value with >.", "example": ">65"},
+            "age_max": {"table": "patient", "column": "age", "description": "Strict upper bound for age; prefix the value with <.", "example": "<65"}
         },
         "required_fields": [],
         "object_fields": [
@@ -481,7 +484,10 @@
                 "description": "Search parameters with or condition by using '-or-' keyword, Example: tumour_stie=liver-or-Liver",
                 "example":"",
                 "or_condition": "trial=LARK&tumour_site=liver-or-Liver"
-            }
+            },
+            "num_gating_events": {"table": "fraction", "column": "num_gating_events", "description": "The number of gating events that took place during the fraction", "example": "1"},
+            "num_gating_events_min": {"table": "fraction", "column": "num_gating_events", "description": "Strict lower bound for num_gating_events; prefix the value with >.", "example": ">1"},
+            "num_gating_events_max": {"table": "fraction", "column": "num_gating_events", "description": "Strict upper bound for num_gating_events; prefix the value with <.", "example": "<1"}
         },
         "required_fields":[
             {
@@ -1231,7 +1237,43 @@
                 "column": "structure",
                 "description": "Search by the name of the anatomical structure",
                 "example": "CTV"
-            }
+            },
+            "patient_trial_id": {"table": "patient", "column": "patient_trial_id", "description": "The TROG provided patient ID (not the hospital one)", "example": "1501002"},
+            "fraction_name": {"table": "fraction", "column": "fraction_name", "description": "The folder name of the fraction", "example": "Fx01-2"},
+            "dose_level": {"table": "dose", "column": "dose_level", "description": "The level of dose value (fraction or prescription)", "example": "prescription"},
+            "is_tracked": {"table": "dose", "column": "is_tracked", "description": "Specifies if the dose is a result of tracking", "example": "true"},
+            "plan": {"table": "dose", "column": "plan", "description": "The plan name for which the dose value is specified", "example": "Plan Sum Track"},
+            "approved": {"table": "dose", "column": "approved", "description": "Specifies if the dose structure has been approved", "example": "true"},
+            "structure_volume": {"table": "dose", "column": "structure_volume", "description": "The volume of the anatomical/clinical structure in cubic centimeters", "example": "50"},
+            "dose_coverage": {"table": "dose", "column": "dose_coverage", "description": "The percentage coverage of the structure", "example": "95"},
+            "min_dose": {"table": "dose", "column": "min_dose", "description": "The minimum value of dose", "example": "30"},
+            "max_dose": {"table": "dose", "column": "max_dose", "description": "The maximum value of dose", "example": "40"},
+            "mean_dose": {"table": "dose", "column": "mean_dose", "description": "The mean value of dose", "example": "36.5"},
+            "modal_dose": {"table": "dose", "column": "modal_dose", "description": "The modal value of dose", "example": "36.5"},
+            "median_dose": {"table": "dose", "column": "median_dose", "description": "The median value of dose", "example": "36.5"},
+            "std_dev": {"table": "dose", "column": "std_dev", "description": "The standard deviation", "example": "1"},
+            "d95": {"table": "dose", "column": "d95", "description": "The dose corresponding to 95% volume of organ structure being irradiated", "example": "36.5"},
+            "d100": {"table": "dose", "column": "d100", "description": "The dose corresponding to the first instance of the 100% volume of organ structure being irradiated", "example": "34"},
+            "age": {"table": "patient", "column": "age", "description": "Age of the patient at the time of the treatment", "example": "65"},
+            "gender": {"table": "patient", "column": "gender", "description": "Administrative sex of the patient", "example": "M"},
+            "tumour_site": {"table": "patient", "column": "tumour_site", "description": "The organ/region of the tumour being treated", "example": "prostate"},
+            "number_of_markers": {"table": "patient", "column": "number_of_markers", "description": "The number of markers implanted in the treatment region", "example": "3"},
+            "min_dose_min": {"table": "dose", "column": "min_dose", "description": "Strict lower bound for min_dose; prefix the value with >.", "example": ">30"},
+            "min_dose_max": {"table": "dose", "column": "min_dose", "description": "Strict upper bound for min_dose; prefix the value with <.", "example": "<30"},
+            "max_dose_min": {"table": "dose", "column": "max_dose", "description": "Strict lower bound for max_dose; prefix the value with >.", "example": ">40"},
+            "max_dose_max": {"table": "dose", "column": "max_dose", "description": "Strict upper bound for max_dose; prefix the value with <.", "example": "<40"},
+            "mean_dose_min": {"table": "dose", "column": "mean_dose", "description": "Strict lower bound for mean_dose; prefix the value with >.", "example": ">36.5"},
+            "mean_dose_max": {"table": "dose", "column": "mean_dose", "description": "Strict upper bound for mean_dose; prefix the value with <.", "example": "<36.5"},
+            "modal_dose_min": {"table": "dose", "column": "modal_dose", "description": "Strict lower bound for modal_dose; prefix the value with >.", "example": ">36.5"},
+            "modal_dose_max": {"table": "dose", "column": "modal_dose", "description": "Strict upper bound for modal_dose; prefix the value with <.", "example": "<36.5"},
+            "median_dose_min": {"table": "dose", "column": "median_dose", "description": "Strict lower bound for median_dose; prefix the value with >.", "example": ">36.5"},
+            "median_dose_max": {"table": "dose", "column": "median_dose", "description": "Strict upper bound for median_dose; prefix the value with <.", "example": "<36.5"},
+            "d95_min": {"table": "dose", "column": "d95", "description": "Strict lower bound for d95; prefix the value with >.", "example": ">36.5"},
+            "d95_max": {"table": "dose", "column": "d95", "description": "Strict upper bound for d95; prefix the value with <.", "example": "<36.5"},
+            "d100_min": {"table": "dose", "column": "d100", "description": "Strict lower bound for d100; prefix the value with >.", "example": ">34"},
+            "d100_max": {"table": "dose", "column": "d100", "description": "Strict upper bound for d100; prefix the value with <.", "example": "<34"},
+            "age_min": {"table": "patient", "column": "age", "description": "Strict lower bound for age; prefix the value with >.", "example": ">65"},
+            "age_max": {"table": "patient", "column": "age", "description": "Strict upper bound for age; prefix the value with <.", "example": "<65"}
         },
         "required_fields":[],
         "object_fields": [
@@ -1410,7 +1452,12 @@
                     "column": "d100"
                 },
                 "type": "float"
-            }    
+            },
+            {"property": "age", "description": "Age of the patient at the time of the treatment", "field": {"table": "patient", "column": "age"}, "type": "int"},
+            {"property": "gender", "description": "Administrative sex of the patient", "field": {"table": "patient", "column": "gender"}, "type": "str"},
+            {"property": "tumour_site", "description": "The organ/region of the tumour being treated", "field": {"table": "patient", "column": "tumour_site"}, "type": "str"},
+            {"property": "num_markers", "description": "The number of markers implanted in the treatment region", "field": {"table": "patient", "column": "number_of_markers"}, "type": "int"},
+            {"property": "trial", "description": "Name of the clinical trial", "field": {"table": "patient", "column": "clinical_trial"}, "type": "str"}
         ],
         "db_relations": [
             {
@@ -1474,7 +1521,42 @@
                 "column": "structure",
                 "description": "Search by the name of the anatomical structure",
                 "example": "CTV"
-            }
+            },
+            "patient_trial_id": {"table": "patient", "column": "patient_trial_id", "description": "The TROG provided patient ID (not the hospital one)", "example": "1501002"},
+            "dose_level": {"table": "dose", "column": "dose_level", "description": "The level of dose value (fraction or prescription)", "example": "prescription"},
+            "is_tracked": {"table": "dose", "column": "is_tracked", "description": "Specifies if the dose is a result of tracking", "example": "true"},
+            "plan": {"table": "dose", "column": "plan", "description": "The plan name for which the dose value is specified", "example": "Plan Sum Track"},
+            "approved": {"table": "dose", "column": "approved", "description": "Specifies if the dose structure has been approved", "example": "true"},
+            "structure_volume": {"table": "dose", "column": "structure_volume", "description": "The volume of the anatomical/clinical structure in cubic centimeters", "example": "50"},
+            "dose_coverage": {"table": "dose", "column": "dose_coverage", "description": "The percentage coverage of the structure", "example": "95"},
+            "min_dose": {"table": "dose", "column": "min_dose", "description": "The minimum value of dose", "example": "30"},
+            "max_dose": {"table": "dose", "column": "max_dose", "description": "The maximum value of dose", "example": "40"},
+            "mean_dose": {"table": "dose", "column": "mean_dose", "description": "The mean value of dose", "example": "36.5"},
+            "modal_dose": {"table": "dose", "column": "modal_dose", "description": "The modal value of dose", "example": "36.5"},
+            "median_dose": {"table": "dose", "column": "median_dose", "description": "The median value of dose", "example": "36.5"},
+            "std_dev": {"table": "dose", "column": "std_dev", "description": "The standard deviation", "example": "1"},
+            "d95": {"table": "dose", "column": "d95", "description": "The dose corresponding to 95% volume of organ structure being irradiated", "example": "36.5"},
+            "d100": {"table": "dose", "column": "d100", "description": "The dose corresponding to the first instance of the 100% volume of organ structure being irradiated", "example": "34"},
+            "age": {"table": "patient", "column": "age", "description": "Age of the patient at the time of the treatment", "example": "65"},
+            "gender": {"table": "patient", "column": "gender", "description": "Administrative sex of the patient", "example": "M"},
+            "tumour_site": {"table": "patient", "column": "tumour_site", "description": "The organ/region of the tumour being treated", "example": "prostate"},
+            "number_of_markers": {"table": "patient", "column": "number_of_markers", "description": "The number of markers implanted in the treatment region", "example": "3"},
+            "min_dose_min": {"table": "dose", "column": "min_dose", "description": "Strict lower bound for min_dose; prefix the value with >.", "example": ">30"},
+            "min_dose_max": {"table": "dose", "column": "min_dose", "description": "Strict upper bound for min_dose; prefix the value with <.", "example": "<30"},
+            "max_dose_min": {"table": "dose", "column": "max_dose", "description": "Strict lower bound for max_dose; prefix the value with >.", "example": ">40"},
+            "max_dose_max": {"table": "dose", "column": "max_dose", "description": "Strict upper bound for max_dose; prefix the value with <.", "example": "<40"},
+            "mean_dose_min": {"table": "dose", "column": "mean_dose", "description": "Strict lower bound for mean_dose; prefix the value with >.", "example": ">36.5"},
+            "mean_dose_max": {"table": "dose", "column": "mean_dose", "description": "Strict upper bound for mean_dose; prefix the value with <.", "example": "<36.5"},
+            "modal_dose_min": {"table": "dose", "column": "modal_dose", "description": "Strict lower bound for modal_dose; prefix the value with >.", "example": ">36.5"},
+            "modal_dose_max": {"table": "dose", "column": "modal_dose", "description": "Strict upper bound for modal_dose; prefix the value with <.", "example": "<36.5"},
+            "median_dose_min": {"table": "dose", "column": "median_dose", "description": "Strict lower bound for median_dose; prefix the value with >.", "example": ">36.5"},
+            "median_dose_max": {"table": "dose", "column": "median_dose", "description": "Strict upper bound for median_dose; prefix the value with <.", "example": "<36.5"},
+            "d95_min": {"table": "dose", "column": "d95", "description": "Strict lower bound for d95; prefix the value with >.", "example": ">36.5"},
+            "d95_max": {"table": "dose", "column": "d95", "description": "Strict upper bound for d95; prefix the value with <.", "example": "<36.5"},
+            "d100_min": {"table": "dose", "column": "d100", "description": "Strict lower bound for d100; prefix the value with >.", "example": ">34"},
+            "d100_max": {"table": "dose", "column": "d100", "description": "Strict upper bound for d100; prefix the value with <.", "example": "<34"},
+            "age_min": {"table": "patient", "column": "age", "description": "Strict lower bound for age; prefix the value with >.", "example": ">65"},
+            "age_max": {"table": "patient", "column": "age", "description": "Strict upper bound for age; prefix the value with <.", "example": "<65"}
         },
         "required_fields":[],
         "object_fields": [
@@ -1639,7 +1721,12 @@
                     "column": "d100"
                 },
                 "type": "float"
-            }                             
+            },
+            {"property": "age", "description": "Age of the patient at the time of the treatment", "field": {"table": "patient", "column": "age"}, "type": "int"},
+            {"property": "gender", "description": "Administrative sex of the patient", "field": {"table": "patient", "column": "gender"}, "type": "str"},
+            {"property": "tumour_site", "description": "The organ/region of the tumour being treated", "field": {"table": "patient", "column": "tumour_site"}, "type": "str"},
+            {"property": "num_markers", "description": "The number of markers implanted in the treatment region", "field": {"table": "patient", "column": "number_of_markers"}, "type": "int"},
+            {"property": "trial", "description": "Name of the clinical trial", "field": {"table": "patient", "column": "clinical_trial"}, "type": "str"}
         ],
         "db_relations": [
             {
@@ -1668,3 +1755,4 @@
         ]
     }
 }
+
